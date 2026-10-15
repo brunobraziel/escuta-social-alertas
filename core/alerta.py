@@ -65,7 +65,8 @@ def fetch_feed(url, allowed_hosts, hours=48):
 
 def send_discord(webhook, article, site, test=False):
     import time
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
+    webhook = webhook.strip()
     parsed = urlparse(webhook)
     if parsed.scheme != "https" or parsed.hostname != "discord.com" or not parsed.path.startswith("/api/webhooks/"):
         raise ValueError("Webhook Discord inválido")
@@ -77,7 +78,9 @@ def send_discord(webhook, article, site, test=False):
         "footer": {"text": "Correspondência temática; não confirma mudança legislativa."}
     }]}
     # wait=true exige confirmação de criação da mensagem.
-    endpoint = webhook.split("?")[0] + "?wait=true"
+    query = dict(parse_qsl(parsed.query))
+    query["wait"] = "true"
+    endpoint = urlunparse(parsed._replace(query=urlencode(query), fragment=""))
     for attempt in range(3):
         request = urllib.request.Request(endpoint, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json", "User-Agent": "EscutaSocialAlertas/0.1"}, method="POST")
         try:
@@ -87,9 +90,23 @@ def send_discord(webhook, article, site, test=False):
                     raise RuntimeError("Discord não confirmou a mensagem")
                 return
         except urllib.error.HTTPError as error:
+            try:
+                details = json.loads(error.read())
+            except (ValueError, UnicodeDecodeError):
+                details = {}
             if error.code != 429 or attempt == 2:
-                raise RuntimeError(f"Discord retornou HTTP {error.code}") from None
-            retry = json.loads(error.read()).get("retry_after", 2)
+                code = details.get("code")
+                hints = {
+                    50035: "Formato inválido da mensagem ou do destino.",
+                    220001: "Canal de fórum exige thread_id ou thread_name.",
+                    10015: "Webhook inexistente ou removido.",
+                    50027: "Token do webhook inválido.",
+                    50001: "Webhook sem acesso ao destino.",
+                    50013: "Permissões insuficientes.",
+                }
+                hint = hints.get(code, "Verifique o tipo de canal e a configuração do webhook.")
+                raise RuntimeError(f"Discord HTTP {error.code}; código {code if isinstance(code, int) else 'indisponível'}. {hint}") from None
+            retry = details.get("retry_after", 2)
             time.sleep(min(float(retry), 30))
         except urllib.error.URLError:
             raise RuntimeError("Falha de conexão com Discord; entrega pode ser incerta") from None

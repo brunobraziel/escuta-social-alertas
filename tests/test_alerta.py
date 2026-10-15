@@ -41,3 +41,12 @@ class AlertTests(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     main.run()
                 self.assertFalse(Path(state).exists())
+
+    def test_webhook_preserves_thread(self):
+        from core.alerta import send_discord
+        article = {"title": "Teste", "description": "Teste", "url": "https://example.com", "published": "2026-10-15"}
+        with patch("urllib.request.urlopen") as urlopen:
+            urlopen.return_value.__enter__.return_value.read.return_value = b'{"id":"123"}'
+            send_discord("https://discord.com/api/webhooks/123/token?thread_id=456", article, "Teste")
+            self.assertIn("thread_id=456", urlopen.call_args.args[0].full_url)
+            self.assertIn("wait=true", urlopen.call_args.args[0].full_url)
