@@ -30,7 +30,7 @@ def identifier(url):
     return hashlib.sha256(url.encode()).hexdigest()
 
 
-def fetch_feed(url, allowed_hosts, hours=48):
+def fetch_feed(url, allowed_hosts, hours=48, predicate=matches, description_limit=450):
     from urllib.parse import urlparse, urlunparse
     request = urllib.request.Request(url, headers={"User-Agent": "EscutaSocialAlertas/0.1 (RSS reader)", "Accept": "application/rss+xml, application/xml, text/xml"})
     with urllib.request.urlopen(request, timeout=25) as response:
@@ -58,8 +58,8 @@ def fetch_feed(url, allowed_hosts, hours=48):
                 continue
         except (ValueError, TypeError, OverflowError):
             continue
-        if matches(title, description):
-            articles.append({"title": title, "description": description[:450], "url": link, "published": published.isoformat()})
+        if predicate(title, description):
+            articles.append({"title": title, "description": description[:description_limit], "url": link, "published": published.isoformat()})
     return sorted(articles, key=lambda x: x["published"], reverse=True)
 
 
@@ -71,11 +71,11 @@ def send_discord(webhook, article, site, test=False):
     if parsed.scheme != "https" or parsed.hostname != "discord.com" or not parsed.path.startswith("/api/webhooks/"):
         raise ValueError("Webhook Discord inválido")
     payload = {"allowed_mentions": {"parse": []}, "embeds": [{
-        "title": ("[TESTE] " if test else "") + "Escala 6x1 — próximos passos",
+        "title": ("[TESTE] " if test else "") + article.get("alert_title", "Escala 6x1 — próximos passos"),
         "url": article["url"],
-        "description": article["title"][:250] + "\n\n" + article["description"][:450],
+        "description": article.get("message", article["title"][:250] + "\n\n" + article["description"][:450])[:4000],
         "fields": [{"name": "Fonte", "value": site}, {"name": "Publicado em", "value": article["published"]}],
-        "footer": {"text": "Correspondência temática; não confirma mudança legislativa."}
+        "footer": {"text": article.get("footer", "Correspondência temática; não confirma mudança legislativa.")}
     }]}
     # wait=true exige confirmação de criação da mensagem.
     query = dict(parse_qsl(parsed.query))
@@ -95,7 +95,7 @@ def send_discord(webhook, article, site, test=False):
             except (ValueError, UnicodeDecodeError):
                 details = {}
             if details.get("code") == 220001 and attempt < 2 and "thread_name" not in payload:
-                payload["thread_name"] = (("[TESTE] " if test else "") + "Escala 6x1 — " + article["title"])[:100]
+                payload["thread_name"] = (("[TESTE] " if test else "") + article.get("alert_title", "Escala 6x1") + " — " + article["title"])[:100]
                 continue
             if error.code != 429 or attempt == 2:
                 code = details.get("code")

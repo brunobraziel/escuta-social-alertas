@@ -41,3 +41,20 @@ O workflow guarda somente hashes SHA-256 das URLs enviadas na branch pública `a
 Em uma falha entre envio e persistência, ou resposta de rede incerta, pode ocorrer duplicação; não existe garantia de entrega exatamente uma vez. Retentativas automáticas do Discord ocorrem apenas em HTTP 429. Datas inválidas são ignoradas. URLs de matérias precisam pertencer aos hosts configurados.
 
 GitHub pode atrasar agendamentos e desativá-los após 60 dias sem atividade em repositórios públicos. Verifique a saúde do workflow periodicamente; esta versão não inclui monitor externo de inatividade. Logs de dry-run são públicos e contêm metadados públicos das matérias. Não registre segredos ou documentos internos.
+
+## Pesquisas de intenção de voto
+
+Novo escopo: `pesquisas_eleitorais/{g1,cnn}/presidente.py`. Workflow **Pesquisas de intenção de voto**, minutos 12 e 42 de cada hora. Usa o mesmo secret e o mesmo estado; o grupo de concorrência é compartilhado para evitar escrita simultânea.
+
+```sh
+python -m pesquisas_eleitorais.run --dry-run
+python -m pesquisas_eleitorais.run --test
+```
+
+O teste coleta uma notícia real e envia um único tópico identificado como `[TESTE]`, sem marcar a pesquisa como entregue na rotina normal. Não usa números fictícios nem mistura os votos totais com votos válidos.
+
+MVP: presidente, abrangência nacional, segundo turno, votos totais. Varre G1 e CNN nos feeds disponíveis, janela de sete dias; seleciona a notícia elegível de publicação mais recente entre as fontes. **Não garante ser a última pesquisa do país nem a de coleta mais recente**: republicações podem tratar de levantamentos anteriores. A data de publicação é exibida separada do período de coleta. RSS não garante cobertura integral.
+
+A extração exige tabela explícita de votos totais, nomes com partidos, brancos/nulos e indecisos, percentuais somando aproximadamente 100%, instituto, coleta, amostra, margem de erro, confiança e registro BR informado na matéria. Os candidatos são apresentados em ordem alfabética; não há previsão, comparação entre candidatos, variação histórica ou interpretação de vantagem. Artigos de rejeição, aprovação ou recortes não são usados. O primeiro formato suportado é a tabela textual do G1; notícias de outros formatos ficam de fora até haver parser validado.
+
+O registro é transcrito da fonte, sem consulta automática ao PesqEle. Referência metodológica: https://www.tse.jus.br/eleicoes/pesquisas-eleitorais . Deduplicação pelo registro + cargo + abrangência + turno + base de votos, independente da URL do portal.
