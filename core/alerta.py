@@ -1,0 +1,95 @@
+import hashlib
+import html
+import json
+import re
+import unicodedata
+import urllib.request
+import urllib.error
+import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
+
+TOPIC = re.compile(r"\b(?:escala\s+6\s*(?:x|por|[×])\s*1|fim\s+da\s+6\s*x\s*1)\b")
+STEPS = ("promulg", "entra em vigor", "entrada em vigor", "vigencia", "transicao", "publicacao")
+
+
+def clean(value):
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]*>", " ", value or ""))).strip()
+
+
+def normalize(value):
+    return "".join(c for c in unicodedata.normalize("NFD", value.lower()) if unicodedata.category(c) != "Mn")
+
+
+def matches(title, description):
+    text = normalize(title + " " + description)
+    return bool(TOPIC.search(text)) and any(term in text for term in STEPS)
+
+
+def identifier(url):
+    return hashlib.sha256(url.encode()).hexdigest()
+
+
+def fetch_feed(url, allowed_hosts, hours=48):
+    from urllib.parse import urlparse, urlunparse
+    request = urllib.request.Request(url, headers={"User-Agent": "EscutaSocialAlertas/0.1 (RSS reader)", "Accept": "application/rss+xml, application/xml, text/xml"})
+    with urllib.request.urlopen(request, timeout=25) as response:
+        raw = response.read(5_000_001)
+    if len(raw) > 5_000_000:
+        raise ValueError("Feed excede limite de 5 MB")
+    tree = ET.fromstring(raw)
+    now = datetime.now(timezone.utc)
+    articles = []
+    for item in tree.findall(".//item"):
+        title = clean(item.findtext("title"))
+        description = clean(item.findtext("description"))
+        link = (item.findtext("link") or "").strip()
+        parsed = urlparse(link)
+        if parsed.scheme != "https" or parsed.hostname not in allowed_hosts or parsed.username:
+            continue
+        link = urlunparse(parsed._replace(fragment=""))
+        date = item.findtext("pubDate") or ""
+        try:
+            published = parsedate_to_datetime(date)
+            if published.tzinfo is None:
+                published = published.replace(tzinfo=timezone.utc)
+            age = (now - published).total_seconds()
+            if age < -300 or age > hours * 3600:
+                continue
+        except (ValueError, TypeError, OverflowError):
+            continue
+        if matches(title, description):
+            articles.append({"title": title, "description": description[:450], "url": link, "published": published.isoformat()})
+    return sorted(articles, key=lambda x: x["published"], reverse=True)
+
+
+def send_discord(webhook, article, site, test=False):
+    import time
+    from urllib.parse import urlparse
+    parsed = urlparse(webhook)
+    if parsed.scheme != "https" or parsed.hostname != "discord.com" or not parsed.path.startswith("/api/webhooks/"):
+        raise ValueError("Webhook Discord inválido")
+    payload = {"allowed_mentions": {"parse": []}, "embeds": [{
+        "title": ("[TESTE] " if test else "") + "Escala 6x1 — próximos passos",
+        "url": article["url"],
+        "description": article["title"][:250] + "\n\n" + article["description"][:450],
+        "fields": [{"name": "Fonte", "value": site}, {"name": "Publicado em", "value": article["published"]}],
+        "footer": {"text": "Correspondência temática; não confirma mudança legislativa."}
+    }]}
+    # wait=true exige confirmação de criação da mensagem.
+    endpoint = webhook.split("?")[0] + "?wait=true"
+    for attempt in range(3):
+        request = urllib.request.Request(endpoint, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json", "User-Agent": "EscutaSocialAlertas/0.1"}, method="POST")
+        try:
+            with urllib.request.urlopen(request, timeout=25) as response:
+                result = json.load(response)
+                if not result.get("id"):
+                    raise RuntimeError("Discord não confirmou a mensagem")
+                return
+        except urllib.error.HTTPError as error:
+            if error.code != 429 or attempt == 2:
+                raise RuntimeError(f"Discord retornou HTTP {error.code}") from None
+            retry = json.loads(error.read()).get("retry_after", 2)
+            time.sleep(min(float(retry), 30))
+        except urllib.error.URLError:
+            raise RuntimeError("Falha de conexão com Discord; entrega pode ser incerta") from None
