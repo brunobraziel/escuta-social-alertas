@@ -50,3 +50,18 @@ class AlertTests(unittest.TestCase):
             send_discord("https://discord.com/api/webhooks/123/token?thread_id=456", article, "Teste")
             self.assertIn("thread_id=456", urlopen.call_args.args[0].full_url)
             self.assertIn("wait=true", urlopen.call_args.args[0].full_url)
+
+    def test_forum_creates_topic_after_rejection(self):
+        import io
+        import urllib.error
+        from unittest.mock import MagicMock
+        from core.alerta import send_discord
+        article = {"title": "Teste", "description": "Teste", "url": "https://example.com", "published": "2026-10-15"}
+        error = urllib.error.HTTPError("https://discord.com", 400, "Bad Request", {}, io.BytesIO(b'{"code":220001}'))
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = b'{"id":"123"}'
+        with patch("urllib.request.urlopen", side_effect=[error, response]) as urlopen:
+            send_discord("https://discord.com/api/webhooks/123/token", article, "Teste", test=True)
+            self.assertEqual(urlopen.call_count, 2)
+            payload = json.loads(urlopen.call_args.args[0].data)
+            self.assertTrue(payload["thread_name"].startswith("[TESTE]"))

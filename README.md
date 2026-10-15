@@ -29,6 +29,8 @@ Para envio real, forneça `DISCORD_WEBHOOK_URL` pelo ambiente, sem inserir o val
 
 1. No canal do Discord, crie um webhook em Integrações.
 2. No repositório: Settings → Secrets and variables → Actions → New repository secret. Nome: `DISCORD_WEBHOOK_URL`; valor: URL do webhook.
+Em canais de fórum, o envio cria um novo tópico por alerta. Em canais de texto, envia a mensagem diretamente. Um `thread_id` já presente na URL é preservado.
+
 3. Em Actions → Monitorar escala 6x1 → Run workflow, selecione `test` para conferir a mensagem fictícia.
 4. Selecione `live` para notícias reais; `dry-run` apenas registra as correspondências.
 

@@ -94,6 +94,9 @@ def send_discord(webhook, article, site, test=False):
                 details = json.loads(error.read())
             except (ValueError, UnicodeDecodeError):
                 details = {}
+            if details.get("code") == 220001 and attempt < 2 and "thread_name" not in payload:
+                payload["thread_name"] = (("[TESTE] " if test else "") + "Escala 6x1 — " + article["title"])[:100]
+                continue
             if error.code != 429 or attempt == 2:
                 code = details.get("code")
                 hints = {
