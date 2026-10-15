@@ -12,6 +12,7 @@ class AlertTests(unittest.TestCase):
         self.assertTrue(matches("Escala 6 por 1", "Promulgação e transição"))
         self.assertFalse(matches("Escala 6x1", "Veja a votação"))
         self.assertFalse(matches("Bolsa Família", "Calendário de publicação"))
+        self.assertFalse(matches("Nova proposta de tarifa zero", "Em publicação sobre o fim da escala 6x1"))
 
     def test_recent_feed_and_host(self):
         from datetime import datetime, timezone

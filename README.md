@@ -8,7 +8,7 @@ G1 e CNN Brasil: RSS público, sem acesso ao texto completo das matérias. Os fe
 
 O conector UOL está reservado na estrutura, mas desabilitado: a URL candidata não retornou XML válido. BBC, Metrópoles e Brasil Paralelo não estão incluídos nesta primeira versão.
 
-Filtro: variantes de “escala 6x1”, “escala 6 por 1” ou “fim da 6x1”, junto de termos de promulgação, vigência, transição ou publicação. Busca apenas título e descrição; pode deixar matérias relevantes de fora. “Publicação” pode produzir ruído; ajuste após observar resultados. Uma correspondência não confirma mudança legislativa.
+Filtro: variantes de “escala 6x1”, “escala 6 por 1” ou “fim da 6x1”, junto de termos de promulgação, vigência, transição ou publicação. Exige o tema no título para evitar menções incidentais; busca os termos de próximos passos no título e na descrição; pode deixar matérias relevantes de fora. “Publicação” pode produzir ruído; ajuste após observar resultados. Uma correspondência não confirma mudança legislativa.
 
 Matérias com data válida nas últimas 48 horas; até três envios por execução. RSS é uma janela limitada e não garante recuperação de todas as matérias das últimas 48 horas. Ausência de correspondências é uma execução válida; falha de coleta produz erro, distinguindo as duas situações.
 

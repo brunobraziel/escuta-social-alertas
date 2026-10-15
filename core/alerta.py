@@ -23,7 +23,7 @@ def normalize(value):
 
 def matches(title, description):
     text = normalize(title + " " + description)
-    return bool(TOPIC.search(text)) and any(term in text for term in STEPS)
+    return bool(TOPIC.search(normalize(title))) and any(term in text for term in STEPS)
 
 
 def identifier(url):
