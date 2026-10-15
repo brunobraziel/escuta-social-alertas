@@ -1,0 +1,16 @@
+{
+  "alertas": [
+    {
+      "id": "escala_6x1",
+      "modulo": "acompanhamento_legislativo.run",
+      "ativo": true,
+      "descricao": "Notícias sobre próximos passos da escala 6x1"
+    },
+    {
+      "id": "pesquisa_presidente",
+      "modulo": "pesquisas_eleitorais.run",
+      "ativo": true,
+      "descricao": "Percentuais de pesquisas presidenciais: Brasil, segundo turno, votos totais"
+    }
+  ]
+}

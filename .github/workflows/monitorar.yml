@@ -1,4 +1,4 @@
-name: Monitorar escala 6x1
+name: Executar alertas
 on:
   schedule:
     - cron: '7,37 * * * *'
@@ -9,10 +9,14 @@ on:
         type: choice
         options: [dry-run, live, test]
         default: dry-run
+      alert:
+        description: ID do alerta (consulte alertas.json); all executa todos os ativos
+        type: string
+        default: all
 permissions:
   contents: write
 concurrency:
-  group: escala-6x1
+  group: alertas
   cancel-in-progress: false
 jobs:
   monitorar:
@@ -28,6 +32,7 @@ jobs:
       - name: Testes
         run: python -m unittest discover -s tests -v
       - name: Restaurar estado
+        id: state
         run: |
           state_ref=$(git ls-remote --heads origin alert-state)
           if [ -n "$state_ref" ]; then
@@ -36,25 +41,19 @@ jobs:
           else
             echo '{"sent": []}' > state.json
           fi
-      - name: Executar
+      - name: Executar catálogo de alertas
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           MODE: ${{ inputs.mode || 'live' }}
+          ALERT: ${{ inputs.alert || 'all' }}
         run: |
-          case "$MODE" in
-            dry-run) python main.py --dry-run ;;
-            test) python main.py --test ;;
-            live)
-              if [ -z "$DISCORD_WEBHOOK_URL" ]; then
-                echo '::warning::Configure DISCORD_WEBHOOK_URL para ativar os envios; executando dry-run.'
-                python main.py --dry-run
-              else
-                python main.py
-              fi
-              ;;
-          esac
+          if [ "$MODE" = live ] && [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo '::warning::Configure DISCORD_WEBHOOK_URL; executando dry-run.'
+            MODE=dry-run
+          fi
+          python main.py --alert "$ALERT" --mode "$MODE"
       - name: Salvar entregas confirmadas
-        if: always() && (inputs.mode == 'live' || github.event_name == 'schedule')
+        if: always() && steps.state.outcome == 'success' && (inputs.mode == 'live' || github.event_name == 'schedule')
         run: |
           test -f state.json || exit 0
           origin_url=$(git remote get-url origin)

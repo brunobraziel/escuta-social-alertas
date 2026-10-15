@@ -1,0 +1,14 @@
+# Workflow genérico
+
+`monitorar.yml` → **Executar alertas**.
+
+1. Prepara Python 3.12 e executa testes sem rede.
+2. Restaura `state.json` da branch `alert-state` (ou inicializa estado vazio).
+3. Chama `python main.py --alert "$ALERT" --mode "$MODE"`.
+4. Em execução normal, salva entregas confirmadas, mesmo após falhas posteriores.
+
+`mode`: `dry-run`, `live` ou `test`. `alert`: `all` ou um ID ativo de `alertas.json`. Testes exigem um único ID. Agendamentos usam `live` + `all`; sem secret, usam simulação.
+
+Frequência única: `schedule.cron`, atualmente `7,37 * * * *`. Para 15 minutos: `7,22,37,52 * * * *`. Horários cron são UTC; os intervalos se mantêm em Fortaleza. Novos alertas entram pelo catálogo; não precisam de YAML próprio.
+
+O grupo de concorrência único serializa execuções para preservar estado. O secret `DISCORD_WEBHOOK_URL` é de repositório. O token do workflow tem escrita apenas para persistir estado neste repositório. Não execute manualmente cópias antigas dos workflows removidos, pois poderiam publicar mensagens duplicadas.

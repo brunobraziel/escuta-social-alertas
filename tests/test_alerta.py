@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 from core.alerta import matches, fetch_feed
-import main
+import acompanhamento_legislativo.run as main
 
 class AlertTests(unittest.TestCase):
     def test_filter(self):
@@ -27,7 +27,7 @@ class AlertTests(unittest.TestCase):
         article = {"title": "Escala 6x1", "description": "Transição", "url": "https://g1.globo.com/a", "published": "2026-10-15"}
         with tempfile.TemporaryDirectory() as folder:
             state = str(Path(folder)/"state.json")
-            with patch("sys.argv", ["main", "--site", "g1", "--state", state]), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("main.fetch_feed", return_value=[article]), patch("main.send_discord") as send:
+            with patch("sys.argv", ["main", "--site", "g1", "--state", state]), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("acompanhamento_legislativo.run.fetch_feed", return_value=[article]), patch("acompanhamento_legislativo.run.send_discord") as send:
                 main.run()
                 main.run()
                 self.assertEqual(send.call_count, 1)
@@ -37,7 +37,7 @@ class AlertTests(unittest.TestCase):
         article = {"url": "https://g1.globo.com/a"}
         with tempfile.TemporaryDirectory() as folder:
             state = str(Path(folder)/"state.json")
-            with patch("sys.argv", ["main", "--site", "g1", "--state", state]), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("main.fetch_feed", return_value=[article]), patch("main.send_discord", side_effect=RuntimeError("failure")):
+            with patch("sys.argv", ["main", "--site", "g1", "--state", state]), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("acompanhamento_legislativo.run.fetch_feed", return_value=[article]), patch("acompanhamento_legislativo.run.send_discord", side_effect=RuntimeError("failure")):
                 with self.assertRaises(RuntimeError):
                     main.run()
                 self.assertFalse(Path(state).exists())

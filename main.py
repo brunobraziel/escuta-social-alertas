@@ -1,64 +1,66 @@
+"""Entrada genérica: carrega o catálogo e executa alertas com estado compartilhado."""
 import argparse
 import importlib
 import json
 import logging
-import os
 from pathlib import Path
-from datetime import datetime, timezone
-from core.alerta import fetch_feed, identifier, send_discord
 
-SITES = ("g1", "cnn")
+CATALOG = Path(__file__).with_name("alertas.json")
 
 
-def run():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--site", choices=(*SITES, "all"), default="all")
-    parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--test", action="store_true", help="Envia um exemplo fictício marcado como teste")
-    parser.add_argument("--state", default="state.json")
-    parser.add_argument("--limit", type=int, default=3)
-    args = parser.parse_args()
-    if not 1 <= args.limit <= 20:
-        parser.error("--limit deve estar entre 1 e 20")
-    webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
-    if not args.dry_run and not webhook:
-        parser.error("Configure DISCORD_WEBHOOK_URL ou use --dry-run")
-    if args.test:
-        sample = {"title": "Exemplo fictício: próximos passos da escala 6x1", "description": "Mensagem de teste da integração. Não representa uma notícia real.", "url": "https://www.senado.leg.br/", "published": datetime.now(timezone.utc).isoformat()}
-        if args.dry_run:
-            print(json.dumps(sample, ensure_ascii=False))
-        else:
-            send_discord(webhook, sample, "Teste controlado", test=True)
-        return
-    state_path = Path(args.state)
-    state = json.loads(state_path.read_text()) if state_path.exists() else {"sent": []}
-    seen = set(state["sent"])
-    failed = 0
-    sent = 0
-    for site in SITES if args.site == "all" else (args.site,):
-        config = importlib.import_module(f"acompanhamento_legislativo.{site}.escala_6x1")
+def load_catalog():
+    entries = json.loads(CATALOG.read_text())["alertas"]
+    identifiers = [entry["id"] for entry in entries]
+    if len(identifiers) != len(set(identifiers)) or "all" in identifiers:
+        raise ValueError("IDs do catálogo devem ser únicos e diferentes de all")
+    for entry in entries:
+        if not isinstance(entry["ativo"], bool):
+            raise ValueError("ativo deve ser booleano")
+    return entries
+
+
+def execute(entries, mode, state):
+    failed = []
+    arguments = ["--state", state]
+    if mode == "dry-run":
+        arguments.append("--dry-run")
+    elif mode == "test":
+        arguments.append("--test")
+    for entry in entries:
+        logging.warning("Iniciando alerta %s (%s)", entry["id"], mode)
         try:
-            articles = fetch_feed(config.FEED_URL, config.ALLOWED_HOSTS)
+            module = importlib.import_module(entry["modulo"])
+            module.run(arguments)
+        except SystemExit as error:
+            if error.code not in (0, None):
+                failed.append(entry["id"])
+                logging.error("Alerta %s falhou (saída %s)", entry["id"], error.code)
         except Exception as error:
-            logging.error("%s: coleta falhou (%s)", site, type(error).__name__)
-            failed += 1
-            continue
-        logging.warning("%s: %s correspondências recentes", site, len(articles))
-        for article in articles:
-            key = identifier(article["url"])
-            if key in seen or sent >= args.limit:
-                continue
-            if args.dry_run:
-                print(json.dumps({"site": site, **article}, ensure_ascii=False))
-            else:
-                send_discord(webhook, article, site)
-                seen.add(key)
-                # Persistir a cada confirmação permite salvar entregas mesmo após falha posterior.
-                temporary = state_path.with_suffix(".tmp")
-                temporary.write_text(json.dumps({"sent": sorted(seen)}))
-                temporary.replace(state_path)
-            sent += 1
+            failed.append(entry["id"])
+            # Não imprimir exceções potencialmente contendo credenciais.
+            logging.error("Alerta %s falhou (%s)", entry["id"], type(error).__name__)
+    return failed
+
+
+def run(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--alert", default="all", help="ID do catálogo ou all")
+    parser.add_argument("--mode", choices=("dry-run", "live", "test"), default="dry-run")
+    parser.add_argument("--state", default="state.json")
+    parser.add_argument("--list", action="store_true")
+    args = parser.parse_args(argv)
+    catalog = load_catalog()
+    if args.list:
+        print(json.dumps(catalog, ensure_ascii=False, indent=2))
+        return
+    selected = [entry for entry in catalog if entry["ativo"] and (args.alert == "all" or entry["id"] == args.alert)]
+    if not selected:
+        parser.error("Alerta inexistente ou desativado")
+    if args.mode == "test" and args.alert == "all":
+        parser.error("No modo test, escolha um único --alert")
+    failed = execute(selected, args.mode, args.state)
     if failed:
+        logging.error("Alertas com falha: %s", ", ".join(failed))
         raise SystemExit(1)
 
 

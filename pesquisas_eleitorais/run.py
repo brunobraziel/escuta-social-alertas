@@ -8,12 +8,12 @@ from core.alerta import fetch_feed, identifier, send_discord
 from pesquisas_eleitorais.parser import matches_poll, parse_poll, as_alert
 
 
-def run():
+def run(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test", action="store_true", help="Envia uma única pesquisa real identificada como teste")
     parser.add_argument("--state", default="state.json")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
     if not args.dry_run and not webhook:
         parser.error("Configure DISCORD_WEBHOOK_URL ou use --dry-run")

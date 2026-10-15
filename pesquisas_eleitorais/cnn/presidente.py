@@ -1,1 +1,2 @@
-from acompanhamento_legislativo.cnn.escala_6x1 import FEED_URL, ALLOWED_HOSTS
+"""Configuração RSS CNN para pesquisas_eleitorais; chamada pelo run.py do escopo."""
+from core.fontes import CNN_FEED as FEED_URL, CNN_HOSTS as ALLOWED_HOSTS

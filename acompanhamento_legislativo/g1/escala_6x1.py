@@ -1,2 +1,2 @@
-FEED_URL = 'https://g1.globo.com/rss/g1/'
-ALLOWED_HOSTS = ['g1.globo.com']
+"""Configuração RSS G1 para acompanhamento_legislativo; chamada pelo run.py do escopo."""
+from core.fontes import G1_FEED as FEED_URL, G1_HOSTS as ALLOWED_HOSTS

@@ -1,60 +1,79 @@
 # Escuta Social Alertas
 
-Alerta de notícias sobre **próximos passos da escala 6x1**, sem classificação de fake news. Código público, sem lista interna do Drive e sem credenciais.
+Scripts Python para coletar notícias via RSS e enviar alertas ao Discord. Python 3.12, somente biblioteca padrão. Um workflow executa os alertas ativos do catálogo a cada 30 minutos.
 
-## Fontes e cobertura
+## Organização
 
-G1 e CNN Brasil: RSS público, sem acesso ao texto completo das matérias. Os feeds responderam com XML válido na validação inicial. Isso não representa licença irrestrita: reavalie termos de uso antes da operação contínua e suspenda a fonte se houver restrição. Use somente título, link e descrição breve disponível no feed; não reproduza artigos.
+```text
+.github/workflows/monitorar.yml     Agendamento e execução genérica
+alertas.json                       Catálogo de alertas ativos
+main.py                            Entrada única / seleção de alerta e modo
+acompanhamento_legislativo/run.py   Execução do alerta escala_6x1
+acompanhamento_legislativo/{site}/  Configuração de cada fonte do escopo
+pesquisas_eleitorais/run.py         Execução do alerta pesquisa_presidente
+pesquisas_eleitorais/parser.py      Extração e validação das pesquisas
+pesquisas_eleitorais/{site}/        Configuração de cada fonte do escopo
+core/                              RSS, fontes e envio compartilhados
+tests/                             Testes sem rede e sem mensagens reais
+```
 
-O conector UOL está reservado na estrutura, mas desabilitado: a URL candidata não retornou XML válido. BBC, Metrópoles e Brasil Paralelo não estão incluídos nesta primeira versão.
+Cada pasta possui README com responsabilidades e comandos. Os arquivos `__init__.py` apenas identificam pacotes Python; não executam coleta.
 
-Filtro: variantes de “escala 6x1”, “escala 6 por 1” ou “fim da 6x1”, junto de termos de promulgação, vigência, transição ou publicação. Exige o tema no título para evitar menções incidentais; busca os termos de próximos passos no título e na descrição; pode deixar matérias relevantes de fora. “Publicação” pode produzir ruído; ajuste após observar resultados. Uma correspondência não confirma mudança legislativa.
+## Executar localmente
 
-Matérias com data válida nas últimas 48 horas; até três envios por execução. RSS é uma janela limitada e não garante recuperação de todas as matérias das últimas 48 horas. Ausência de correspondências é uma execução válida; falha de coleta produz erro, distinguindo as duas situações.
-
-## Uso local
-
-Python 3.12; nenhuma dependência externa.
+Execute todos os comandos a partir da raiz do repositório:
 
 ```sh
+python main.py --list
+python main.py --mode dry-run
+python main.py --alert escala_6x1 --mode dry-run
+python main.py --alert pesquisa_presidente --mode dry-run
 python -m unittest discover -s tests -v
-python main.py --dry-run
-python main.py --dry-run --test
-python main.py --site g1 --dry-run
 ```
 
-Para envio real, forneça `DISCORD_WEBHOOK_URL` pelo ambiente, sem inserir o valor em arquivos ou commits. `python main.py --test` envia um exemplo fictício identificado como teste; `python main.py` coleta e envia notícias reais.
+| Modo | Efeito |
+| --- | --- |
+| `dry-run` (padrão local) | Consulta fontes e imprime resultados; não envia nem modifica estado |
+| `live` | Envia novidades ao Discord e registra entregas confirmadas |
+| `test` | Envia mensagem identificada como teste, sem modificar estado; exige um único alerta |
 
-## GitHub Actions e Discord
-
-1. No canal do Discord, crie um webhook em Integrações.
-2. No repositório: Settings → Secrets and variables → Actions → New repository secret. Nome: `DISCORD_WEBHOOK_URL`; valor: URL do webhook.
-Em canais de fórum, o envio cria um novo tópico por alerta. Em canais de texto, envia a mensagem diretamente. Um `thread_id` já presente na URL é preservado.
-
-3. Em Actions → Monitorar escala 6x1 → Run workflow, selecione `test` para conferir a mensagem fictícia.
-4. Selecione `live` para notícias reais; `dry-run` apenas registra as correspondências.
-
-Agendamento: minutos 7 e 37 de cada hora (UTC; periodicidade igual em Fortaleza). Sem o secret, o agendamento roda em dry-run e exibe aviso. Adicionar o secret ativa envios nas próximas execuções. O modo `test` exige o secret e ignora coleta/deduplicação.
-
-O workflow guarda somente hashes SHA-256 das URLs enviadas na branch pública `alert-state`, após confirmação do Discord. Não apague essa branch: isso permite reenvios. As execuções são serializadas. A persistência usa `contents: write` restrita ao token do repositório. Proteções de branch devem permitir ao bot atualizar `alert-state`.
-
-Em uma falha entre envio e persistência, ou resposta de rede incerta, pode ocorrer duplicação; não existe garantia de entrega exatamente uma vez. Retentativas automáticas do Discord ocorrem apenas em HTTP 429. Datas inválidas são ignoradas. URLs de matérias precisam pertencer aos hosts configurados.
-
-GitHub pode atrasar agendamentos e desativá-los após 60 dias sem atividade em repositórios públicos. Verifique a saúde do workflow periodicamente; esta versão não inclui monitor externo de inatividade. Logs de dry-run são públicos e contêm metadados públicos das matérias. Não registre segredos ou documentos internos.
-
-## Pesquisas de intenção de voto
-
-Novo escopo: `pesquisas_eleitorais/{g1,cnn}/presidente.py`. Workflow **Pesquisas de intenção de voto**, minutos 12 e 42 de cada hora. Usa o mesmo secret e o mesmo estado; o grupo de concorrência é compartilhado para evitar escrita simultânea.
+Para `live` e `test`, forneça `DISCORD_WEBHOOK_URL` no ambiente. Nunca coloque seu valor no código, nos comandos versionados ou nos logs.
 
 ```sh
-python -m pesquisas_eleitorais.run --dry-run
-python -m pesquisas_eleitorais.run --test
+python main.py --alert escala_6x1 --mode test
+python main.py --alert pesquisa_presidente --mode test
+python main.py --mode live
 ```
 
-O teste coleta uma notícia real e envia um único tópico identificado como `[TESTE]`, sem marcar a pesquisa como entregue na rotina normal. Não usa números fictícios nem mistura os votos totais com votos válidos.
+O teste legislativo usa exemplo fictício; o teste de pesquisa busca uma notícia real elegível e falha se não houver nenhuma. Ausência de notícias na execução normal é válida. Falha em um alerta não impede os seguintes, mas deixa a execução geral com erro.
 
-MVP: presidente, abrangência nacional, segundo turno, votos totais. Varre G1 e CNN nos feeds disponíveis, janela de sete dias; seleciona a notícia elegível de publicação mais recente entre as fontes. **Não garante ser a última pesquisa do país nem a de coleta mais recente**: republicações podem tratar de levantamentos anteriores. A data de publicação é exibida separada do período de coleta. RSS não garante cobertura integral.
+## GitHub Actions
 
-A extração exige tabela explícita de votos totais, nomes com partidos, brancos/nulos e indecisos, percentuais somando aproximadamente 100%, instituto, coleta, amostra, margem de erro, confiança e registro BR informado na matéria. Os candidatos são apresentados em ordem alfabética; não há previsão, comparação entre candidatos, variação histórica ou interpretação de vantagem. Artigos de rejeição, aprovação ou recortes não são usados. O primeiro formato suportado é a tabela textual do G1; notícias de outros formatos ficam de fora até haver parser validado.
+Existe somente um workflow: **Executar alertas**. Roda nos minutos 7 e 37 de cada hora, executando todos os alertas ativos em `alertas.json`. A frequência fica apenas em `.github/workflows/monitorar.yml`, no campo `schedule.cron`. Para mudar para 15 minutos, por exemplo, use `7,22,37,52 * * * *`.
 
-O registro é transcrito da fonte, sem consulta automática ao PesqEle. Referência metodológica: https://www.tse.jus.br/eleicoes/pesquisas-eleitorais . Deduplicação pelo registro + cargo + abrangência + turno + base de votos, independente da URL do portal.
+1. Cadastre um **Repository secret** `DISCORD_WEBHOOK_URL` em Settings → Secrets and variables → Actions.
+2. Abra Actions → Executar alertas → Run workflow.
+3. Escolha `mode` e informe `alert`: `all`, `escala_6x1` ou `pesquisa_presidente`.
+4. Para `test`, informe um ID específico; `all` é recusado para evitar mensagens de teste em massa.
+
+Sem o secret, agendamentos e execuções `live` passam a simulação com aviso. O envio cria um tópico por alerta em canais de fórum; em canais de texto, envia diretamente. Parâmetros de tópico existentes na URL são preservados.
+
+A execução é sequencial e mantém o estado compartilhado na branch `alert-state`. A migração preserva os hashes já existentes; não apague essa branch. Entregas confirmadas são salvas mesmo se outro alerta falhar. O token precisa de `contents: write` para atualizar a branch. Não existe garantia de entrega exatamente uma vez: falhas entre envio e gravação podem causar repetição.
+
+Os agendamentos do GitHub podem atrasar e ser desativados após 60 dias sem atividade em repositórios públicos. Os logs são públicos e podem conter metadados públicos das matérias; não adicione documentos internos ou credenciais.
+
+## Adicionar ou desativar alertas
+
+1. Crie uma pasta de escopo com `run.py`, README e subpastas por site. Reutilize `core/`.
+2. Exponha `run(argv=None)`, aceitando `--state`, `--dry-run` e `--test`. Não execute ações ao importar o módulo.
+3. Em `live`, leia o estado existente e acrescente apenas identificadores de entregas confirmadas; preserve as entradas dos outros alertas. Em `test` e `dry-run`, não altere o estado.
+4. Registre em `alertas.json`: `id` único, `modulo` importável, `ativo` booleano e `descricao`.
+5. Inclua testes e valide com `python main.py --alert seu_id --mode dry-run`.
+
+Não é preciso criar ou editar workflows para adicionar um alerta. Para desativar um alerta, altere `ativo` para `false`; isso preserva o histórico.
+
+## Cobertura
+
+Fontes ativas: G1 e CNN via RSS; sem coleta adicional do HTML das matérias. RSS tem janela limitada e não garante cobertura integral. UOL permanece reservado e desativado porque o endpoint consultado não forneceu XML válido. BBC, Metrópoles e Brasil Paralelo não estão implementados. Reavalie as condições de uso de cada fonte antes de ampliar a coleta; esta implementação não pressupõe licença irrestrita de reprodução.
+
+Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/README.md) e [pesquisas](pesquisas_eleitorais/README.md).
