@@ -7,12 +7,16 @@ on:
       mode:
         description: Modo de execução
         type: choice
-        options: [dry-run, live, test, probe, replay, recover]
+        options: [dry-run, live, test, probe, replay, recover, recover-discord]
         default: dry-run
       alert:
         description: ID do alerta (consulte alertas.json); all executa todos os ativos
         type: string
         default: all
+      message_url:
+        description: Link da mensagem existente (somente recover-discord)
+        type: string
+        required: false
 permissions:
   contents: write
 concurrency:
@@ -49,17 +53,20 @@ jobs:
           ESCUTA_SOCIAL_TERMS_JSON: ${{ secrets.ESCUTA_SOCIAL_TERMS_JSON }}
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
           EVENT_NAME: ${{ github.event_name }}
+          MESSAGE_URL: ${{ inputs.message_url }}
         run: |
           if [ "$MODE" = live ] && [ -z "$DISCORD_WEBHOOK_URL" ]; then
             echo '::warning::Configure DISCORD_WEBHOOK_URL; executando dry-run.'
             MODE=dry-run
           fi
-          if [ "$MODE" = replay ] || [ "$MODE" = recover ]; then
+          if [ "$MODE" = replay ] || [ "$MODE" = recover ] || [ "$MODE" = recover-discord ]; then
             if [ "$ALERT" != tendencias_por_estado ]; then
               echo '::error::replay/recover exigem tendencias_por_estado.'
               exit 1
             fi
-            if [ "$MODE" = recover ]; then
+            if [ "$MODE" = recover-discord ]; then
+              python -m tendencias_busca.recuperar_discord --message-url "$MESSAGE_URL"
+            elif [ "$MODE" = recover ]; then
               python -m tendencias_busca.recuperar
             else
               python -m tendencias_busca.run --cached --dry-run
@@ -78,7 +85,7 @@ jobs:
             python main.py "${args[@]}"
           fi
       - name: Salvar entregas confirmadas
-        if: always() && steps.state.outcome == 'success' && (inputs.mode == 'live' || inputs.mode == 'test' || inputs.mode == 'recover' || github.event_name == 'schedule')
+        if: always() && steps.state.outcome == 'success' && (inputs.mode == 'live' || inputs.mode == 'test' || inputs.mode == 'recover' || inputs.mode == 'recover-discord' || github.event_name == 'schedule')
         run: |
           test -f state.json || exit 0
           origin_url=$(git remote get-url origin)

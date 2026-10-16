@@ -52,3 +52,18 @@ class CacheTests(unittest.TestCase):
         cached = self.saved()
         self.assertIn("0–100", cached["report"]["details_message"])
         self.assertIn("Tema A (100)", cached["report"]["details_message"])
+
+    def test_discord_recovery_preserves_actual_text_without_fake_metrics(self):
+        from tendencias_busca.recuperar_discord import recover
+        payload = {"id": "333", "timestamp": "2026-10-16", "embeds": [{"title": "[TESTE] Original", "description": "Texto original", "url": "https://trends.google.com"}, {"description": "Termos originais sem índices"}]}
+        with tempfile.TemporaryDirectory() as folder:
+            state_path = Path(folder)/"state.json"
+            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/111/example"}), patch("urllib.request.urlopen") as request:
+                request.return_value.__enter__.return_value.read.return_value = json.dumps(payload).encode()
+                recover("https://discord.com/channels/111/222/333", str(state_path))
+                self.assertEqual(request.call_args.args[0].get_method(), "GET")
+            state = json.loads(state_path.read_text())
+            saved = state["trends_last_snapshot"]
+            self.assertEqual(saved["report"]["message"], "Texto original")
+            self.assertIsNone(saved["monitored"])
+            self.assertEqual(saved["discord_message"]["embeds"], payload["embeds"])
