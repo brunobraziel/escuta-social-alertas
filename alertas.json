@@ -11,6 +11,12 @@
       "modulo": "pesquisas_eleitorais.run",
       "ativo": true,
       "descricao": "Percentuais de pesquisas presidenciais: Brasil, segundo turno, votos totais"
+    },
+    {
+      "id": "tendencias_por_estado",
+      "modulo": "tendencias_busca.run",
+      "ativo": false,
+      "descricao": "Resumo único de assuntos em alta e interesse nos termos de Escuta Social por UF; requer validação do Explore"
     }
   ]
 }

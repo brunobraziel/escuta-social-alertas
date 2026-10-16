@@ -77,6 +77,10 @@ def send_discord(webhook, article, site, test=False):
         "fields": [{"name": "Fonte", "value": site}, {"name": "Publicado em", "value": article["published"]}],
         "footer": {"text": article.get("footer", "Correspondência temática; não confirma mudança legislativa.")}
     }]}
+    if article.get("details_message"):
+        if len(article.get("message", "")) > 2800 or len(article["details_message"]) > 2800:
+            raise ValueError("Seções do resumo excedem o limite de uma mensagem")
+        payload["embeds"].append({"description": article["details_message"]})
     # wait=true exige confirmação de criação da mensagem.
     query = dict(parse_qsl(parsed.query))
     query["wait"] = "true"

@@ -55,7 +55,8 @@ def run(argv=None):
                 seen.add(key)
                 # Persistir a cada confirmação permite salvar entregas mesmo após falha posterior.
                 temporary = state_path.with_suffix(".tmp")
-                temporary.write_text(json.dumps({"sent": sorted(seen)}))
+                state["sent"] = sorted(seen)
+                temporary.write_text(json.dumps(state))
                 temporary.replace(state_path)
             sent += 1
     if failed:

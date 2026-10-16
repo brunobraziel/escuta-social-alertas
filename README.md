@@ -14,6 +14,7 @@ pesquisas_eleitorais/run.py         Execução do alerta pesquisa_presidente
 pesquisas_eleitorais/parser.py      Extração e validação das pesquisas
 pesquisas_eleitorais/{site}/        Configuração de cada fonte do escopo
 core/                              RSS, fontes e envio compartilhados
+tendencias_busca/                   Resumo estadual em duas seções (inativo)
 tests/                             Testes sem rede e sem mensagens reais
 ```
 
@@ -122,3 +123,9 @@ Não crie um YAML por alerta. Frequência, ambiente e secret são compartilhados
 Fontes ativas: G1 e CNN via RSS; sem coleta adicional do HTML das matérias. RSS tem janela limitada e não garante cobertura integral. UOL permanece reservado e desativado porque o endpoint consultado não forneceu XML válido. BBC, Metrópoles e Brasil Paralelo não estão implementados. Reavalie as condições de uso de cada fonte antes de ampliar a coleta; esta implementação não pressupõe licença irrestrita de reprodução.
 
 Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/README.md) e [pesquisas](pesquisas_eleitorais/README.md).
+
+## Resumo estadual de buscas (em preparação)
+
+O catálogo inclui `tendencias_por_estado`, desativado até validar o acesso aos dados de comparação e autorizar a disponibilização da lista privada do Drive no workflow. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
+
+O estado pode conter, além de `sent`, o hash `latest_trends`; executores devem preservar todos os campos desconhecidos ao gravar. Não coloque o documento ou a lista privada na branch de estado.

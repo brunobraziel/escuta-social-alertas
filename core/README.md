@@ -5,7 +5,7 @@
 
 Estes arquivos são bibliotecas: não devem ser chamados como executores. Use `python main.py --alert ID --mode dry-run` na raiz. `send_discord` exige confirmação de mensagem, trata HTTP 429 e cria tópico quando o Discord informa que o destino é fórum. Não registre o valor do webhook.
 
-O estado contém apenas `{"sent": ["hash", ...]}`. Cada executor preserva entradas existentes e grava atomicamente depois do envio confirmado. O runner genérico executa os escopos em sequência.
+O estado contém `{"sent": ["hash", ...]}` e pode conter hashes adicionais de outros escopos, como `latest_trends`; preserve campos desconhecidos. Cada executor preserva entradas existentes e grava atomicamente depois do envio confirmado. O runner genérico executa os escopos em sequência.
 
 ## Reutilizar em novos alertas
 
@@ -16,3 +16,5 @@ O [tutorial de criação](../docs/README.md) contém um executor completo. Passe
 `send_discord(webhook, article, site, test=False)` exige esses quatro campos e aceita `alert_title`, `message` e `footer` personalizados. Novos temas devem definir título e rodapé próprios para não herdar o texto legislativo padrão. `message` substitui o corpo padrão. `test=True` identifica a mensagem e o tópico; o executor continua responsável por não gravar o estado.
 
 `identifier(text)` calcula SHA-256. Para novos alertas, prefira `identifier(ALERT_ID + ":" + occurrence_key)`. O segredo vem do ambiente; a função de envio não lê o catálogo ou o estado.
+
+Resumos com duas seções podem passar `details_message` junto de `message`: são dois embeds dentro de uma única mensagem/postagem do Discord. Ambos precisam ter no máximo 2.800 caracteres; o envio recusa mensagens maiores em vez de cortar a segunda seção silenciosamente.

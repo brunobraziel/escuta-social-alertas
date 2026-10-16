@@ -27,11 +27,13 @@ class AlertTests(unittest.TestCase):
         article = {"title": "Escala 6x1", "description": "Transição", "url": "https://g1.globo.com/a", "published": "2026-10-15"}
         with tempfile.TemporaryDirectory() as folder:
             state = str(Path(folder)/"state.json")
+            Path(state).write_text(json.dumps({"sent": [], "latest_trends": "preserve"}))
             with patch("sys.argv", ["main", "--site", "g1", "--state", state]), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("acompanhamento_legislativo.run.fetch_feed", return_value=[article]), patch("acompanhamento_legislativo.run.send_discord") as send:
                 main.run()
                 main.run()
                 self.assertEqual(send.call_count, 1)
                 self.assertEqual(len(json.loads(Path(state).read_text())["sent"]), 1)
+                self.assertEqual(json.loads(Path(state).read_text())["latest_trends"], "preserve")
 
     def test_failed_delivery_not_recorded(self):
         article = {"url": "https://g1.globo.com/a"}
