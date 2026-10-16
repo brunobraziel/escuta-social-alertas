@@ -99,12 +99,12 @@ def compare_batch(opener, terms):
     return mapped
 
 
-def merge_batches(terms, parts, states):
-    expected = batches(terms)
+def merge_batches(terms, parts, states, groups=None, anchor=None):
+    expected = groups or batches(terms)
     if len(parts) != len(expected):
         raise SourceUnavailable("Comparação incompleta: faltam lotes")
     output = {}
-    anchor = terms[0]
+    anchor = anchor or terms[0]
     for uf in states:
         ratios = {anchor: 1.0}
         sufficient = True
@@ -112,11 +112,22 @@ def merge_batches(terms, parts, states):
             values = part.get(uf, {})
             # Zero é arredondamento/insuficiência, não ausência de buscas.
             # Sem todos os termos mensuráveis não produzimos ranking completo.
-            if any(not isinstance(values.get(t), (int, float)) or not math.isfinite(values[t]) or values[t] <= 0 for t in group):
+            if any(not isinstance(values.get(t), (int, float)) or not math.isfinite(values[t]) or values[t] < 0 for t in group):
                 sufficient = False
                 break
-            ratios.update({t: values[t] / values[anchor] for t in group[1:]})
+            if values.get(anchor, 0) <= 0:
+                sufficient = False
+                break
+            ratios.update({t: values[t] / values[anchor] for t in group if t != anchor})
         if sufficient and set(ratios) == set(terms):
+            # Zero representa valor abaixo da resolução, não zero buscas.
+            # Só destacamos os dois maiores se valores arredondados a zero
+            # não puderem ultrapassar nenhum deles (limite conservador de 1).
+            ordered = sorted(ratios.values(), reverse=True)
+            zero_upper = max((1 / part[uf][anchor] for group, part in zip(expected, parts) if any(part[uf][t] == 0 for t in group)), default=0)
+            if len(ordered) < 2 or ordered[1] <= zero_upper:
+                output[uf] = None
+                continue
             maximum = max(ratios.values())
             output[uf] = [{"term": t, "index": round(v / maximum * 100, 1)} for t, v in sorted(ratios.items(), key=lambda x: (-x[1], x[0].casefold()))]
         else:

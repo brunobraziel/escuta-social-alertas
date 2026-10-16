@@ -24,7 +24,7 @@ def render(general, monitored, snapshot, now):
         first.append(f"**{label}:** " + (", ".join(short(t) for t in rows[:2]) if rows else "sem tendências disponíveis"))
         values = monitored[uf]
         second.append(f"**{label}:** " + (", ".join(short(r['term'], 30) for r in values[:2]) if values else "dados insuficientes"))
-    second += ["", "Todos os termos foram consultados; o post mostra dois por UF. Comparações entre lotes usam um termo comum; amostragem e arredondamento afetam a ordem."]
+    second += ["", "Todos os termos foram consultados; mostramos dois por UF. Valores abaixo da resolução não significam ausência de buscas. Lotes usam referência comum; amostragem e arredondamento afetam a ordem."]
     body, details = "\n".join(first), "\n".join(second)
     if len(body) > 2800 or len(details) > 2800:
         raise ValueError("Resumo excede o limite de uma mensagem; reduza os destaques")

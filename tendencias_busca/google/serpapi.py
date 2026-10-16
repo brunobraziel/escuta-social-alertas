@@ -58,5 +58,19 @@ def compare_all(terms, states):
         raise SourceUnavailable("Lista excede dois lotes; revise a cota antes de ampliar")
     if any("," in term for term in terms):
         raise SourceUnavailable("Termos com vírgula não são suportados")
-    # Duas consultas no máximo por coleta; sem retentativas, sem chamadas por UF.
-    return merge_batches(terms, [compare_batch(group, key) for group in groups], states)
+    # O primeiro lote também escolhe a referência: evita um termo raramente
+    # pesquisado que apareça como zero ao lado de nomes muito populares.
+    from statistics import median
+    first_group = terms[:5]
+    first = compare_batch(first_group, key)
+    anchor = max(first_group, key=lambda term: (
+        sum(values.get(term, 0) > 0 for values in first.values()),
+        median(values.get(term, 0) for values in first.values()),
+    ))
+    groups, parts = [first_group], [first]
+    if len(terms) > 5:
+        group = [anchor, *terms[5:]]
+        groups.append(group)
+        parts.append(compare_batch(group, key))
+    # Mesmos dois pedidos máximos; a escolha da referência não usa cota extra.
+    return merge_batches(terms, parts, states, groups=groups, anchor=anchor)

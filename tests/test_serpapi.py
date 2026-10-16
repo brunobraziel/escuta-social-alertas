@@ -58,3 +58,15 @@ class SerpTests(unittest.TestCase):
             run(["--dry-run"])
             terms.assert_not_called()
             compare.assert_not_called()
+
+    def test_anchor_selected_without_extra_request(self):
+        terms = list("ABCDEFGHI")
+        calls = []
+        def response(group, key):
+            calls.append(group)
+            return {"MG": {term: (90 if term == "D" else 0 if term == "A" else 10) for term in group}}
+        with patch.dict("os.environ", {"SERPAPI_API_KEY": "test"}), patch("tendencias_busca.google.serpapi.compare_batch", side_effect=response):
+            result = compare_all(terms, ["MG"])
+            self.assertEqual(len(calls), 2)
+            self.assertEqual(calls[1][0], "D")
+            self.assertIsNotNone(result["MG"])

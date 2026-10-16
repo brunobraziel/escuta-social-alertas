@@ -102,3 +102,11 @@ class TrendsTests(unittest.TestCase):
         self.assertIn("HTTP 429", output.getvalue())
         for term in SNAPSHOT["terms"]:
             self.assertNotIn(term, output.getvalue())
+
+    def test_rounded_zero_does_not_invalidate_clear_highlights(self):
+        result = merge_batches(["A", "B", "C"], [{"MG": {"A": 60, "B": 40, "C": 0}}], ["MG"])
+        self.assertEqual([r["term"] for r in result["MG"][:2]], ["A", "B"])
+
+    def test_unresolved_zero_limit_cannot_rank(self):
+        result = merge_batches(["A", "B", "C"], [{"MG": {"A": 99, "B": 1, "C": 0}}], ["MG"])
+        self.assertIsNone(result["MG"])
