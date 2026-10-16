@@ -50,7 +50,7 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           MODE: ${{ inputs.mode || 'live' }}
           ALERT: ${{ inputs.alert || 'all' }}
-          ESCUTA_SOCIAL_TERMS_JSON: ${{ secrets.ESCUTA_SOCIAL_TERMS_JSON }}
+          ESCUTA_SOCIAL_TERMS_JSON: ${{ vars.ESCUTA_SOCIAL_TERMS_JSON }}
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
           EVENT_NAME: ${{ github.event_name }}
           MESSAGE_URL: ${{ inputs.message_url }}

@@ -126,7 +126,7 @@ Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/RE
 
 ## Resumo estadual de buscas
 
-O catálogo inclui `tendencias_por_estado`, ativo após validação SerpApi; a lista privada do Drive está configurada como secret autorizado. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
+O catálogo inclui `tendencias_por_estado`, ativo após validação SerpApi; a lista revisada do Drive está configurada como variável do repositório `ESCUTA_SOCIAL_TERMS_JSON`. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
 
 O estado pode conter, além de `sent`, o hash `latest_trends`; executores devem preservar todos os campos desconhecidos ao gravar. Não coloque o documento ou a lista privada na branch de estado.
 

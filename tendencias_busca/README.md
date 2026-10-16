@@ -31,7 +31,7 @@ main.py → alertas.json → tendencias_busca.run.run(argv)
 
 ## Lista de termos e privacidade
 
-A lista revisada com nove termos foi configurada, com autorização do responsável, no repository secret `ESCUTA_SOCIAL_TERMS_JSON`. Ela não está em arquivos versionados. Não grave os dados no código ou logs; o workflow público recebe a lista pelo ambiente.
+A lista revisada com nove termos foi configurada, com autorização do responsável, na **Repository variable `ESCUTA_SOCIAL_TERMS_JSON`**. Ela não está em arquivos versionados. Edite e consulte o JSON em **Settings → Secrets and variables → Actions → Variables**. Não grave os dados no código ou logs; o workflow público recebe a lista pelo ambiente.
 
 A implementação espera este formato em `ESCUTA_SOCIAL_TERMS_JSON` (exemplo fictício):
 
@@ -43,7 +43,7 @@ A implementação espera este formato em `ESCUTA_SOCIAL_TERMS_JSON` (exemplo fic
 }
 ```
 
-O snapshot autorizado está armazenado como repository secret; o workflow já passa o secret ao executor. A lista deve ser revisada novamente quando o documento mudar. O post informa a versão usada. O acesso ao Drive por um conector externo **não concede acesso ao GitHub Actions**; sincronização automática do documento exigiria uma integração autenticada adicional, ainda não implementada.
+O snapshot autorizado está armazenado como variável do repositório; o workflow usa `${{ vars.ESCUTA_SOCIAL_TERMS_JSON }}` para passá-lo como variável de ambiente ao executor. Essa configuração é visível a quem tem acesso às configurações do repositório; não use esse campo para credenciais. A lista deve ser revisada novamente quando o documento mudar. O post informa a versão usada. O acesso ao Drive por um conector externo **não concede acesso ao GitHub Actions**; sincronização automática do documento exigiria uma integração autenticada adicional, ainda não implementada.
 
 ## Comparabilidade
 
@@ -78,12 +78,12 @@ O encerramento também é aplicado dentro do executor e do diagnóstico: depois 
 
 ## Validação e operação
 
-1. Lista revisada do Drive: já configurada como secret autorizado.
+1. Lista revisada do Drive: configurada como variável do repositório.
 2. `SERPAPI_API_KEY` foi cadastrada pelo responsável e validada.
 3. Rode o diagnóstico `probe` pelo workflow: só mostra contagens/códigos de erro, sem termos ou resultados individuais. Cada diagnóstico pode consumir até duas consultas.
 4. O alerta foi ativado após diagnóstico válido. Para suspender, altere `ativo` para `false`, preservando histórico.
 
-Para validação local, com os secrets no ambiente:
+Para validação local, com a variável de termos e os secrets de credenciais no ambiente:
 
 ```sh
 python -m tendencias_busca.diagnostico
