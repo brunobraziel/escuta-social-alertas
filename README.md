@@ -120,7 +120,7 @@ Não crie um YAML por alerta. O workflow base é compartilhado; campos opcionais
 
 ## Cobertura
 
-Fontes ativas: G1 e CNN via RSS; sem coleta adicional do HTML das matérias. RSS tem janela limitada e não garante cobertura integral. UOL permanece reservado e desativado porque o endpoint consultado não forneceu XML válido. BBC, Metrópoles e Brasil Paralelo não estão implementados. Reavalie as condições de uso de cada fonte antes de ampliar a coleta; esta implementação não pressupõe licença irrestrita de reprodução.
+Fontes de notícias: G1 e CNN via RSS. O escopo de pesquisas também lê HTML público de matérias candidatas e descobre notícias na editoria PoderData do Poder360. RSS tem janela limitada e não garante cobertura integral. UOL permanece reservado e desativado porque o endpoint consultado não forneceu XML válido. BBC, Metrópoles e Brasil Paralelo não estão implementados. Reavalie as condições de uso de cada fonte antes de ampliar a coleta; esta implementação não pressupõe licença irrestrita de reprodução.
 
 Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/README.md) e [pesquisas](pesquisas_eleitorais/README.md).
 

@@ -47,7 +47,7 @@ class PollTests(unittest.TestCase):
             state = Path(folder) / "state.json"
             original = '{"sent": ["existing"]}'
             state.write_text(original)
-            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("pesquisas_eleitorais.run.fetch_feed", return_value=[]), patch("pesquisas_eleitorais.run.send_discord") as send:
+            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("pesquisas_eleitorais.run.fetch_feed", return_value=[]), patch("pesquisas_eleitorais.run.discover", return_value=[]), patch("pesquisas_eleitorais.run.send_discord") as send:
                 run(["--state", str(state)])
                 send.assert_not_called()
             self.assertEqual(state.read_text(), original)
@@ -66,7 +66,7 @@ class PollTests(unittest.TestCase):
             state = Path(folder) / "state.json"
             original = json.dumps({"sent": [key, "existing"]})
             state.write_text(original)
-            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("pesquisas_eleitorais.run.fetch_feed", return_value=[item]), patch("pesquisas_eleitorais.run.send_discord") as send:
+            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("pesquisas_eleitorais.run.fetch_feed", return_value=[item]), patch("pesquisas_eleitorais.run.discover", return_value=[]), patch("pesquisas_eleitorais.run.send_discord") as send:
                 run(["--state", str(state)])
                 send.assert_not_called()
             self.assertEqual(state.read_text(), original)
