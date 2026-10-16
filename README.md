@@ -1,6 +1,6 @@
 # Escuta Social Alertas
 
-Scripts Python para coletar notícias via RSS e enviar alertas ao Discord. Python 3.12, somente biblioteca padrão. Um workflow executa os alertas ativos do catálogo a cada 30 minutos.
+Scripts Python para coletar notícias via RSS e enviar alertas ao Discord. Python 3.12, somente biblioteca padrão. Um workflow executa os alertas ativos do catálogo uma vez por hora.
 
 ## Organização
 
@@ -49,7 +49,7 @@ O teste legislativo usa exemplo fictício; o teste de pesquisa busca uma notíci
 
 ## GitHub Actions
 
-Existe somente um workflow: **Executar alertas**. Roda nos minutos 7 e 37 de cada hora, executando todos os alertas ativos em `alertas.json`. A frequência fica apenas em `.github/workflows/monitorar.yml`, no campo `schedule.cron`. Para mudar para 15 minutos, por exemplo, use `7,22,37,52 * * * *`.
+Existe somente um workflow: **Executar alertas**. Roda no minuto 7 de cada hora, executando todos os alertas ativos em `alertas.json`. A frequência fica apenas em `.github/workflows/monitorar.yml`, no campo `schedule.cron`. Para mudar para 15 minutos, por exemplo, use `7,22,37,52 * * * *`.
 
 1. Cadastre um **Repository secret** `DISCORD_WEBHOOK_URL` em Settings → Secrets and variables → Actions.
 2. Abra Actions → Executar alertas → Run workflow.
@@ -61,6 +61,35 @@ Sem o secret, agendamentos e execuções `live` passam a simulação com aviso. 
 A execução é sequencial e mantém o estado compartilhado na branch `alert-state`. A migração preserva os hashes já existentes; não apague essa branch. Entregas confirmadas são salvas mesmo se outro alerta falhar. O token precisa de `contents: write` para atualizar a branch. Não existe garantia de entrega exatamente uma vez: falhas entre envio e gravação podem causar repetição.
 
 Os agendamentos do GitHub podem atrasar e ser desativados após 60 dias sem atividade em repositórios públicos. Os logs são públicos e podem conter metadados públicos das matérias; não adicione documentos internos ou credenciais.
+
+## Fluxo de trigger do job e das notificações
+
+```text
+schedule (uma vez por hora) ou Run workflow (manual)
+  → job monitorar: checkout + Python + testes
+  → restaura histórico da branch alert-state
+  → main.py seleciona os alertas ativos em alertas.json
+  → cada executor consulta os feeds e filtra conteúdo elegível
+  → compara a ocorrência com o histórico
+      → sem novidades: termina sem chamar o Discord
+      → novidade: envia mensagem e registra entrega confirmada
+  → persiste o estado compartilhado, somente com mudanças
+```
+
+O gatilho automático é `schedule`, com cron `7 * * * *`: executa no minuto **07 de toda hora** (por exemplo, 10h07, 11h07 e 12h07 em Fortaleza). GitHub pode atrasar o início. O gatilho manual é `workflow_dispatch`, pelo botão Run workflow. Push/commit não disparam este workflow; publicar código ou alterar a branch de estado não envia mensagens por si só. O agendamento lê a versão da branch padrão.
+
+O job precisa consultar os feeds para descobrir se há novidades. **Executar a consulta não significa notificar**: o Discord só é chamado em `live` quando há conteúdo elegível ainda não entregue. Sem correspondências, pesquisa com dados insuficientes ou ocorrência já enviada, o canal fica em silêncio. Nenhuma mensagem de “sem notícias”, resumo vazio ou confirmação periódica é enviada.
+
+| Alerta | O que conta como novidade |
+| --- | --- |
+| `escala_6x1` | URL elegível ainda não enviada |
+| `pesquisa_presidente` | Pesquisa elegível selecionada cujo registro/cargo/abrangência/turno/base de votos ainda não foi enviado |
+
+Uma nova URL sobre a mesma pesquisa não gera outro alerta de pesquisa. Alterar o texto de uma notícia mantendo a mesma URL não gera novo alerta legislativo. Na primeira execução sem histórico, conteúdos elegíveis dentro da janela de busca podem ser enviados mesmo tendo sido publicados antes da ativação.
+
+A regra de silêncio vale para a operação normal. `test` é uma solicitação manual de mensagem de teste, identificada como `[TESTE]`, e ignora deduplicação; `dry-run` nunca envia. Erros ficam nos logs/status do GitHub Actions e não geram mensagens no Discord por este código. Preferências pessoais de e-mail do GitHub são independentes do alerta do canal.
+
+O estado só recebe uma ocorrência depois da confirmação do Discord. Preservar `alert-state` evita reenvios. Se um executor falhar, os demais continuam; o workflow termina com erro e salva as entregas já confirmadas, desde que a restauração do estado tenha funcionado.
 
 ## Criar novos alertas
 

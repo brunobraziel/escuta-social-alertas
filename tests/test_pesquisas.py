@@ -37,3 +37,36 @@ class PollTests(unittest.TestCase):
         item = article()
         item["title"] = item["title"].replace("2º", "1º")
         self.assertIsNone(parse_poll(item))
+
+    def test_no_eligible_poll_does_not_notify(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from pesquisas_eleitorais.run import run
+        with tempfile.TemporaryDirectory() as folder:
+            state = Path(folder) / "state.json"
+            original = '{"sent": ["existing"]}'
+            state.write_text(original)
+            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("pesquisas_eleitorais.run.fetch_feed", return_value=[]), patch("pesquisas_eleitorais.run.send_discord") as send:
+                run(["--state", str(state)])
+                send.assert_not_called()
+            self.assertEqual(state.read_text(), original)
+
+    def test_already_sent_poll_does_not_notify_for_new_url(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from core.alerta import identifier
+        from pesquisas_eleitorais.run import run
+        item = article()
+        item["url"] = "https://g1.globo.com/presidente-outra-url"
+        key = identifier("pesquisa:BR-12345/2026:presidente:BR:2:votos_totais")
+        with tempfile.TemporaryDirectory() as folder:
+            state = Path(folder) / "state.json"
+            original = json.dumps({"sent": [key, "existing"]})
+            state.write_text(original)
+            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("pesquisas_eleitorais.run.fetch_feed", return_value=[item]), patch("pesquisas_eleitorais.run.send_discord") as send:
+                run(["--state", str(state)])
+                send.assert_not_called()
+            self.assertEqual(state.read_text(), original)

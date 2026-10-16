@@ -65,3 +65,13 @@ class AlertTests(unittest.TestCase):
             self.assertEqual(urlopen.call_count, 2)
             payload = json.loads(urlopen.call_args.args[0].data)
             self.assertTrue(payload["thread_name"].startswith("[TESTE]"))
+
+    def test_empty_feed_does_not_notify_or_change_state(self):
+        with tempfile.TemporaryDirectory() as folder:
+            state = Path(folder) / "state.json"
+            original = '{"sent": ["existing"]}'
+            state.write_text(original)
+            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("acompanhamento_legislativo.run.fetch_feed", return_value=[]), patch("acompanhamento_legislativo.run.send_discord") as send:
+                main.run(["--state", str(state)])
+                send.assert_not_called()
+            self.assertEqual(state.read_text(), original)

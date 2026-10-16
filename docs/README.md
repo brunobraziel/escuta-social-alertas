@@ -160,7 +160,8 @@ Adicione `tests/test_servicos.py` para conferir pelo menos:
 - notícia relevante aceita e notícia de outro tema rejeitada;
 - envio confirmado não repetido na próxima execução;
 - erro de envio sem registrar a notícia como entregue;
-- `dry-run` e `test` preservando o estado existente.
+- `dry-run` e `test` preservando o estado existente;
+- nenhum envio quando a coleta retorna vazia ou todas as ocorrências já estão no histórico.
 
 Use mocks/fixtures nos testes; não use o Discord real na suíte.
 
@@ -184,10 +185,14 @@ Em Actions → **Executar alertas** → Run workflow:
 
 O repository secret `DISCORD_WEBHOOK_URL` existente é reutilizado. O teste ignora deduplicação e não marca a ocorrência como entregue; portanto, repeti-lo envia outra mensagem de teste.
 
-Nenhum YAML novo é necessário. O workflow único chama todos os alertas ativos a cada 30 minutos. Não há frequência individual por alerta nesta versão: mudar `schedule.cron` altera a frequência de todos. Não rode uma cópia antiga de workflow para o mesmo alerta.
+Nenhum YAML novo é necessário. O workflow único chama todos os alertas ativos uma vez por hora. Não há frequência individual por alerta nesta versão: mudar `schedule.cron` altera a frequência de todos. Não rode uma cópia antiga de workflow para o mesmo alerta.
 
 ## Adicionar somente um site a um alerta existente
 
 Isso não exige um novo registro no catálogo. Crie a configuração em `{escopo}/{site}/`, documente-a, inclua-a na seleção de fontes do executor e valide suas correspondências. Criar a pasta não a habilita automaticamente. Não registre cada arquivo de configuração como um alerta: o catálogo aponta para executores com `run(argv=None)`.
 
 Para uma regra independente, com seu próprio teste e deduplicação, crie outro executor e outro ID. Ambos podem compartilhar a mesma pasta de escopo e os componentes de `core/`.
+
+## Gatilho e silêncio na operação normal
+
+O [README principal](../README.md#fluxo-de-trigger-do-job-e-das-notificações) descreve o fluxo completo. O workflow consulta fontes uma vez por hora; cada executor só chama o Discord depois de encontrar uma ocorrência elegível e inédita. Não envie mensagens de “sem resultados” ou “execução concluída” ao canal. Registre essas informações apenas nos logs. O exemplo deste tutorial segue essa regra.
