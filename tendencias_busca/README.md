@@ -29,7 +29,7 @@ main.py → alertas.json → tendencias_busca.run.run(argv)
 
 ## Lista de termos e privacidade
 
-A lista revisada **ainda não foi transferida para o GitHub**. A disponibilização de uma lista privada em um workflow de repositório público depende de autorização do responsável. Não grave os dados no código, arquivos versionados ou logs.
+A lista revisada com nove termos foi configurada, com autorização do responsável, no repository secret `ESCUTA_SOCIAL_TERMS_JSON`. Ela não está em arquivos versionados. Não grave os dados no código ou logs; o workflow público recebe a lista pelo ambiente.
 
 A implementação espera este formato em `ESCUTA_SOCIAL_TERMS_JSON` (exemplo fictício):
 
@@ -41,7 +41,7 @@ A implementação espera este formato em `ESCUTA_SOCIAL_TERMS_JSON` (exemplo fic
 }
 ```
 
-Após autorização para essa transferência, o snapshot pode ser armazenado como repository secret; o workflow já passa o secret ao executor. A lista deve ser revisada novamente quando o documento mudar. O post informa a versão usada. O acesso ao Drive por um conector externo **não concede acesso ao GitHub Actions**; sincronização automática do documento exigiria uma integração autenticada adicional, ainda não implementada.
+O snapshot autorizado está armazenado como repository secret; o workflow já passa o secret ao executor. A lista deve ser revisada novamente quando o documento mudar. O post informa a versão usada. O acesso ao Drive por um conector externo **não concede acesso ao GitHub Actions**; sincronização automática do documento exigiria uma integração autenticada adicional, ainda não implementada.
 
 ## Comparabilidade
 
@@ -55,7 +55,7 @@ A API oficial do Trends permanece em acesso antecipado: https://developers.googl
 
 Antes de ativar:
 
-1. Autorizar e configurar uma forma de disponibilizar a lista revisada do Drive.
+1. Lista revisada do Drive: configurada como secret com autorização do responsável. Atualize-a quando a versão do documento mudar.
 2. Validar o coletor de comparação com respostas reais; se o acesso público continuar bloqueado, integrar uma fonte autorizada/API com acesso disponível. O adapter oficial ainda não foi implementado; não basta fornecer uma chave.
 3. Com o ambiente configurado, executar o módulo diretamente enquanto o catálogo estiver inativo:
 

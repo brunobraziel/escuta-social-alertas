@@ -126,6 +126,6 @@ Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/RE
 
 ## Resumo estadual de buscas (em preparação)
 
-O catálogo inclui `tendencias_por_estado`, desativado até validar o acesso aos dados de comparação e autorizar a disponibilização da lista privada do Drive no workflow. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
+O catálogo inclui `tendencias_por_estado`, desativado até validar o acesso aos dados de comparação; a lista privada do Drive já está configurada como secret autorizado. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
 
 O estado pode conter, além de `sent`, o hash `latest_trends`; executores devem preservar todos os campos desconhecidos ao gravar. Não coloque o documento ou a lista privada na branch de estado.
