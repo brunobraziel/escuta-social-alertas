@@ -11,7 +11,7 @@ from tendencias_busca.google.coleta import batches, merge_batches, SourceUnavail
 
 def compare_batch(terms, key):
     query = urllib.parse.urlencode({
-        "engine": "google_trends", "data_type": "GEO_MAP", "q": ",".join(terms),
+        "engine": "google_trends", "data_type": "GEO_MAP_0" if len(terms) == 1 else "GEO_MAP", "q": ",".join(terms),
         "geo": "BR", "region": "REGION", "date": "now 1-d", "tz": 180,
         "hl": "pt-BR", "include_low_search_volume": "true", "api_key": key,
     })
@@ -32,8 +32,21 @@ def compare_batch(terms, key):
 def parse_response(data, terms):
     if data.get("error") or data.get("search_metadata", {}).get("status") != "Success":
         raise SourceUnavailable("SerpApi: consulta sem sucesso; detalhes omitidos")
+    if len(terms) == 1:
+        rows = data.get("interest_by_region")
+        if not isinstance(rows, list):
+            raise SourceUnavailable("SerpApi: interesse regional ausente")
+        mapped = {}
+        for row in rows:
+            geo, value = row.get("geo", ""), row.get("extracted_value")
+            if not isinstance(geo, str) or not geo.startswith("BR-") or geo[3:] not in ESTADOS:
+                continue
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 100:
+                raise SourceUnavailable("SerpApi: índice regional incompatível")
+            mapped[geo[3:]] = {terms[0]: value}
+        return mapped
     rows = data.get("compared_breakdown_by_region")
-    if not isinstance(rows, list) or not rows:
+    if not isinstance(rows, list):
         raise SourceUnavailable("SerpApi: comparação regional ausente")
     mapped = {}
     for row in rows:
@@ -48,8 +61,6 @@ def parse_response(data, terms):
             values[term] = value
         if set(values) == set(terms):
             mapped[geo[3:]] = values
-    if not mapped:
-        raise SourceUnavailable("SerpApi: nenhuma UF válida")
     return mapped
 
 

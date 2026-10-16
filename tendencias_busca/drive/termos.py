@@ -30,6 +30,10 @@ def load_terms():
             grouped.extend(cluster["terms"])
         if len(set(ids)) != len(ids) or grouped != terms:
             raise ValueError("Clusters devem cobrir a lista de termos na mesma ordem, sem duplicatas")
-    if data.get("mode") == "filter_trending" and not clusters:
+    if data.get("mode") in ("filter_trending", "clusters_daily") and not clusters:
         raise ValueError("Filtro exige clusters")
+    if data.get("mode") == "clusters_daily" and len(clusters) > 9:
+        raise ValueError("No máximo nove clusters por coleta diária")
+    if data.get("mode") == "clusters_daily" and any("," in t for t in terms):
+        raise ValueError("Termos com vírgula não suportados")
     return {**data, "terms": terms}

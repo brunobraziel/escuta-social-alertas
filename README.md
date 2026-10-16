@@ -126,12 +126,14 @@ Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/RE
 
 ## Resumo estadual de buscas
 
-O alerta `tendencias_por_estado` envia duas mensagens independentes: assuntos em alta por UF e assuntos desses feeds que correspondem aos 20 termos dos grupos 1–3, item 3 da guia Google Trends no Drive. A lista e os nove clusters ficam na variável editável `ESCUTA_SOCIAL_TERMS_JSON`. Veja [configuração, método e limites](tendencias_busca/README.md).
+O alerta `tendencias_por_estado` envia duas mensagens: assuntos em alta por UF e interesse regional de **todos os 20 termos**, em nove clusters independentes da guia Google Trends do Drive. Os termos e clusters ficam na variável editável `ESCUTA_SOCIAL_TERMS_JSON`, com `mode: clusters_daily`. Veja [configuração e métricas](tendencias_busca/README.md).
 
-A agenda segue a cada três horas, até 24/10/2026 às 23h59 em Fortaleza. Cada coleta lê 27 feeds RSS e faz **zero consultas SerpApi**. Sem mudança no conteúdo de uma mensagem, ela não é reenviada. Os alertas de notícias continuam de hora em hora.
+A agenda é **uma vez por dia, às 00h07 de Fortaleza**, até 24/10/2026. Os alertas de pesquisas eleitorais e escala 6x1 continuam **de hora em hora**, com envio só quando houver novidade elegível. O workflow genérico continua único e horário.
 
-## Testar a apresentação sem consumir a API
+Tendências consome até **9 consultas SerpApi por dia**: 72 consultas de 17 a 24/10, além das já usadas e dos testes. O job não usa IA nem tokens de IA. Cache e trava por cluster evitam repetir chamadas pagas no mesmo dia após falhas ou reexecuções. A mensagem normal não é repetida no mesmo dia e não é enviada se seu conteúdo não mudou.
 
-A branch `alert-state` guarda `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. Use `mode: replay`, `alert: tendencias_por_estado` para ler os dados sem rede nem envio, ou `replay-test` para reenviar as duas mensagens salvas como teste. `test` faz uma nova coleta RSS e envia ambas; não usa SerpApi.
+## Testar a apresentação sem novas consultas
 
-O filtro atual não fornece índice de interesse ou contagem de buscas. Ele identifica correspondências textuais nos assuntos em alta. A [amostra original de comparação](dados/exemplos/README.md) permanece preservada como registro histórico.
+A branch `alert-state` guarda `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. Use `replay` para ler os dados sem rede, ou `replay-test` para reenviar as mensagens salvas como teste. `test` pode fazer até nove consultas na primeira coleta do dia; testes posteriores reutilizam os resultados preservados.
+
+Os valores são relativos ao termo/cluster e não representam contagem absoluta de buscas. Não há ranking único dos 20 termos. A [amostra original](dados/exemplos/README.md) permanece como registro histórico.

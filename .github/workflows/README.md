@@ -27,9 +27,9 @@ O workflow restaura e persiste o estado compartilhado; o executor deve preservar
 
 O agendamento inicia a consulta, não uma mensagem obrigatória. Os executores filtram os feeds e consultam o estado antes de chamar `send_discord`. Sem conteúdo elegível novo, não há mensagem no canal. Testes manuais solicitam uma mensagem identificada; simulações nunca notificam. Veja o [fluxo completo no README principal](../../README.md#fluxo-de-trigger-do-job-e-das-notificações).
 
-Diagnóstico de Trends: `mode: probe` + `alert: tendencias_por_estado` executa uma tentativa isolada, inclusive quando o alerta está inativo. Não passa pelo envio nem grava estado. Os logs contêm apenas contagens, códigos HTTP e tipos de erro, sem termos privados. Outros IDs não aceitam `probe`.
+Diagnóstico de Trends: `mode: probe` + `alert: tendencias_por_estado` executa uma tentativa isolada, inclusive quando o alerta está inativo. Não passa pelo envio nem grava estado. No modo `clusters_daily`, probe não consulta a API paga: orienta a usar o cache ou um teste com persistência. Outros IDs não aceitam `probe`.
 
-Tendências usa RSS e o dicionário da repository variable `ESCUTA_SOCIAL_TERMS_JSON`, sem consumir SerpApi no modo `filter_trending`. Sua agenda prevê execuções a cada três horas de Fortaleza até o fim de 24/10/2026; os outros alertas não herdam essa agenda. O executor e o diagnóstico também bloqueiam consultas após o encerramento.
+Tendências usa RSS e nove clusters via SerpApi, configurados na repository variable `ESCUTA_SOCIAL_TERMS_JSON` (`mode: clusters_daily`). Sua agenda prevê uma execução diária às 00h07 de Fortaleza até o fim de 24/10/2026; os outros alertas não herdam essa agenda. O executor e o diagnóstico também bloqueiam consultas após o encerramento.
 
 Cache de tendências: `replay` lê o snapshot sem nenhuma consulta externa nem envio; `recover` recupera comparações já arquivadas e atualiza RSS público uma vez, sem criar novas pesquisas SerpApi. Ambos exigem `alert: tendencias_por_estado`. O workflow exporta snapshots para `dados/tendencias/` na branch `alert-state` durante a persistência. Testes agora também salvam snapshots, sem marcar entrega na deduplicação de produção.
 

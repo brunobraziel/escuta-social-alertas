@@ -31,7 +31,7 @@ def markdown(cached):
     report = cached["report"]
     if cached.get("reports"):
         return "Coleta: " + cached["collected_at"] + "\n\n" + "\n\n".join(
-            "# " + item["alert_title"] + "\n\n" + item["message"] + "\n\n" + item["footer"]
+            "# " + item["alert_title"] + "\n\n" + item["message"] + "\n\n" + item.get("details_message", "") + "\n\n" + item["footer"]
             for item in cached["reports"]
         ) + "\n"
     return ("# " + report["alert_title"] + "\n\n"

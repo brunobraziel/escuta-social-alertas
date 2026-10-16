@@ -15,6 +15,9 @@ def run():
             return
         snapshot = load_terms()
         print(f"Lista privada carregada: {len(snapshot['terms'])} termos. Valores omitidos.", flush=True)
+        if snapshot.get("mode") == "clusters_daily":
+            print("Modo diário: use replay para verificar o cache, ou test para coletar com persistência e limite diário. Probe não faz consultas pagas.")
+            return
         if snapshot.get("mode") == "filter_trending":
             from tendencias_busca.filtro import filter_topics
             general = {uf: trending(uf) for uf in ("MG", "SP", "CE")}

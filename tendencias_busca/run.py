@@ -49,6 +49,9 @@ def run(argv=None):
     webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
     if not args.dry_run and not webhook:
         parser.error("Configure DISCORD_WEBHOOK_URL")
+    if snapshot_data.get("mode") == "clusters_daily":
+        from tendencias_busca.clusters import execute
+        return execute(args, snapshot_data, states, webhook)
     if snapshot_data.get("mode") == "filter_trending":
         from tendencias_busca.filtrado import execute
         return execute(args, snapshot_data, states, webhook)

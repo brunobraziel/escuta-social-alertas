@@ -1,78 +1,79 @@
-# Tendências por estado e Escuta Social
+# Tendências e Escuta Social diária
 
-ID `tendencias_por_estado`; módulo `tendencias_busca.run`. Configuração atual: `mode: filter_trending`, em `ESCUTA_SOCIAL_TERMS_JSON`.
+ID `tendencias_por_estado`; módulo `tendencias_busca.run`; modo atual `clusters_daily` na variável do repositório `ESCUTA_SOCIAL_TERMS_JSON`.
+
+## Agenda e consumo
+
+O workflow genérico continua **de hora em hora**, minuto 07. Pesquisas de intenção de voto e escala 6x1 participam de todas essas execuções. Tendências tem `agenda.intervalo_horas: 24`: execução prevista **uma vez por dia, às 00h07 de Fortaleza**, até 24/10/2026, com encerramento exclusivo em 25/10 às 00h00. O GitHub pode atrasar ou perder execuções. Horário é previsão, não garantia de entrega.
+
+São **até nove consultas SerpApi por dia**, uma por cluster, cada qual retorna recortes de todos os estados do Brasil. Os três termos isolados continuam separados; os demais respeitam os agrupamentos do documento. Não há chamada paga por UF. Cada coleta também lê 27 feeds públicos RSS para a seção geral.
+
+De 17 a 24/10 são oito dias: **72 consultas** em uma execução diária; três execuções diárias dariam **216**, mas essa frequência não está ativada. Nove dias completos de 16 a 24/10 dariam 81 e 243, respectivamente. Consultas anteriores e testes devem ser somados ao consumo. O job não usa modelo de IA e não consome tokens de IA.
+
+A implementação atual mantém **uma coleta paga por dia**, independentemente de alterar só a agenda do catálogo. Para aumentar frequência é necessário revisar também o cache/limite diário de `clusters.py` e o orçamento.
 
 ## Duas mensagens no Discord
 
-1. **Assuntos em alta — geral:** até quatro assuntos recentes por UF, preservando a ordem do RSS público do Google Trends.
-2. **Escuta Social — assuntos em alta filtrados:** até quatro assuntos por UF que contenham termos do item 3 da guia Google Trends do documento, grupos 1, 2 e 3. O filtro examina todos os assuntos coletados, antes do corte de quatro. Informa `nenhuma correspondência` quando há feed, mas nenhum assunto corresponde ao dicionário.
+1. **Assuntos em alta — geral:** até quatro assuntos por UF, na ordem do RSS público, nas últimas 24h. Não é ranking absoluto de todas as buscas.
+2. **Escuta Social diária:** consulta **todos os 20 termos**, mesmo fora das tendências, em **nove clusters independentes**. Mostra a tabela por UF, com os números na ordem dos termos de cada cluster indicada na legenda. As duas seções/embeds dessa tabela pertencem à mesma segunda mensagem.
 
-São dois envios separados. Cada mensagem tem seu próprio controle de novidade: se o conteúdo visível continuar igual, não é reenviada. Falha no segundo envio preserva a confirmação do primeiro. O modo `test` força ambos com identificação de teste, salva o cache e não marca entrega de produção.
+Para os clusters de termo único 1A, 2A e 2B, o número é índice geográfico de interesse relativo de 0–100 para aquele termo. Para os clusters com vários termos, é a participação relativa de cada termo entre os termos daquele cluster na UF (%). Não compare números entre clusters nem os interprete como quantidades de buscas, percentual da população, apoio ou intenção de voto. A escala não é unificada entre os clusters. A distribuição relativa é sujeita a amostragem e arredondamento.
 
-O filtro ignora maiúsculas e acentos e exige limites de palavra: `SUS` corresponde a `quem criou o sus`, mas não a `Jesus`. Não usa sinônimos nem infere temas pelo sentido. Um assunto pode corresponder a vários termos e clusters. Os títulos completos e todas as correspondências ficam no JSON; o Discord abrevia títulos para caber nas 27 UFs. O feed público tem cobertura limitada e não é o ranking absoluto de todas as buscas. Ausência no feed não significa ausência de buscas.
+`n/d` indica ausência de dados para a UF naquele cluster. Zero pode representar interesse abaixo da resolução e não prova ausência de buscas. Não há ranking global dos 20 termos. Os nomes completos e todos os valores ficam no JSON salvo; a mensagem usa códigos dos clusters e legenda para caber nas 27 UFs. O modo anterior `filter_trending` permanece no código como alternativa, mas não é o modo configurado.
 
 ## Configuração editável
 
-**Settings → Secrets and variables → Actions → Variables → ESCUTA_SOCIAL_TERMS_JSON**.
+**Settings → Secrets and variables → Actions → Variables → ESCUTA_SOCIAL_TERMS_JSON**. O workflow usa `${{ vars.ESCUTA_SOCIAL_TERMS_JSON }}` como variável de ambiente. `SERPAPI_API_KEY` e `DISCORD_WEBHOOK_URL` permanecem como repository secrets.
 
-O workflow passa `${{ vars.ESCUTA_SOCIAL_TERMS_JSON }}` como variável de ambiente. Credenciais do Discord e da SerpApi continuam em secrets; a chave SerpApi não é usada no modo atual. A lista foi revisada em 16/10/2026, na guia Google Trends, item 3. Não há sincronização automática com o Drive.
+A variável contém `mode: clusters_daily`, `source_url`, `source_tab`, `source_modified`, `source_revision`, `terms` e `clusters`. A lista foi revisada em 16/10/2026 a partir da guia Google Trends, item 3, grupos 1–3. `terms` deve ser a concatenação dos termos dos clusters na mesma ordem, sem duplicatas. Cada cluster aceita de um a cinco termos, no máximo nove clusters por dia. Não existe sincronização automática com o Drive.
 
-Formato ilustrativo, sem termos reais embutidos no código:
+Formato ilustrativo:
 
 ```json
 {
-  "mode": "filter_trending",
+  "mode": "clusters_daily",
   "source_url": "https://docs.google.com/document/d/ID/edit",
-  "source_tab": "ID_DA_GUIA",
   "source_modified": "2026-10-16",
   "terms": ["Tema A", "Tema B"],
-  "clusters": [
-    {"id": "1A", "name": "Grupo A", "terms": ["Tema A"]},
-    {"id": "1B", "name": "Grupo B", "terms": ["Tema B"]}
-  ]
+  "clusters": [{"id": "1A", "terms": ["Tema A"]}, {"id": "1B", "terms": ["Tema B"]}]
 }
 ```
 
-`terms` deve ser a concatenação dos termos de `clusters`, na mesma ordem e sem duplicatas. Cada cluster aceita de um a cinco termos. A configuração atual contém **20 termos em 9 clusters**: 1A, 1B, 2A, 2B, 2C, 3A, 3B, 3C e 3D. Para mudar termos, edite a variável, preserve os clusters e atualize a versão; não precisa alterar o código. `source_modified` identifica a data da versão revisada; `source_revision` pode registrar a revisão exata lida no Drive.
+A legenda das métricas em `clusters.py` corresponde aos IDs reais do documento; preserve esses IDs e os agrupamentos se editar a lista.
 
-## Fluxo e consumo
+## Fluxo e segurança da cota
 
 ```text
-workflow único → main.py --scheduled → alertas.json
-  → tendencias_busca.run → load_terms
-  → filtrado.execute → RSS de 27 UFs → filtro.filter_topics
-  → filtro.reports → dois envios com deduplicação independente
-  → state.json → branch alert-state + JSON/Markdown exportados
+workflow por hora → main.py --scheduled → catálogo com intervalo 24h
+ → run.py → load_terms → clusters.execute
+ → collect: cache diário por cluster → SerpApi → RSS
+ → duas mensagens com controle de entrega independente
+ → state.json e arquivos exportados na branch alert-state
 ```
 
-- `run.py`: argumentos, encerramento, seleção do modo e reprodução do cache.
-- `filtrado.py`: coleta RSS, deduplicação por mensagem e persistência das confirmações.
-- `filtro.py`: correspondência dos assuntos aos clusters e formatação.
-- `drive/termos.py`: validação da variável, sem acesso automático ao Drive.
-- `google/coleta.py`: feeds por UF; também contém comparação direta legada.
-- `google/serpapi.py` e `resumo.py`: comparação regional antiga; não são chamados no modo `filter_trending`.
-- `cache.py`: grava dados, textos e exporta arquivos reutilizáveis.
+Cada tentativa é persistida **antes** da chamada paga, e o resultado é salvo após cada retorno. Um cluster já concluído hoje é reutilizado; um cluster que falhou não é consultado novamente no mesmo dia. Se o job for reexecutado, não há repetição desses pedidos, inclusive em `test`. Após uma interrupção, clusters ainda não tentados podem ser consultados. Alterar a configuração após iniciar a coleta do dia bloqueia uma nova coleta naquele dia. Não há retentativa automática da API.
 
-A agenda permanece a cada **3 horas**, até 24/10/2026 às 23h59 de Fortaleza: 00h07, 03h07, 06h07, 09h07, 12h07, 15h07, 18h07 e 21h07. O GitHub pode atrasar ou perder execuções. Após o encerramento, o executor e o diagnóstico não consultam fontes; reprodução do cache continua disponível. O workflow base segue de hora em hora para os outros alertas.
+Cada mensagem normal é enviada no máximo uma vez por dia e apenas se seu conteúdo mudou. Falha na segunda não perde a confirmação da primeira; nova execução pode reenviar só a pendente, sem recolher a comparação. Testes forçam envio e não marcam a entrega de produção. `dry-run` não salva tentativas/resultados e pode consumir nove consultas extras: prefira `replay` para apresentação. Não repita testes com outro arquivo de estado, pois isso elimina o histórico que protege a cota.
 
-Cada coleta atual faz **27 leituras RSS e zero consultas SerpApi**, tanto em `live` quanto em `test` e `dry-run`. Não há consultas individuais por termo nem retentativa automática de coleta em caso de bloqueio. O diagnóstico `probe` lê somente MG, SP e CE. Ele não envia mensagens.
+O encerramento em 25/10 é aplicado antes de qualquer coleta, inclusive manual. Outros alertas continuam sem essa data final.
 
-## Relação com a documentação do Drive
-
-O documento descreve uma arquitetura mais ampla, com DataForSEO/Google Ads, volumes históricos municipais, fallback cidade→UF, aceleração em relação a 30 dias, comparação com Brasil e Rising Queries. Essas etapas **não estão implementadas** neste alerta. O escopo atual usa somente o dicionário dos grupos 1–3 para filtrar assuntos em alta por UF; não estima números de buscas, aceleração, apoio político ou intenção de voto.
-
-Uma futura comparação de todos os termos precisaria respeitar os nove clusters independentes, inclusive os três termos isolados. Seriam nove consultas por coleta regional. Em nove dias completos, seriam 648 consultas a cada 3h ou 486 a cada 4h, acima da cota de 250 informada para esta conta. Por orientação do responsável, foi escolhido o filtro RSS. A comparação legada de nove termos em dois lotes não representa o novo dicionário.
-
-## Testes e dados persistidos
+## Operação e arquivos
 
 Actions → Executar alertas → `alert: tendencias_por_estado`:
 
-- `test`: coleta real RSS e envia as duas mensagens de teste; zero SerpApi.
-- `dry-run`: coleta RSS e imprime o resultado, sem envio ou mudança de estado.
-- `probe`: diagnóstico reduzido sem envio.
-- `replay`: lê o cache, sem rede ou envio.
-- `replay-test`: reenvia as mensagens salvas com `[TESTE] [CACHE]`, sem consultar fontes, preservando as datas originais.
+- `test`: coleta ou reutiliza os nove clusters do dia e envia as duas mensagens de teste.
+- `live`: usa a trava diária e o controle de novidade/entrega.
+- `probe`: neste modo, informa como testar; **não faz chamadas pagas** nem envia.
+- `dry-run`: consulta/reutiliza dados e imprime o resultado, sem persistir ou enviar; pode consumir cota.
+- `replay`: lê o snapshot sem rede ou envio.
+- `replay-test`: reenvia as duas mensagens do cache com `[TESTE] [CACHE]`, sem consultar fontes.
 
-A branch `alert-state` mantém `state.json`, `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. O JSON contém os assuntos completos, termos/IDs dos clusters correspondentes, os dois textos e confirmações. A configuração original do documento e credenciais não são incluídas. Resultados e arquivos são públicos, conforme autorizado.
+`clusters.py` coordena a coleta, a tabela e os envios. `google/serpapi.py` usa `GEO_MAP_0` para termo único e `GEO_MAP` para comparação de vários termos. `drive/termos.py` valida a configuração. `cache.py` exporta dados e textos. `filtrado.py`/`filtro.py` são a alternativa de filtro RSS; `resumo.py` contém o formato legado de comparação em lotes.
 
-`trends_rss_latest_general` e `trends_rss_latest_filtered` são os hashes dos conteúdos confirmados. Os demais campos do estado são preservados. Os snapshots antigos de comparação continuam legíveis; `recover` e `recover-discord` são ferramentas legadas de recuperação, não o fluxo atual de coleta. A [amostra original](../dados/exemplos/README.md) permanece como registro histórico, sem alteração retroativa.
+A branch `alert-state` mantém `state.json`, `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. Os resultados contêm todos os termos/valores por UF e cluster, os textos e confirmações; são públicos, conforme autorizado. Credenciais e o texto integral do documento não são gravados. O estado preserva campos desconhecidos dos outros alertas. `trends_clusters_day` guarda tentativas/resultados diários; `trends_daily_*` controla entregas. O cache permite ajustar apresentação sem repetir consultas pagas.
+
+## Limites do escopo
+
+A documentação do Drive também propõe DataForSEO/Google Ads, volumes municipais históricos, fallback cidade→UF, aceleração relativa a 30 dias e Brasil, e Rising Queries. Essas análises não estão implementadas. Este alerta entrega interesse regional dos clusters nas últimas 24h e assuntos em alta por UF. Não fornece contagens absolutas ou comparação com baseline histórico.
+
+[Documentação do provedor: interesse regional de termo único](https://serpapi.com/google-trends-interest-by-region). A [amostra original](../dados/exemplos/README.md) e os modos legados de recuperação continuam preservados como histórico, sem alteração retroativa.
