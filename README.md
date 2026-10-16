@@ -62,15 +62,31 @@ A execução é sequencial e mantém o estado compartilhado na branch `alert-sta
 
 Os agendamentos do GitHub podem atrasar e ser desativados após 60 dias sem atividade em repositórios públicos. Os logs são públicos e podem conter metadados públicos das matérias; não adicione documentos internos ou credenciais.
 
-## Adicionar ou desativar alertas
+## Criar novos alertas
 
-1. Crie uma pasta de escopo com `run.py`, README e subpastas por site. Reutilize `core/`.
-2. Exponha `run(argv=None)`, aceitando `--state`, `--dry-run` e `--test`. Não execute ações ao importar o módulo.
-3. Em `live`, leia o estado existente e acrescente apenas identificadores de entregas confirmadas; preserve as entradas dos outros alertas. Em `test` e `dry-run`, não altere o estado.
-4. Registre em `alertas.json`: `id` único, `modulo` importável, `ativo` booleano e `descricao`.
-5. Inclua testes e valide com `python main.py --alert seu_id --mode dry-run`.
+Siga o [tutorial completo, com exemplo de Bolsa Família](docs/README.md). Ele mostra quais arquivos criar, como escrever o executor, registrar o catálogo e validar no GitHub.
 
-Não é preciso criar ou editar workflows para adicionar um alerta. Para desativar um alerta, altere `ativo` para `false`; isso preserva o histórico.
+O fluxo de chamada é:
+
+```text
+monitorar.yml → main.py → alertas.json → módulo.run(argv)
+                                      → configuração por site
+                                      → core.alerta → Discord
+```
+
+1. Crie um executor importável, por exemplo `servicos/bolsa_familia.py`, e configurações como `servicos/g1/calendario_pagamentos.py`.
+2. No executor, implemente `run(argv=None)` com `--state`, `--dry-run` e `--test`.
+3. Registre um ID único e o caminho do módulo em `alertas.json`, preservando os alertas existentes.
+4. Adicione testes, execute em `dry-run` e documente filtros, fontes, limites e deduplicação.
+5. Publique na branch padrão. O agendamento único passa a executar o novo alerta se `ativo` for `true`.
+
+Um arquivo `.py` novo, sozinho, **não é descoberto automaticamente**. O `main.py` só executa módulos registrados no catálogo. Também não importa automaticamente todos os sites de uma pasta: o executor de cada alerta escolhe suas configurações de fonte.
+
+Um escopo pode ter vários alertas. Nesse caso, use módulos diferentes, como `servicos.bolsa_familia` e `servicos.tarifa_zero`, cada um com seu próprio ID. O nome `run.py` é uma convenção dos primeiros exemplos, não uma exigência do runner; a função `run(argv=None)` é o contrato.
+
+Para desativar, altere `ativo` para `false`. Alertas desativados também não podem ser selecionados manualmente pelo runner. Para voltar a executar, reative no catálogo. Não apague os identificadores do estado.
+
+Não crie um YAML por alerta. Frequência, ambiente e secret são compartilhados pelo workflow único.
 
 ## Cobertura
 

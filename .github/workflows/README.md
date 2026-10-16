@@ -12,3 +12,9 @@
 Frequência única: `schedule.cron`, atualmente `7,37 * * * *`. Para 15 minutos: `7,22,37,52 * * * *`. Horários cron são UTC; os intervalos se mantêm em Fortaleza. Novos alertas entram pelo catálogo; não precisam de YAML próprio.
 
 O grupo de concorrência único serializa execuções para preservar estado. O secret `DISCORD_WEBHOOK_URL` é de repositório. O token do workflow tem escrita apenas para persistir estado neste repositório. Não execute manualmente cópias antigas dos workflows removidos, pois poderiam publicar mensagens duplicadas.
+
+## Registrar novos alertas
+
+Não crie outro arquivo de workflow. O [tutorial](../../docs/README.md) explica a criação do módulo e a entrada em `alertas.json`. Após publicar na branch padrão com `ativo: true`, o novo ID participa do agendamento. Na execução manual, digite esse ID no campo `alert`; a lista não é fixa no YAML.
+
+O workflow restaura e persiste o estado compartilhado; o executor deve preservar entradas existentes e gravar entregas confirmadas antes de retornar. Se a restauração falhar, a etapa de persistência não roda, evitando substituir o histórico. O agendamento é comum a todos os alertas; intervalos individuais ainda não são configuráveis.
