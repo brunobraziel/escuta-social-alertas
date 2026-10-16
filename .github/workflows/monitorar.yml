@@ -7,7 +7,7 @@ on:
       mode:
         description: Modo de execução
         type: choice
-        options: [dry-run, live, test]
+        options: [dry-run, live, test, probe]
         default: dry-run
       alert:
         description: ID do alerta (consulte alertas.json); all executa todos os ativos
@@ -52,7 +52,15 @@ jobs:
             echo '::warning::Configure DISCORD_WEBHOOK_URL; executando dry-run.'
             MODE=dry-run
           fi
-          python main.py --alert "$ALERT" --mode "$MODE"
+          if [ "$MODE" = probe ]; then
+            if [ "$ALERT" != tendencias_por_estado ]; then
+              echo '::error::probe está disponível somente para tendencias_por_estado.'
+              exit 1
+            fi
+            python -m tendencias_busca.diagnostico
+          else
+            python main.py --alert "$ALERT" --mode "$MODE"
+          fi
       - name: Salvar entregas confirmadas
         if: always() && steps.state.outcome == 'success' && (inputs.mode == 'live' || github.event_name == 'schedule')
         run: |

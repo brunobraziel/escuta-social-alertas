@@ -82,3 +82,17 @@ class TrendsTests(unittest.TestCase):
             request.assert_called_once()
             payload = json.loads(request.call_args.args[0].data)
             self.assertEqual(len(payload["embeds"]), 2)
+
+    def test_probe_stops_after_failure_without_printing_terms(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        from tendencias_busca.diagnostico import run as probe
+        output = StringIO()
+        with patch("tendencias_busca.diagnostico.load_terms", return_value=SNAPSHOT), patch("tendencias_busca.diagnostico.compare_all", side_effect=SourceUnavailable("Google Trends HTTP 429")) as compare, patch("tendencias_busca.diagnostico.trending") as rss, redirect_stdout(output):
+            with self.assertRaises(SystemExit):
+                probe()
+            compare.assert_called_once()
+            rss.assert_not_called()
+        self.assertIn("HTTP 429", output.getvalue())
+        for term in SNAPSHOT["terms"]:
+            self.assertNotIn(term, output.getvalue())

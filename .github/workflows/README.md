@@ -26,3 +26,5 @@ O workflow restaura e persiste o estado compartilhado; o executor deve preservar
 - Pushes e commits não são gatilhos deste YAML. Gravar `alert-state` não encadeia outra execução.
 
 O agendamento inicia a consulta, não uma mensagem obrigatória. Os executores filtram os feeds e consultam o estado antes de chamar `send_discord`. Sem conteúdo elegível novo, não há mensagem no canal. Testes manuais solicitam uma mensagem identificada; simulações nunca notificam. Veja o [fluxo completo no README principal](../../README.md#fluxo-de-trigger-do-job-e-das-notificações).
+
+Diagnóstico de Trends: `mode: probe` + `alert: tendencias_por_estado` executa uma tentativa isolada, inclusive quando o alerta está inativo. Não passa pelo envio nem grava estado. Os logs contêm apenas contagens, códigos HTTP e tipos de erro, sem termos privados. Outros IDs não aceitam `probe`.

@@ -77,3 +77,9 @@ python main.py --alert tendencias_por_estado --mode dry-run
 O estado compartilhado preserva `sent` e armazena apenas um hash adicional em `latest_trends`. Não grava consultas, nomes, índices ou o documento privado na branch de estado. A cada execução, compara com o último resumo entregue; se a lista/ordem dos destaques não mudou, fica em silêncio. Mudança apenas de horário, pontuação ou versão do documento sem mudança na lista não gera notificação.
 
 `dry-run` imprime o conteúdo que seria enviado e não modifica o estado. **Não rode o dry-run com a lista privada em logs públicos sem autorização para divulgar os resultados.** O modo test ignora a deduplicação e não modifica o histórico. Erros ficam no status/log do job, sem mensagem ao Discord.
+
+## Tentativa isolada sem expor resultados
+
+Actions → Executar alertas → Run workflow: `mode: probe`, `alert: tendencias_por_estado`. Esse modo chama `diagnostico.py` mesmo com o alerta inativo, apenas para verificar a fonte. Não ativa o catálogo, não envia ao Discord, não grava estado e não imprime termos ou resultados individuais. Em 429, encerra sem retentar. A comparação pode exigir até três lotes para a lista atual; para na primeira falha. Só após comparação válida confere RSS de MG, SP e CE.
+
+Localmente, com o secret no ambiente: `python -m tendencias_busca.diagnostico`. Não substitua por `--dry-run` em logs públicos, pois esse último imprime o resumo.
