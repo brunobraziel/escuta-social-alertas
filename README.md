@@ -133,3 +133,9 @@ O estado pode conter, além de `sent`, o hash `latest_trends`; executores devem 
 A agenda preparada para tendências é uma vez por dia, até 24/10/2026 às 23h59 em Fortaleza; os alertas de notícias permanecem de hora em hora. O provedor é **SerpApi (serpapi.com, oferta consultada de 250 buscas/mês)**, diferente de **SearchApi (searchapi.io, 100 requisições de teste)**. O repository secret `SERPAPI_API_KEY` foi cadastrado e o diagnóstico real passou.
 
 O resumo de tendências roda **uma vez por dia, às 00h07 de Fortaleza**, até o fim de 24/10. Há trava por data para impedir nova tentativa `live` no mesmo dia, mesmo após falha. A rotina prevista custa no máximo duas consultas SerpApi por dia; os testes/diagnósticos manuais são adicionais. O teste real de ativação foi entregue ao Discord com sucesso em 16/10/2026.
+
+## Testar a apresentação sem consumir a API
+
+O resumo estadual agora guarda os dados e o texto na branch `alert-state`: `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. Em Actions, use `mode: replay`, `alert: tendencias_por_estado` para ler esse cache sem consultar fontes ou enviar mensagens. Veja [reprodução, recuperação e métrica numérica](tendencias_busca/README.md#dados-e-mensagem-persistidos-sem-novas-coletas).
+
+O post usa quatro destaques por UF, quando há dados suficientes, e mostra o índice relativo 0–100 dos termos monitorados. O índice não representa contagem absoluta de buscas.

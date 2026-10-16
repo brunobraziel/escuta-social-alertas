@@ -6,8 +6,8 @@ ID: `tendencias_por_estado`. Executor: `tendencias_busca.run`, com o mesmo contr
 
 Uma única mensagem do Discord, com duas seções (dois embeds no mesmo POST), cobrindo os 26 estados e o Distrito Federal:
 
-1. **Assuntos em alta:** até dois destaques da lista pública de tendências por UF nas últimas 24 horas. Preserva a ordem do RSS; não representa o ranking absoluto de todas as buscas.
-2. **Escuta Social:** consulta todos os termos revisados do documento, mesmo fora das tendências, e mostra até dois destaques de maior interesse relativo por UF. Não filtra somente termos que aparecem no RSS.
+1. **Assuntos em alta:** até quatro destaques da lista pública de tendências por UF nas últimas 24 horas. Preserva a ordem do RSS; não representa o ranking absoluto de todas as buscas.
+2. **Escuta Social:** consulta todos os termos revisados do documento, mesmo fora das tendências, e mostra até quatro destaques de maior interesse relativo por UF. Não filtra somente termos que aparecem no RSS.
 
 Se houver estado sem dados suficientes para comparar todos os termos, isso é informado em vez de inventar uma ordem. Se a comparação falhar inteiramente (429, CAPTCHA/formato inesperado etc.), não é enviado resumo parcial apresentado como completo. Ausência de interesse mensurável não significa ausência de buscas. Os dados não medem apoio, opinião pública, intenção de voto ou volume absoluto.
 
@@ -49,7 +49,7 @@ O snapshot autorizado está armazenado como repository secret; o workflow já pa
 
 A referência comum é escolhida entre os cinco termos do primeiro lote, priorizando presença mensurável nas UFs e mediana do índice. A seleção não usa consulta extra. Os valores de cada termo são divididos pelo valor dessa referência na mesma UF e depois reescalados em relação ao maior entre os monitorados naquela UF. Isso evita concatenar índices normalizados independentes sem referência. O método produz uma aproximação sensível à amostragem/arredondamento; não é uma contagem de pessoas ou buscas.
 
-Se faltarem termos ou a referência não puder ser medida, a UF fica como `dados insuficientes`. Valores zero são tratados como abaixo da resolução, não ausência de buscas. Os destaques só são exibidos quando o segundo colocado supera o limite conservador de incerteza dos termos arredondados a zero em todos os lotes. Todos os termos são consultados. As comparações usam a mesma janela de 24 horas, tipo de pesquisa e abrangência Brasil. O corpo mostra apenas os destaques; os demais termos foram consultados, não omitidos da coleta. Os números do índice não são exibidos no post.
+Se faltarem termos ou a referência não puder ser medida, a UF fica como `dados insuficientes`. Valores zero são tratados como abaixo da resolução, não ausência de buscas. Os destaques só são exibidos quando o quarto colocado supera o limite conservador de incerteza dos termos arredondados a zero em todos os lotes. Todos os termos são consultados. As comparações usam a mesma janela de 24 horas, tipo de pesquisa e abrangência Brasil. O corpo mostra apenas os destaques; os demais termos foram consultados, não omitidos da coleta. Os números do índice não são exibidos no post.
 
 ## SerpApi: conta e limites
 
@@ -94,9 +94,9 @@ O `dry-run` imprime o resumo: não rode com a lista privada em logs públicos se
 
 ## Silêncio e estado
 
-O estado compartilhado preserva `sent` e armazena o hash `latest_trends` e a data `trends_attempt_date`, sem resultados privados. Não grava consultas, nomes, índices ou o documento privado na branch de estado. A cada execução, compara com o último resumo entregue; se a lista/ordem dos destaques não mudou, fica em silêncio. Mudança apenas de horário, pontuação ou versão do documento sem mudança na lista não gera notificação.
+Com autorização para guardar os dados no repositório, o estado preserva `sent`, `latest_trends` e `trends_attempt_date` e também armazena snapshots do resumo/dados normalizados. Não inclui credenciais, URLs de requisição com chave, respostas brutas do provedor nem o texto do documento privado. A cada execução, compara com o último resumo entregue; se a lista/ordem dos destaques não mudou, fica em silêncio. Mudança apenas de horário, pontuação ou versão do documento sem mudança na lista não gera notificação.
 
-`dry-run` imprime o conteúdo que seria enviado e não modifica o estado. **Não rode o dry-run com a lista privada em logs públicos sem autorização para divulgar os resultados.** O modo test ignora a deduplicação e não modifica o histórico. Erros ficam no status/log do job, sem mensagem ao Discord.
+`dry-run` imprime o conteúdo que seria enviado e não modifica o estado. **Não rode o dry-run com a lista privada em logs públicos sem autorização para divulgar os resultados.** O modo test ignora a deduplicação e não marca a ocorrência como entregue na rotina normal, mas salva o snapshot e a confirmação do teste para permitir reprodução. Erros ficam no status/log do job, sem mensagem ao Discord.
 
 ## Tentativa isolada sem expor resultados
 
@@ -109,3 +109,31 @@ Localmente, com o secret no ambiente: `python -m tendencias_busca.diagnostico`. 
 O executor em `live` registra `trends_attempt_date` antes de consultar a SerpApi. Se já houve tentativa naquele dia de Fortaleza, termina sem novas consultas, mesmo após falha. Isso evita consumo duplicado por reexecução do workflow. A tentativa é salva pelo workflow mesmo se a API falhar. Os identificadores de entregas continuam preservados; falha não marca resumo como enviado.
 
 `probe`, `test` e `dry-run` são ações manuais que podem consumir até duas consultas extras cada; não executá-las repetidamente. O diagnóstico e o teste de ativação já foram solicitados e não fazem parte das 18 consultas estimadas de nove dias completos. O consumo efetivo deve ser acompanhado no painel do provedor.
+
+## Métrica quantitativa e top 4
+
+Cada UF mostra quatro assuntos em alta e até quatro termos monitorados mensuráveis. Na segunda seção, `Tema (42,5)` representa um **índice relativo entre os termos monitorados naquela UF**, de 0 a 100, na janela de 24 horas. O maior recebe 100. Não é quantidade de buscas, percentual da população, frequência por pessoa, nem medida de apoio político. Não compare os índices de UFs diferentes como se fossem volumes absolutos. Uma contagem absoluta não é fornecida pelo Google Trends; estimativas mensais exigiriam outra fonte e integração.
+
+UFs que não sustentam quatro destaques confiáveis são identificadas como dados insuficientes. Para caber em um único post com 27 UFs, alguns nomes são abreviados no texto; os nomes completos e índices ficam no JSON salvo. A seção geral segue ordem do RSS, sem alegar ranking absoluto de todas as buscas.
+
+## Dados e mensagem persistidos, sem novas coletas
+
+A branch **`alert-state`** contém:
+
+- `dados/tendencias/ultima_coleta.json`: dados normalizados por UF, índices, texto formatado, horários, origem e confirmação de envio quando houver.
+- `dados/tendencias/ultima_mensagem.md`: texto do último envio confirmado; enquanto não houver uma confirmação persistida, contém uma reconstrução identificada pela origem.
+- `state.json`: histórico e snapshots usados pelo executor.
+
+Esses arquivos são públicos, assim como o repositório, conforme solicitado. Não incluem a lista original do documento como arquivo de configuração nem credenciais. Os dados de resultados incluem os termos comparados para permitir testar outras apresentações. Cada nova coleta válida atualiza os arquivos; commits da branch preservam versões anteriores.
+
+**Reproduzir sem requisições externas:** Actions → Executar alertas → `mode: replay`, `alert: tendencias_por_estado`. Esse modo só lê o estado restaurado; não consulta RSS/Google/SerpApi, não envia ao Discord e não altera a cota. Funciona também após o encerramento da coleta.
+
+Para testar localmente, obtenha `ultima_coleta.json` da branch de estado e use:
+
+```sh
+python -m tendencias_busca.run --cached --dry-run --cache-file ultima_coleta.json
+```
+
+Para reenviar o cache como teste, sem recolher dados, use `--cached --test` com o mesmo arquivo e o webhook no ambiente. É uma ação manual que envia mensagem; o preview acima não envia.
+
+`mode: recover` é uma recuperação de dados já arquivados pela SerpApi. Ela lista e lê o histórico, sem chamar o endpoint de criação de pesquisas e sem fallback para uma nova busca. A primeira seção pode precisar de uma leitura atualizada do RSS público; a origem e as datas ficam explícitas. Uma reconstrução não é apresentada como cópia literal do teste antigo, que não havia sido persistido. Depois de haver cache, prefira sempre `replay` para testar layout.

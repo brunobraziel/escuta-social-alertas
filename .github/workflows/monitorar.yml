@@ -7,7 +7,7 @@ on:
       mode:
         description: Modo de execução
         type: choice
-        options: [dry-run, live, test, probe]
+        options: [dry-run, live, test, probe, replay, recover]
         default: dry-run
       alert:
         description: ID do alerta (consulte alertas.json); all executa todos os ativos
@@ -54,7 +54,17 @@ jobs:
             echo '::warning::Configure DISCORD_WEBHOOK_URL; executando dry-run.'
             MODE=dry-run
           fi
-          if [ "$MODE" = probe ]; then
+          if [ "$MODE" = replay ] || [ "$MODE" = recover ]; then
+            if [ "$ALERT" != tendencias_por_estado ]; then
+              echo '::error::replay/recover exigem tendencias_por_estado.'
+              exit 1
+            fi
+            if [ "$MODE" = recover ]; then
+              python -m tendencias_busca.recuperar
+            else
+              python -m tendencias_busca.run --cached --dry-run
+            fi
+          elif [ "$MODE" = probe ]; then
             if [ "$ALERT" != tendencias_por_estado ]; then
               echo '::error::probe está disponível somente para tendencias_por_estado.'
               exit 1
@@ -68,7 +78,7 @@ jobs:
             python main.py "${args[@]}"
           fi
       - name: Salvar entregas confirmadas
-        if: always() && steps.state.outcome == 'success' && (inputs.mode == 'live' || github.event_name == 'schedule')
+        if: always() && steps.state.outcome == 'success' && (inputs.mode == 'live' || inputs.mode == 'test' || inputs.mode == 'recover' || github.event_name == 'schedule')
         run: |
           test -f state.json || exit 0
           origin_url=$(git remote get-url origin)
@@ -88,7 +98,11 @@ jobs:
             git -C "$state_dir" checkout --orphan alert-state
           fi
           mv "$state_dir/state.pending" "$state_dir/state.json"
+          python -m tendencias_busca.cache --state "$state_dir/state.json" --output-dir "$state_dir/dados/tendencias"
           git -C "$state_dir" add state.json
+          if [ -d "$state_dir/dados/tendencias" ]; then
+            git -C "$state_dir" add dados/tendencias
+          fi
           if ! git -C "$state_dir" diff --cached --quiet; then
             git -C "$state_dir" commit -m 'Atualizar identificadores de alertas enviados'
             git -C "$state_dir" push origin alert-state

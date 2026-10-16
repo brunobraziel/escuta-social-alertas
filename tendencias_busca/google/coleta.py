@@ -121,11 +121,11 @@ def merge_batches(terms, parts, states, groups=None, anchor=None):
             ratios.update({t: values[t] / values[anchor] for t in group if t != anchor})
         if sufficient and set(ratios) == set(terms):
             # Zero representa valor abaixo da resolução, não zero buscas.
-            # Só destacamos os dois maiores se valores arredondados a zero
+            # Só destacamos os quatro maiores se valores arredondados a zero
             # não puderem ultrapassar nenhum deles (limite conservador de 1).
             ordered = sorted(ratios.values(), reverse=True)
             zero_upper = max((1 / part[uf][anchor] for group, part in zip(expected, parts) if any(part[uf][t] == 0 for t in group)), default=0)
-            if len(ordered) < 2 or ordered[1] <= zero_upper:
+            if len(ordered) < min(4, len(terms)) or ordered[min(4, len(terms)) - 1] <= zero_upper:
                 output[uf] = None
                 continue
             maximum = max(ratios.values())

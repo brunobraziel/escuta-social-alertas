@@ -17,3 +17,5 @@ A suíte também verifica que feeds vazios não chamam o Discord e não alteram 
 `test_tendencias.py` cobre duas seções num único envio, deduplicação por último resumo, lotes com referência comum, valores insuficientes, origem estadual, preservação de estado e falha sem publicar resumo parcial. Os testes usam somente nomes fictícios; não validam a disponibilidade real do endpoint de comparação.
 
 `test_serpapi.py` verifica o formato regional do provedor, duas consultas para nove termos, bloqueio de ampliação de lotes, ausência de retentativas, alternância de horários e encerramento com fuso de Fortaleza. As datas dos testes são fixas para continuarem funcionando após o período da coleta.
+
+`test_cache.py` verifica replay sem credenciais ou rede, exportação JSON/Markdown, métricas no texto e bloqueio de endpoints de nova pesquisa na recuperação de histórico. O teste de tamanho considera quatro destaques por UF.

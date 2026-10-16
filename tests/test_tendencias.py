@@ -53,7 +53,7 @@ class TrendsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "state.json"
             path.write_text('{"sent": ["existing"]}')
-            with patch("tendencias_busca.run.load_terms", return_value=SNAPSHOT), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("tendencias_busca.run.compare_all", return_value={"MG": [{"term": "Tema A", "index": 100}]}), patch("tendencias_busca.run.trending", return_value=["Tema X"]), patch("tendencias_busca.run.send_discord") as send:
+            with patch("tendencias_busca.run.load_terms", return_value=SNAPSHOT), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("tendencias_busca.run.compare_all", return_value={"MG": [{"term": "Tema A", "index": 100}]}), patch("tendencias_busca.run.trending", return_value=["Tema X"]), patch("tendencias_busca.run.send_discord", return_value={"id": "123"}) as send:
                 run(["--states", "MG", "--state", str(path)])
                 run(["--states", "MG", "--state", str(path)])
                 send.assert_called_once()
@@ -65,7 +65,7 @@ class TrendsTests(unittest.TestCase):
             path = Path(folder) / "state.json"
             original = '{"sent": ["existing"]}'
             path.write_text(original)
-            with patch("tendencias_busca.run.load_terms", return_value=SNAPSHOT), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("tendencias_busca.run.compare_all", side_effect=SourceUnavailable("429")), patch("tendencias_busca.run.send_discord") as send:
+            with patch("tendencias_busca.run.load_terms", return_value=SNAPSHOT), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("tendencias_busca.run.compare_all", side_effect=SourceUnavailable("429")), patch("tendencias_busca.run.send_discord", return_value={"id": "123"}) as send:
                 with self.assertRaises(SourceUnavailable):
                     run(["--states", "MG", "--state", str(path)])
                 send.assert_not_called()
@@ -74,8 +74,8 @@ class TrendsTests(unittest.TestCase):
 
     def test_full_report_fits_one_discord_message(self):
         from tendencias_busca.estados import ESTADOS
-        general = {uf: ["X" * 100, "Y" * 100] for uf in ESTADOS}
-        monitored = {uf: [{"term": "A" * 80, "index": 100}, {"term": "B" * 80, "index": 90}] for uf in ESTADOS}
+        general = {uf: [letter * 100 for letter in "XYZW"] for uf in ESTADOS}
+        monitored = {uf: [{"term": letter * 80, "index": score} for letter, score in zip("ABCD", [100, 90, 80, 70])] for uf in ESTADOS}
         report = render(general, monitored, SNAPSHOT, "2026-10-16")
         self.assertLessEqual(len(report["message"]), 2800)
         self.assertLessEqual(len(report["details_message"]), 2800)
@@ -105,7 +105,7 @@ class TrendsTests(unittest.TestCase):
             self.assertNotIn(term, output.getvalue())
 
     def test_rounded_zero_does_not_invalidate_clear_highlights(self):
-        result = merge_batches(["A", "B", "C"], [{"MG": {"A": 60, "B": 40, "C": 0}}], ["MG"])
+        result = merge_batches(["A", "B", "C", "D", "E"], [{"MG": {"A": 40, "B": 30, "C": 20, "D": 10, "E": 0}}], ["MG"])
         self.assertEqual([r["term"] for r in result["MG"][:2]], ["A", "B"])
 
     def test_unresolved_zero_limit_cannot_rank(self):

@@ -92,7 +92,7 @@ def send_discord(webhook, article, site, test=False):
                 result = json.load(response)
                 if not result.get("id"):
                     raise RuntimeError("Discord não confirmou a mensagem")
-                return
+                return {"id": result["id"], "channel_id": result.get("channel_id")}
         except urllib.error.HTTPError as error:
             try:
                 details = json.loads(error.read())

@@ -26,6 +26,10 @@ def compare_batch(terms, key):
         raise SourceUnavailable(f"SerpApi HTTP {error.code}") from None
     except (urllib.error.URLError, TimeoutError, ValueError):
         raise SourceUnavailable("SerpApi: falha de conexão ou formato") from None
+    return parse_response(data, terms)
+
+
+def parse_response(data, terms):
     if data.get("error") or data.get("search_metadata", {}).get("status") != "Success":
         raise SourceUnavailable("SerpApi: consulta sem sucesso; detalhes omitidos")
     rows = data.get("compared_breakdown_by_region")

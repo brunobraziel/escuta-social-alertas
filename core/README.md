@@ -18,3 +18,5 @@ O [tutorial de criação](../docs/README.md) contém um executor completo. Passe
 `identifier(text)` calcula SHA-256. Para novos alertas, prefira `identifier(ALERT_ID + ":" + occurrence_key)`. O segredo vem do ambiente; a função de envio não lê o catálogo ou o estado.
 
 Resumos com duas seções podem passar `details_message` junto de `message`: são dois embeds dentro de uma única mensagem/postagem do Discord. Ambos precisam ter no máximo 2.800 caracteres; o envio recusa mensagens maiores em vez de cortar a segunda seção silenciosamente.
+
+O estado também pode guardar `trends_last_snapshot` e `trends_last_delivered_snapshot`, com dados normalizados e texto do resumo, conforme a opção de persistência no repositório. `send_discord` retorna somente os IDs da mensagem/canal confirmados, sem o conteúdo do webhook.
