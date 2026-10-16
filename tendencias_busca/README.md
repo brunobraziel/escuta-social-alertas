@@ -137,3 +137,9 @@ python -m tendencias_busca.run --cached --dry-run --cache-file ultima_coleta.jso
 Para reenviar o cache como teste, sem recolher dados, use `--cached --test` com o mesmo arquivo e o webhook no ambiente. É uma ação manual que envia mensagem; o preview acima não envia.
 
 `mode: recover` é uma recuperação de dados já arquivados pela SerpApi. Ela lista e lê o histórico, sem chamar o endpoint de criação de pesquisas e sem fallback para uma nova busca. A primeira seção pode precisar de uma leitura atualizada do RSS público; a origem e as datas ficam explícitas. Uma reconstrução não é apresentada como cópia literal do teste antigo, que não havia sido persistido. Depois de haver cache, prefira sempre `replay` para testar layout.
+
+### Registro original recuperado
+
+A mensagem de teste de 16/10/2026 foi recuperada diretamente do Discord (somente GET), sem novas buscas SerpApi. Há uma cópia permanente em [dados/exemplos](../dados/exemplos/README.md), na branch principal. Ela tem dois destaques e não contém índices: o registro original é preservado, não retroativamente ampliado.
+
+O histórico SerpApi retornou HTTP 403 na tentativa de recuperação; não há fallback que gere buscas novas. Para novas recuperações de uma mensagem conhecida, o workflow aceita `mode: recover-discord`, `alert: tendencias_por_estado` e `message_url` com o link da mensagem enviada pelo mesmo webhook. Essa operação só lê o Discord e persiste o resultado.

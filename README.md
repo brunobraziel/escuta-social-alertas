@@ -139,3 +139,5 @@ O resumo de tendências roda **uma vez por dia, às 00h07 de Fortaleza**, até o
 O resumo estadual agora guarda os dados e o texto na branch `alert-state`: `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. Em Actions, use `mode: replay`, `alert: tendencias_por_estado` para ler esse cache sem consultar fontes ou enviar mensagens. Veja [reprodução, recuperação e métrica numérica](tendencias_busca/README.md#dados-e-mensagem-persistidos-sem-novas-coletas).
 
 O post usa quatro destaques por UF, quando há dados suficientes, e mostra o índice relativo 0–100 dos termos monitorados. O índice não representa contagem absoluta de buscas.
+
+Já há uma [amostra real preservada do teste original](dados/exemplos/README.md) na branch principal, em JSON e Markdown. É possível desenvolver layouts com ela sem nenhuma requisição. Essa amostra antiga tem dois destaques e não inclui métricas numéricas; os próximos dados coletados usarão o formato de quatro destaques com índice relativo.
