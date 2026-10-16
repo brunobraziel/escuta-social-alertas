@@ -1,8 +1,8 @@
 # Buscas por estado — resumo consolidado
 
-Coleta: 2026-10-16T14:33:30.507892+00:00
+Coleta: 2026-10-16T14:36:59.074445+00:00
 
-Comparação monitorada: 2026-10-16T14:33:30.507892+00:00
+Comparação monitorada: 2026-10-16T14:36:59.074445+00:00
 
 Origem: coleta
 
@@ -27,13 +27,13 @@ Até quatro destaques por UF, na ordem dos feeds.
 **Paraná:** unifil, quina 7143, idoso, delegado
 **Pernambuco:** marco antonio vil…, como foi a entrev…, br-232, disney
 **Piauí:** disney, globoplay, corinthians x col…, clima para amanhã
-**Rio de Janeiro:** marco antonio vil…, jottapê, a fazenda 18 enqu…, pastor motel cata…
+**Rio de Janeiro:** 19 de outubro é f…, marco antonio vil…, jottapê, a fazenda 18 enqu…
 **Rio Grande do Norte:** como foi a entrev…, disney, disney plus, globoplay
 **Rio Grande do Sul:** marco antonio vil…, quina 7143, wsl, cachoeirinha
 **Rondônia:** pesquisa, previsão do tempo, estudiantes x fla…, alexandre de mora…
 **Roraima:** estudiantes x fla…
 **Santa Catarina:** blumenau, tesla, como foi a entrev…, band
-**São Paulo:** sócio, lagartos, iphone duo, marco antonio vil…
+**São Paulo:** promulgação escal…, sócio, lagartos, iphone duo
 **Sergipe:** globoplay, estudiantes x fla…, pesquisa, inep
 **Tocantins:** pesquisa, estudiantes x fla…, alexandre de mora…
 

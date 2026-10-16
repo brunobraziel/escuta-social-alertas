@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "origin": "coleta",
-  "collected_at": "2026-10-16T14:33:30.507892+00:00",
-  "monitored_at": "2026-10-16T14:33:30.507892+00:00",
+  "collected_at": "2026-10-16T14:36:59.074445+00:00",
+  "monitored_at": "2026-10-16T14:36:59.074445+00:00",
   "source_version": "2026-10-15T22:55:24.811Z",
   "terms_count": 9,
   "general": {
@@ -204,6 +204,7 @@
       "rb salzburg x milan"
     ],
     "RJ": [
+      "19 de outubro é feriado",
       "marco antonio villa foragido",
       "jottapê",
       "a fazenda 18 enquetes",
@@ -212,8 +213,7 @@
       "clima tempo",
       "climatempo",
       "lotofacil 3805",
-      "tesla",
-      "mega sena 3071"
+      "tesla"
     ],
     "RN": [
       "como foi a entrevista do lula na globo",
@@ -261,6 +261,7 @@
       "disney"
     ],
     "SP": [
+      "promulgação escala 6x1",
       "sócio",
       "lagartos",
       "iphone duo",
@@ -269,8 +270,7 @@
       "daniil medvedev",
       "rússia",
       "ameaça de morte",
-      "renato purini",
-      "dec"
+      "renato purini"
     ],
     "SE": [
       "globoplay",
@@ -1318,18 +1318,18 @@
     "title": "Tendências de busca por estado",
     "description": "",
     "url": "https://trends.google.com/trending?geo=BR",
-    "published": "2026-10-16T14:33:30.507892+00:00",
+    "published": "2026-10-16T14:36:59.074445+00:00",
     "alert_title": "Buscas por estado — resumo consolidado",
-    "message": "**Assuntos em alta — últimas 24 horas**\nAté quatro destaques por UF, na ordem dos feeds.\n\n**Acre:** clima, clima para amanhã, estudiantes x fla…\n**Alagoas:** globoplay, estudiantes x fla…, inep, pesquisa\n**Amapá:** estudiantes x fla…\n**Amazonas:** globoplay, disney, disney plus, estudiantes x fla…\n**Bahia:** arena fonte nova, tesla roadster, feira de santana, band\n**Ceará:** marco antonio vil…, como foi a entrev…, kick, crime hediondo\n**Distrito Federal:** marco antonio vil…, tesla roadster, como foi a entrev…, clima\n**Espírito Santo:** como foi a entrev…, clima, globo esporte, espn\n**Goiás:** marco antonio vil…, tesla roadster, band, como foi a entrev…\n**Maranhão:** como foi a entrev…, espn, globoplay, disney\n**Mato Grosso:** como foi a entrev…, disney, disney plus, estudiantes x fla…\n**Mato Grosso do Sul:** como foi a entrev…, polícia, globoplay, andré mendonça\n**Minas Gerais:** a fazenda 18 enqu…, marco antonio vil…, previsão do tempo…, pastor motel cata…\n**Pará:** como foi a entrev…, aposentadoria, disney, globoplay\n**Paraíba:** como foi a entrev…, disney, disney plus, globoplay\n**Paraná:** unifil, quina 7143, idoso, delegado\n**Pernambuco:** marco antonio vil…, como foi a entrev…, br-232, disney\n**Piauí:** disney, globoplay, corinthians x col…, clima para amanhã\n**Rio de Janeiro:** marco antonio vil…, jottapê, a fazenda 18 enqu…, pastor motel cata…\n**Rio Grande do Norte:** como foi a entrev…, disney, disney plus, globoplay\n**Rio Grande do Sul:** marco antonio vil…, quina 7143, wsl, cachoeirinha\n**Rondônia:** pesquisa, previsão do tempo, estudiantes x fla…, alexandre de mora…\n**Roraima:** estudiantes x fla…\n**Santa Catarina:** blumenau, tesla, como foi a entrev…, band\n**São Paulo:** sócio, lagartos, iphone duo, marco antonio vil…\n**Sergipe:** globoplay, estudiantes x fla…, pesquisa, inep\n**Tocantins:** pesquisa, estudiantes x fla…, alexandre de mora…",
+    "message": "**Assuntos em alta — últimas 24 horas**\nAté quatro destaques por UF, na ordem dos feeds.\n\n**Acre:** clima, clima para amanhã, estudiantes x fla…\n**Alagoas:** globoplay, estudiantes x fla…, inep, pesquisa\n**Amapá:** estudiantes x fla…\n**Amazonas:** globoplay, disney, disney plus, estudiantes x fla…\n**Bahia:** arena fonte nova, tesla roadster, feira de santana, band\n**Ceará:** marco antonio vil…, como foi a entrev…, kick, crime hediondo\n**Distrito Federal:** marco antonio vil…, tesla roadster, como foi a entrev…, clima\n**Espírito Santo:** como foi a entrev…, clima, globo esporte, espn\n**Goiás:** marco antonio vil…, tesla roadster, band, como foi a entrev…\n**Maranhão:** como foi a entrev…, espn, globoplay, disney\n**Mato Grosso:** como foi a entrev…, disney, disney plus, estudiantes x fla…\n**Mato Grosso do Sul:** como foi a entrev…, polícia, globoplay, andré mendonça\n**Minas Gerais:** a fazenda 18 enqu…, marco antonio vil…, previsão do tempo…, pastor motel cata…\n**Pará:** como foi a entrev…, aposentadoria, disney, globoplay\n**Paraíba:** como foi a entrev…, disney, disney plus, globoplay\n**Paraná:** unifil, quina 7143, idoso, delegado\n**Pernambuco:** marco antonio vil…, como foi a entrev…, br-232, disney\n**Piauí:** disney, globoplay, corinthians x col…, clima para amanhã\n**Rio de Janeiro:** 19 de outubro é f…, marco antonio vil…, jottapê, a fazenda 18 enqu…\n**Rio Grande do Norte:** como foi a entrev…, disney, disney plus, globoplay\n**Rio Grande do Sul:** marco antonio vil…, quina 7143, wsl, cachoeirinha\n**Rondônia:** pesquisa, previsão do tempo, estudiantes x fla…, alexandre de mora…\n**Roraima:** estudiantes x fla…\n**Santa Catarina:** blumenau, tesla, como foi a entrev…, band\n**São Paulo:** promulgação escal…, sócio, lagartos, iphone duo\n**Sergipe:** globoplay, estudiantes x fla…, pesquisa, inep\n**Tocantins:** pesquisa, estudiantes x fla…, alexandre de mora…",
     "details_message": "**Escuta Social — comparação de todos os termos**\nLista: 9 termos · versão 2026-10-15\nAté quatro por UF; índice relativo entre monitorados (0–100).\n\n**AC:** Lula (100), Bolsa Família (41), MEI (23), Flavio Bolso… (12.9)\n**AL:** Lula (100), MEI (17.3), Bolsa Família (16), Flavio Bolso… (14.1)\n**AP:** Lula (100), Bolsa Família (17.3), MEI (16), Flavio Bolso… (14.3)\n**AM:** Lula (100), Bolsa Família (25), MEI (22.1), Flavio Bolso… (12.9)\n**BA:** Lula (100), MEI (18.9), Bolsa Família (16.2), Flavio Bolso… (11.5)\n**CE:** Lula (100), MEI (15.6), Bolsa Família (14.3), Flavio Bolso… (11.5)\n**DF:** Lula (100), MEI (18.5), Flavio Bolso… (15.7), Bolsa Família (4.9)\n**ES:** Lula (100), MEI (27.4), Flavio Bolso… (14.1), Bolsa Família (9.6)\n**GO:** Lula (100), MEI (28.8), Flavio Bolso… (12.9), Bolsa Família (8.2)\n**MA:** Lula (100), Bolsa Família (16.9), MEI (13), Flavio Bolso… (10.1)\n**MT:** Lula (100), MEI (31.9), Flavio Bolso… (13.1), Bolsa Família (6.9)\n**MS:** Lula (100), MEI (31), Flavio Bolso… (12.9), Bolsa Família (9.9)\n**MG:** Lula (100), MEI (25), Flavio Bolso… (12.9), Bolsa Família (6.6)\n**PA:** Lula (100), Bolsa Família (20.8), MEI (18.1), Flavio Bolso… (11.5)\n**PB:** Lula (100), Bolsa Família (15.8), MEI (15.8), Flavio Bolso… (11.5)\n**PR:** Lula (100), MEI (35.7), Flavio Bolso… (14.1), Bolsa Família (7.1)\n**PE:** Lula (100), Bolsa Família (14.1), MEI (14.1), Flavio Bolso… (10.2)\n**PI:** Lula (100), Bolsa Família (15.6), MEI (14.3), Flavio Bolso… (10.2)\n**RJ:** Lula (100), MEI (24), Flavio Bolso… (16.9), Bolsa Família (9.3)\n**RN:** Lula (100), MEI (17.3), Bolsa Família (16), Flavio Bolso… (12.8)\n**RS:** Lula (100), MEI (34.3), Flavio Bolso… (14.3), Bolsa Família (8.6)\n**RO:** Lula (100), MEI (31.9), Flavio Bolso… (13.3), Bolsa Família (13)\n**RR:** Lula (100), Bolsa Família (23.5), MEI (23.5), Flavio Bolso… (10.6)\n**SC:** Lula (100), MEI (37.1), Flavio Bolso… (13.1), Bolsa Família (5.7)\n**SP:** Lula (100), MEI (30.1), Flavio Bolso… (15.7), Bolsa Família (6.8)\n**SE:** Lula (100), Bolsa Família (17.3), MEI (16), Flavio Bolso… (12.8)\n**TO:** Lula (100), MEI (28.2), Bolsa Família (12.7), Flavio Bolso… (11.6)\n\n100 = maior interesse entre monitorados na UF; não é contagem nem %. Valores baixos podem ser arredondados. Nomes completos no JSON salvo.",
     "footer": "Google Trends: interesse relativo, não volume absoluto, opinião ou intenção de voto. Lista do Drive é uma versão revisada, sem sincronização automática."
   },
   "delivery": {
-    "confirmed_at": "2026-10-16T14:33:30.976114+00:00",
-    "test": true,
+    "confirmed_at": "2026-10-16T14:36:59.459591+00:00",
+    "test": false,
     "message": {
-      "id": "1560661976441688146",
-      "channel_id": "1560661976441688146"
+      "id": "1560662850912002272",
+      "channel_id": "1560662850912002272"
     }
   }
 }
