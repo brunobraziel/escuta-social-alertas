@@ -126,18 +126,12 @@ Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/RE
 
 ## Resumo estadual de buscas
 
-O catálogo inclui `tendencias_por_estado`, ativo após validação SerpApi; a lista revisada do Drive está configurada como variável do repositório `ESCUTA_SOCIAL_TERMS_JSON`. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
+O alerta `tendencias_por_estado` envia duas mensagens independentes: assuntos em alta por UF e assuntos desses feeds que correspondem aos 20 termos dos grupos 1–3, item 3 da guia Google Trends no Drive. A lista e os nove clusters ficam na variável editável `ESCUTA_SOCIAL_TERMS_JSON`. Veja [configuração, método e limites](tendencias_busca/README.md).
 
-O estado pode conter, além de `sent`, o hash `latest_trends`; executores devem preservar todos os campos desconhecidos ao gravar. Não coloque o documento ou a lista privada na branch de estado.
-
-A agenda preparada para tendências é a cada três horas, até 24/10/2026 às 23h59 em Fortaleza; os alertas de notícias permanecem de hora em hora. O provedor é **SerpApi (serpapi.com, oferta consultada de 250 buscas/mês)**, diferente de **SearchApi (searchapi.io, 100 requisições de teste)**. O repository secret `SERPAPI_API_KEY` foi cadastrado e o diagnóstico real passou.
-
-O resumo de tendências roda **a cada três horas: 00h07, 03h07, 06h07, 09h07, 12h07, 15h07, 18h07 e 21h07 de Fortaleza**, até o fim de 24/10. Há trava por janela de três horas para impedir nova tentativa `live` no mesmo período, mesmo após falha. A rotina prevista custa no máximo dezesseis consultas SerpApi por dia; os testes/diagnósticos manuais são adicionais. O teste real de ativação foi entregue ao Discord com sucesso em 16/10/2026.
+A agenda segue a cada três horas, até 24/10/2026 às 23h59 em Fortaleza. Cada coleta lê 27 feeds RSS e faz **zero consultas SerpApi**. Sem mudança no conteúdo de uma mensagem, ela não é reenviada. Os alertas de notícias continuam de hora em hora.
 
 ## Testar a apresentação sem consumir a API
 
-O resumo estadual agora guarda os dados e o texto na branch `alert-state`: `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. Em Actions, use `mode: replay`, `alert: tendencias_por_estado` para ler esse cache sem consultar fontes ou enviar mensagens. Veja [reprodução, recuperação e métrica numérica](tendencias_busca/README.md#dados-e-mensagem-persistidos-sem-novas-coletas).
+A branch `alert-state` guarda `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. Use `mode: replay`, `alert: tendencias_por_estado` para ler os dados sem rede nem envio, ou `replay-test` para reenviar as duas mensagens salvas como teste. `test` faz uma nova coleta RSS e envia ambas; não usa SerpApi.
 
-O post usa quatro destaques por UF, quando há dados suficientes, e mostra o índice relativo 0–100 dos termos monitorados. O índice não representa contagem absoluta de buscas.
-
-Já há uma [amostra real preservada do teste original](dados/exemplos/README.md) na branch principal, em JSON e Markdown. É possível desenvolver layouts com ela sem nenhuma requisição. Essa amostra antiga tem dois destaques e não inclui métricas numéricas; os próximos dados coletados usarão o formato de quatro destaques com índice relativo.
+O filtro atual não fornece índice de interesse ou contagem de buscas. Ele identifica correspondências textuais nos assuntos em alta. A [amostra original de comparação](dados/exemplos/README.md) permanece preservada como registro histórico.

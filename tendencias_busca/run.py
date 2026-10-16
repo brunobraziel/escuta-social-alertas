@@ -30,10 +30,12 @@ def run(argv=None):
             webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
             if not webhook:
                 parser.error("Configure DISCORD_WEBHOOK_URL para reenviar teste em cache")
-            report = dict(saved["report"])
-            report["alert_title"] = "[CACHE] " + report.get("alert_title", "Resumo").removeprefix("[TESTE] ")
-            report["footer"] = "REPRODUÇÃO DE CACHE, sem nova coleta. " + report["footer"]
-            send_discord(webhook, report, "Google Trends (cache)", test=True)
+            reports = saved.get("reports", [saved["report"]])
+            for item in reports:
+                report = dict(item)
+                report["alert_title"] = "[CACHE] " + report.get("alert_title", "Resumo").removeprefix("[TESTE] ")
+                report["footer"] = "REPRODUÇÃO DE CACHE, sem nova coleta. " + report["footer"]
+                send_discord(webhook, report, "Google Trends (cache)", test=True)
         else:
             print(json.dumps(saved, ensure_ascii=False, indent=2))
         return
@@ -47,6 +49,9 @@ def run(argv=None):
     webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
     if not args.dry_run and not webhook:
         parser.error("Configure DISCORD_WEBHOOK_URL")
+    if snapshot_data.get("mode") == "filter_trending":
+        from tendencias_busca.filtrado import execute
+        return execute(args, snapshot_data, states, webhook)
     path = Path(args.state)
     state = json.loads(path.read_text()) if path.exists() else {"sent": []}
     now = now_local()

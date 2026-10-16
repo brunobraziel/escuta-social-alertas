@@ -29,6 +29,11 @@ def read_snapshot(state_path, cache_file=None):
 
 def markdown(cached):
     report = cached["report"]
+    if cached.get("reports"):
+        return "Coleta: " + cached["collected_at"] + "\n\n" + "\n\n".join(
+            "# " + item["alert_title"] + "\n\n" + item["message"] + "\n\n" + item["footer"]
+            for item in cached["reports"]
+        ) + "\n"
     return ("# " + report["alert_title"] + "\n\n"
             + "Coleta: " + cached["collected_at"] + "\n\n"
             + "Comparação monitorada: " + cached["monitored_at"] + "\n\n"

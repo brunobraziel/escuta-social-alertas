@@ -15,6 +15,12 @@ def run():
             return
         snapshot = load_terms()
         print(f"Lista privada carregada: {len(snapshot['terms'])} termos. Valores omitidos.", flush=True)
+        if snapshot.get("mode") == "filter_trending":
+            from tendencias_busca.filtro import filter_topics
+            general = {uf: trending(uf) for uf in ("MG", "SP", "CE")}
+            filtered = filter_topics(general, snapshot)
+            print(f"RSS: {len(general)} UFs; {sum(bool(v) for v in filtered.values())} com correspondências; zero SerpApi. Sem envio.")
+            return
         print("Uma tentativa de comparação; sem retentativas automáticas.", flush=True)
         result = compare_all(snapshot["terms"], list(ESTADOS))
         count = sum(bool(rows) for rows in result.values())

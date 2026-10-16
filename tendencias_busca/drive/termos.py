@@ -18,4 +18,18 @@ def load_terms():
         raise ValueError("Termos duplicados")
     if not data.get("source_modified") or not data.get("source_url", "").startswith("https://docs.google.com/document/d/"):
         raise ValueError("Informe documento de origem e data da versão revisada")
+    clusters = data.get("clusters")
+    if clusters is not None:
+        if not isinstance(clusters, list) or not clusters:
+            raise ValueError("Clusters inválidos")
+        ids, grouped = [], []
+        for cluster in clusters:
+            if not isinstance(cluster, dict) or not isinstance(cluster.get("id"), str) or not isinstance(cluster.get("terms"), list) or not 1 <= len(cluster["terms"]) <= 5:
+                raise ValueError("Cada cluster deve ter ID e de 1 a 5 termos")
+            ids.append(cluster["id"])
+            grouped.extend(cluster["terms"])
+        if len(set(ids)) != len(ids) or grouped != terms:
+            raise ValueError("Clusters devem cobrir a lista de termos na mesma ordem, sem duplicatas")
+    if data.get("mode") == "filter_trending" and not clusters:
+        raise ValueError("Filtro exige clusters")
     return {**data, "terms": terms}
