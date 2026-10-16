@@ -50,7 +50,7 @@ O teste legislativo usa exemplo fictício; o teste de pesquisa busca uma notíci
 
 ## GitHub Actions
 
-Existe somente um workflow: **Executar alertas**. Roda no minuto 7 de cada hora, executando todos os alertas ativos em `alertas.json`. A frequência fica apenas em `.github/workflows/monitorar.yml`, no campo `schedule.cron`. Para mudar para 15 minutos, por exemplo, use `7,22,37,52 * * * *`.
+Existe somente um workflow: **Executar alertas**. Roda no minuto 7 de cada hora, selecionando os alertas ativos em `alertas.json` conforme a agenda individual. A frequência fica apenas em `.github/workflows/monitorar.yml`, no campo `schedule.cron`. Para mudar para 15 minutos, por exemplo, use `7,22,37,52 * * * *`.
 
 1. Cadastre um **Repository secret** `DISCORD_WEBHOOK_URL` em Settings → Secrets and variables → Actions.
 2. Abra Actions → Executar alertas → Run workflow.
@@ -69,7 +69,7 @@ Os agendamentos do GitHub podem atrasar e ser desativados após 60 dias sem ativ
 schedule (uma vez por hora) ou Run workflow (manual)
   → job monitorar: checkout + Python + testes
   → restaura histórico da branch alert-state
-  → main.py seleciona os alertas ativos em alertas.json
+  → main.py seleciona os alertas ativos e aplica agenda quando --scheduled
   → cada executor consulta os feeds e filtra conteúdo elegível
   → compara a ocorrência com o histórico
       → sem novidades: termina sem chamar o Discord
@@ -116,7 +116,7 @@ Um escopo pode ter vários alertas. Nesse caso, use módulos diferentes, como `s
 
 Para desativar, altere `ativo` para `false`. Alertas desativados também não podem ser selecionados manualmente pelo runner. Para voltar a executar, reative no catálogo. Não apague os identificadores do estado.
 
-Não crie um YAML por alerta. Frequência, ambiente e secret são compartilhados pelo workflow único.
+Não crie um YAML por alerta. O workflow base é compartilhado; campos opcionais `agenda.intervalo_horas` e `agenda.fim_exclusivo` permitem limitar um alerta nas execuções agendadas. O intervalo deve dividir 24 (1, 2, 3, 4, 6, 8, 12 ou 24 horas), alinhado ao horário de Fortaleza. Chamadas manuais não aplicam o intervalo, mas o executor de tendências também impõe seu encerramento.
 
 ## Cobertura
 
@@ -126,6 +126,8 @@ Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/RE
 
 ## Resumo estadual de buscas (em preparação)
 
-O catálogo inclui `tendencias_por_estado`, desativado até validar o acesso aos dados de comparação; a lista privada do Drive já está configurada como secret autorizado. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
+O catálogo inclui `tendencias_por_estado`, desativado até cadastrar a chave SerpApi e validar os dados reais; a lista privada do Drive já está configurada como secret autorizado. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
 
 O estado pode conter, além de `sent`, o hash `latest_trends`; executores devem preservar todos os campos desconhecidos ao gravar. Não coloque o documento ou a lista privada na branch de estado.
+
+A agenda preparada para tendências é de duas em duas horas, até 24/10/2026 às 23h59 em Fortaleza; os alertas de notícias permanecem de hora em hora. O provedor é **SerpApi (serpapi.com, oferta consultada de 250 buscas/mês)**, diferente de **SearchApi (searchapi.io, 100 requisições de teste)**. Falta o repository secret `SERPAPI_API_KEY`; sem chave/validação, o alerta fica inativo.

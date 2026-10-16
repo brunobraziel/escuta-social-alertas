@@ -15,3 +15,5 @@ Crie `test_{tema}.py` com testes do filtro/parser e do comportamento de entrega/
 A suíte também verifica que feeds vazios não chamam o Discord e não alteram o estado, além de impedir novo envio da mesma pesquisa mesmo com outra URL. O teste legislativo de deduplicação confirma que rodar novamente com a mesma notícia não gera segunda mensagem.
 
 `test_tendencias.py` cobre duas seções num único envio, deduplicação por último resumo, lotes com referência comum, valores insuficientes, origem estadual, preservação de estado e falha sem publicar resumo parcial. Os testes usam somente nomes fictícios; não validam a disponibilidade real do endpoint de comparação.
+
+`test_serpapi.py` verifica o formato regional do provedor, duas consultas para nove termos, bloqueio de ampliação de lotes, ausência de retentativas, alternância de horários e encerramento com fuso de Fortaleza. As datas dos testes são fixas para continuarem funcionando após o período da coleta.

@@ -7,3 +7,7 @@ RSS estadual: `https://trends.google.com/trending/rss?geo=BR-UF`. O campo link d
 Explore: `/trends/api/explore` e `/trends/api/widgetdata/comparedgeo`, endpoints públicos não oficiais. Sem confirmação de dados reais, o alerta permanece inativo. Falhas e HTTP 429 interrompem a coleta, sem contornar restrições. O token retornado pelo widget não é credencial persistente nem deve ser registrado nos logs.
 
 Veja os limites, a comparação de lotes e os comandos no [README do escopo](../README.md). A fonte oficial anunciada ainda depende de aprovação para acesso antecipado.
+
+## Provedor utilizado na operação
+
+`serpapi.py` é o conector agora importado pelo executor e pelo diagnóstico. Usa `SERPAPI_API_KEY` e a API da **SerpApi (`serpapi.com`)**, não SearchApi (`searchapi.io`). Valida sucesso, UF, nomes dos termos e índices; não registra respostas brutas ou URLs com chave. Consulta `GEO_MAP`, `geo=BR`, `region=REGION`, janela `now 1-d`. Cada lote nacional devolve as UFs; no máximo dois lotes por coleta, sem retentativas. O código direto do Explore fica como referência, sem fallback automático.

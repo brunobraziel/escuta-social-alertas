@@ -185,7 +185,7 @@ Em Actions → **Executar alertas** → Run workflow:
 
 O repository secret `DISCORD_WEBHOOK_URL` existente é reutilizado. O teste ignora deduplicação e não marca a ocorrência como entregue; portanto, repeti-lo envia outra mensagem de teste.
 
-Nenhum YAML novo é necessário. O workflow único chama todos os alertas ativos uma vez por hora. Não há frequência individual por alerta nesta versão: mudar `schedule.cron` altera a frequência de todos. Não rode uma cópia antiga de workflow para o mesmo alerta.
+Nenhum YAML novo é necessário. O workflow único chama todos os alertas ativos uma vez por hora. O cron base é comum. Para reduzir frequência de um alerta, configure no seu registro `agenda: {"intervalo_horas": 2, "fim_exclusivo": "2026-10-25T00:00:00-03:00"}`. O runner aplica isso com `--scheduled`, passado automaticamente nas execuções de calendário. O intervalo divide 24, alinhado a Fortaleza. Sem `agenda`, o alerta roda a cada hora. O fim é exclusivo e exige fuso explícito. Chamadas manuais ignoram o intervalo; se a data final também deve impedir chamadas manuais, implemente a proteção no próprio executor, como em `tendencias_busca/janela.py`. Não rode uma cópia antiga de workflow para o mesmo alerta.
 
 ## Adicionar somente um site a um alerta existente
 

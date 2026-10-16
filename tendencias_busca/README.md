@@ -1,6 +1,6 @@
 # Tendências de busca por estado
 
-ID: `tendencias_por_estado`. Executor: `tendencias_busca.run`, com o mesmo contrato `run(argv=None)` dos demais alertas. **Está desativado no catálogo**: a comparação pública do Explore retornou HTTP 429 na validação real. Não foi enviado resumo real nem feita ativação automática.
+ID: `tendencias_por_estado`. Executor: `tendencias_busca.run`, com o mesmo contrato `run(argv=None)` dos demais alertas. **Está desativado no catálogo**: falta cadastrar `SERPAPI_API_KEY` e validar a comparação real. O endpoint direto do Google retornou HTTP 429; a operação foi preparada para SerpApi. Não houve ativação automática nem envio real deste resumo.
 
 ## O que o post deve mostrar
 
@@ -24,7 +24,9 @@ main.py → alertas.json → tendencias_busca.run.run(argv)
 - `run.py`: valida configuração, consulta comparações, reúne feeds e envia somente quando o conteúdo exibido muda.
 - `estados.py`: códigos e nomes das 27 UFs.
 - `drive/termos.py`: lê `ESCUTA_SOCIAL_TERMS_JSON`; não acessa o Drive automaticamente e não contém nomes privados no código.
-- `google/coleta.py`: coleta e valida origem estadual dos feeds; compara os termos em lotes de até cinco, com um termo comum.
+- `google/coleta.py`: RSS, referência comum e validação dos lotes; contém também o coletor direto legado, que retornou 429.
+- `google/serpapi.py`: coletor de comparação usado pelo executor e pelo diagnóstico; no máximo dois lotes/consultas por coleta.
+- `janela.py`: impede qualquer coleta ou diagnóstico a partir de 25/10/2026 00h00 em Fortaleza.
 - `resumo.py`: mantém separadas as duas medidas, limita o tamanho da mensagem e calcula novidade sem timestamps ou variações pequenas de pontuação.
 
 ## Lista de termos e privacidade
@@ -49,28 +51,46 @@ O primeiro termo é a referência comum entre lotes. Os valores de cada termo s�
 
 Se qualquer termo estiver sem valor positivo mensurável, ou a referência não puder ser medida, o estado fica como `dados insuficientes`: não se produz ranking de todos os termos com um subconjunto de dados. As comparações usam a mesma janela de 24 horas, tipo de pesquisa e abrangência Brasil. O corpo mostra apenas os destaques; os demais termos foram consultados, não omitidos da coleta. Os números do índice não são exibidos no post.
 
+## SerpApi: conta e limites
+
+**SerpApi (`serpapi.com`) e SearchApi (`searchapi.io`) são empresas diferentes.** O plano usado nesta implementação é o Free da [SerpApi](https://serpapi.com/pricing), que na consulta de 16/10/2026 anuncia **250 buscas por mês**. A [SearchApi](https://www.searchapi.io/) anuncia **100 requisições de teste**; sua chave não funciona neste conector. Confirme o saldo no painel da conta antes de ativar.
+
+Cadastre a chave da SerpApi como **Repository secret `SERPAPI_API_KEY`**, sem colocá-la no chat ou em arquivos. As consultas enviam os termos pesquisados ao provedor; a resposta bruta, chave e termos não são registrados pelo diagnóstico. A SerpApi é independente do Google. Referência: https://serpapi.com/google-trends-api .
+
+A lista atual de nove termos exige dois lotes, com um termo comum. Cada lote retorna recortes estaduais do Brasil; não se faz uma consulta paga por estado. O código bloqueia listas que exijam mais de dois lotes, evitando ampliar consumo sem rever a cota. Não há retentativas automáticas. O consumo real deve ser confirmado no painel: consultas com erro/cache podem ter tratamento próprio do provedor.
+
+## Agenda de duas horas e encerramento
+
+O workflow único continua de hora em hora. Em execuções `schedule`, chama `main.py --scheduled`, que aplica `agenda` do catálogo. Para este alerta:
+
+```json
+{
+  "intervalo_horas": 2,
+  "fim_exclusivo": "2026-10-25T00:00:00-03:00"
+}
+```
+
+Horários previstos em Fortaleza: **00h07, 02h07, 04h07, …, 22h07**. Até **24/10/2026 às 23h59**; a última execução prevista é 24/10 às 22h07. Não há promessa de envio às 23h59: esse é o encerramento. O Google Trends pode retornar dados insuficientes; o GitHub pode atrasar ou perder uma execução.
+
+Conta conservadora para nove dias completos de 16 a 24/10: 108 coletas × 2 consultas = **216 consultas**, deixando 34 de uma cota intacta de 250 para diagnóstico e testes. Começar depois reduz as execuções restantes. Chamadas manuais consomem cota adicional e não seguem a restrição de hora par; até simulações usam a API. Não use a chave em outros projetos sem recalcular o saldo.
+
+O encerramento também é aplicado dentro do executor e do diagnóstico: depois dele não há consultas, mesmo em chamadas manuais. Os outros alertas continuam de hora em hora, sem data final nesta configuração.
+
 ## Validação e ativação pendentes
 
-A API oficial do Trends permanece em acesso antecipado: https://developers.google.com/search/apis/trends . A conta nova do Google Cloud não concede esse acesso. O coletor atual usa endpoints públicos **não oficiais**, sujeitos a mudanças e bloqueios. Não há rotação de IP, quebra de CAPTCHA ou retentativas automáticas em 429.
+1. Lista revisada do Drive: já configurada como secret autorizado.
+2. Cadastre `SERPAPI_API_KEY` da SerpApi. A chave ainda não existia na verificação desta entrega.
+3. Rode o diagnóstico `probe` pelo workflow: só mostra contagens/códigos de erro, sem termos ou resultados individuais. Cada diagnóstico pode consumir até duas consultas.
+4. Revise o resultado e somente depois altere `ativo` para `true` no catálogo. Enquanto estiver `false`, o alerta não participa do agendamento.
 
-Antes de ativar:
-
-1. Lista revisada do Drive: configurada como secret com autorização do responsável. Atualize-a quando a versão do documento mudar.
-2. Validar o coletor de comparação com respostas reais; se o acesso público continuar bloqueado, integrar uma fonte autorizada/API com acesso disponível. O adapter oficial ainda não foi implementado; não basta fornecer uma chave.
-3. Com o ambiente configurado, executar o módulo diretamente enquanto o catálogo estiver inativo:
+Para validação local, com os secrets no ambiente:
 
 ```sh
+python -m tendencias_busca.diagnostico
 python -m tendencias_busca.run --dry-run --states MG,SP
-python -m tendencias_busca.run --dry-run
 ```
 
-4. Somente após validação e revisão dos resultados, alterar `ativo` para `true`. O agendamento existente passa a consultá-lo uma vez por hora, sem criar outro workflow:
-
-```sh
-python main.py --alert tendencias_por_estado --mode dry-run
-```
-
-`--test` envia um resumo real identificado como teste e não grava deduplicação; não é uma prévia fictícia. Não o execute antes de haver dados reais válidos. Nesta entrega não houve teste de envio ao canal.
+O `dry-run` imprime o resumo: não rode com a lista privada em logs públicos sem autorização para divulgar os resultados. `--test` envia um resumo real identificado como teste, não um exemplo fictício; não foi executado nesta entrega por falta da chave. A alternativa oficial do Google continua em acesso antecipado: https://developers.google.com/search/apis/trends .
 
 ## Silêncio e estado
 

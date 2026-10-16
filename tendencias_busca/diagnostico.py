@@ -3,11 +3,16 @@ import re
 
 from tendencias_busca.drive.termos import load_terms
 from tendencias_busca.estados import ESTADOS
-from tendencias_busca.google.coleta import compare_all, trending, SourceUnavailable
+from tendencias_busca.google.coleta import trending, SourceUnavailable
+from tendencias_busca.google.serpapi import compare_all
+from tendencias_busca.janela import expired
 
 
 def run():
     try:
+        if expired():
+            print("Período de coleta encerrado; sem consultas.")
+            return
         snapshot = load_terms()
         print(f"Lista privada carregada: {len(snapshot['terms'])} termos. Valores omitidos.", flush=True)
         print("Uma tentativa de comparação; sem retentativas automáticas.", flush=True)

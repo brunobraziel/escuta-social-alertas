@@ -8,7 +8,9 @@ from pathlib import Path
 from core.alerta import send_discord
 from tendencias_busca.drive.termos import load_terms
 from tendencias_busca.estados import ESTADOS
-from tendencias_busca.google.coleta import trending, compare_all, SourceUnavailable
+from tendencias_busca.google.coleta import trending, SourceUnavailable
+from tendencias_busca.google.serpapi import compare_all
+from tendencias_busca.janela import expired
 from tendencias_busca.resumo import fingerprint, render
 
 
@@ -22,6 +24,9 @@ def run(argv=None):
     states = list(dict.fromkeys(uf.strip().upper() for uf in args.states.split(",")))
     if not states or any(uf not in ESTADOS for uf in states):
         parser.error("Selecione UFs válidas")
+    if expired():
+        print("Período de coleta de tendências encerrado; sem consultas ou envios.")
+        return
     snapshot = load_terms()
     webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
     if not args.dry_run and not webhook:

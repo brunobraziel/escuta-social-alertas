@@ -13,6 +13,12 @@ SNAPSHOT = {"terms": ["Tema A", "Tema B"], "source_url": "https://docs.google.co
 
 
 class TrendsTests(unittest.TestCase):
+    def setUp(self):
+        for target in ("tendencias_busca.run.expired", "tendencias_busca.diagnostico.expired"):
+            item = patch(target, return_value=False)
+            item.start()
+            self.addCleanup(item.stop)
+
     def test_common_anchor_connects_batches(self):
         terms = list("ABCDEF")
         parts = [{"MG": {"A": 10, "B": 20, "C": 30, "D": 10, "E": 30}}, {"MG": {"A": 25, "F": 75}}]

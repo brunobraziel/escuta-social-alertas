@@ -16,7 +16,11 @@
       "id": "tendencias_por_estado",
       "modulo": "tendencias_busca.run",
       "ativo": false,
-      "descricao": "Resumo único de assuntos em alta e interesse nos termos de Escuta Social por UF; requer validação do Explore"
+      "descricao": "Resumo estadual via SerpApi, a cada 2h até 24/10/2026; pendente chave e validação real",
+      "agenda": {
+        "intervalo_horas": 2,
+        "fim_exclusivo": "2026-10-25T00:00:00-03:00"
+      }
     }
   ]
 }

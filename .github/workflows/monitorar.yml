@@ -47,6 +47,8 @@ jobs:
           MODE: ${{ inputs.mode || 'live' }}
           ALERT: ${{ inputs.alert || 'all' }}
           ESCUTA_SOCIAL_TERMS_JSON: ${{ secrets.ESCUTA_SOCIAL_TERMS_JSON }}
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           if [ "$MODE" = live ] && [ -z "$DISCORD_WEBHOOK_URL" ]; then
             echo '::warning::Configure DISCORD_WEBHOOK_URL; executando dry-run.'
@@ -59,7 +61,11 @@ jobs:
             fi
             python -m tendencias_busca.diagnostico
           else
-            python main.py --alert "$ALERT" --mode "$MODE"
+            args=(--alert "$ALERT" --mode "$MODE")
+            if [ "$EVENT_NAME" = schedule ]; then
+              args+=(--scheduled)
+            fi
+            python main.py "${args[@]}"
           fi
       - name: Salvar entregas confirmadas
         if: always() && steps.state.outcome == 'success' && (inputs.mode == 'live' || github.event_name == 'schedule')

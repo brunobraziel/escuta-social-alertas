@@ -3,6 +3,8 @@ import argparse
 import importlib
 import json
 import logging
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 CATALOG = Path(__file__).with_name("alertas.json")
@@ -16,7 +18,29 @@ def load_catalog():
     for entry in entries:
         if not isinstance(entry["ativo"], bool):
             raise ValueError("ativo deve ser booleano")
+        agenda = entry.get("agenda", {})
+        interval = agenda.get("intervalo_horas", 1)
+        if isinstance(interval, bool) or not isinstance(interval, int) or interval < 1 or 24 % interval:
+            raise ValueError("intervalo_horas deve ser um divisor positivo de 24")
+        if agenda.get("fim_exclusivo"):
+            until = datetime.fromisoformat(agenda["fim_exclusivo"])
+            if until.tzinfo is None:
+                raise ValueError("fim_exclusivo deve informar o fuso")
     return entries
+
+
+def scheduled_entries(entries, now=None):
+    now = (now or datetime.now(ZoneInfo("America/Fortaleza"))).astimezone(ZoneInfo("America/Fortaleza"))
+    selected = []
+    for entry in entries:
+        schedule = entry.get("agenda", {})
+        until = schedule.get("fim_exclusivo")
+        if until and now >= datetime.fromisoformat(until):
+            continue
+        if now.hour % schedule.get("intervalo_horas", 1) != 0:
+            continue
+        selected.append(entry)
+    return selected
 
 
 def execute(entries, mode, state):
@@ -48,6 +72,7 @@ def run(argv=None):
     parser.add_argument("--mode", choices=("dry-run", "live", "test"), default="dry-run")
     parser.add_argument("--state", default="state.json")
     parser.add_argument("--list", action="store_true")
+    parser.add_argument("--scheduled", action="store_true", help="Aplica agenda individual do catálogo")
     args = parser.parse_args(argv)
     catalog = load_catalog()
     if args.list:
@@ -58,6 +83,8 @@ def run(argv=None):
         parser.error("Alerta inexistente ou desativado")
     if args.mode == "test" and args.alert == "all":
         parser.error("No modo test, escolha um único --alert")
+    if args.scheduled:
+        selected = scheduled_entries(selected)
     failed = execute(selected, args.mode, args.state)
     if failed:
         logging.error("Alertas com falha: %s", ", ".join(failed))
