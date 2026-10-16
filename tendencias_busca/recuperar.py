@@ -2,6 +2,7 @@
 import json
 import os
 import re
+import urllib.error
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -27,8 +28,10 @@ def archive_get(path, key):
         if len(raw) > 5_000_000:
             raise ValueError("Resposta grande")
         return json.loads(raw)
+    except urllib.error.HTTPError as error:
+        raise SourceUnavailable(f"Histórico HTTP {error.code}; nenhuma busca nova criada") from None
     except Exception:
-        raise SourceUnavailable("Histórico indisponível; nenhuma busca nova foi criada") from None
+        raise SourceUnavailable("Histórico indisponível ou formato incompatível; nenhuma busca nova criada") from None
 
 
 def recover(state_path="state.json"):
@@ -88,5 +91,6 @@ if __name__ == "__main__":
     try:
         recover()
     except Exception as error:
-        print("Recuperação não concluída (" + type(error).__name__ + "). Sem novas buscas.")
+        detail = str(error) if isinstance(error, SourceUnavailable) else type(error).__name__
+        print("Recuperação não concluída: " + detail + ". Sem novas buscas.")
         raise SystemExit(1) from None
