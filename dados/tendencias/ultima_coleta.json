@@ -1,61 +1,1335 @@
 {
   "schema_version": 1,
-  "origin": "mensagem_original_discord_sem_nova_coleta",
-  "collected_at": "2026-10-16T14:18:25.592961+00:00",
-  "monitored_at": "2026-10-16T14:18:25.592961+00:00",
-  "terms_count": null,
-  "source_version": null,
-  "general": null,
-  "monitored": null,
+  "origin": "coleta",
+  "collected_at": "2026-10-16T14:33:30.507892+00:00",
+  "monitored_at": "2026-10-16T14:33:30.507892+00:00",
+  "source_version": "2026-10-15T22:55:24.811Z",
+  "terms_count": 9,
+  "general": {
+    "AC": [
+      "clima",
+      "clima para amanhã",
+      "estudiantes x flamengo"
+    ],
+    "AL": [
+      "globoplay",
+      "estudiantes x flamengo",
+      "inep",
+      "pesquisa",
+      "enem",
+      "bournemouth x sturm",
+      "alexandre de moraes"
+    ],
+    "AP": [
+      "estudiantes x flamengo"
+    ],
+    "AM": [
+      "globoplay",
+      "disney",
+      "disney plus",
+      "estudiantes x flamengo",
+      "enem",
+      "pesquisa",
+      "alerta severo de alagamentos",
+      "celta de vigo x juventus",
+      "alexandre de moraes",
+      "bournemouth x sturm"
+    ],
+    "BA": [
+      "arena fonte nova",
+      "tesla roadster",
+      "feira de santana",
+      "band",
+      "bradesco",
+      "como foi a entrevista do lula na globo",
+      "clima",
+      "especialização",
+      "roberta roma",
+      "kick"
+    ],
+    "CE": [
+      "marco antonio villa foragido",
+      "como foi a entrevista do lula na globo",
+      "kick",
+      "crime hediondo",
+      "debate",
+      "disney plus",
+      "disney",
+      "globoplay",
+      "corinthians x colo colo",
+      "tiro"
+    ],
+    "DF": [
+      "marco antonio villa foragido",
+      "tesla roadster",
+      "como foi a entrevista do lula na globo",
+      "clima",
+      "tiro",
+      "espn",
+      "flamengo hoje onde assistir",
+      "globoplay",
+      "disney",
+      "disney plus"
+    ],
+    "ES": [
+      "como foi a entrevista do lula na globo",
+      "clima",
+      "globo esporte",
+      "espn",
+      "globoplay",
+      "flamengo hoje onde assistir",
+      "andré mendonça",
+      "disney plus",
+      "disney",
+      "clima para amanhã"
+    ],
+    "GO": [
+      "marco antonio villa foragido",
+      "tesla roadster",
+      "band",
+      "como foi a entrevista do lula na globo",
+      "clima",
+      "kick",
+      "copa libertadores",
+      "futebol ao vivo",
+      "espn",
+      "flamengo hoje onde assistir"
+    ],
+    "MA": [
+      "como foi a entrevista do lula na globo",
+      "espn",
+      "globoplay",
+      "disney",
+      "disney plus",
+      "corinthians x colo colo",
+      "andré mendonça",
+      "estudiantes x flamengo",
+      "pé-de-meia",
+      "pesquisa"
+    ],
+    "MT": [
+      "como foi a entrevista do lula na globo",
+      "disney",
+      "disney plus",
+      "estudiantes x flamengo",
+      "tiro",
+      "corinthians x colo colo",
+      "trabalhador",
+      "pesquisa",
+      "bournemouth x sturm",
+      "celta de vigo x juventus"
+    ],
+    "MS": [
+      "como foi a entrevista do lula na globo",
+      "polícia",
+      "globoplay",
+      "andré mendonça",
+      "estudiantes x flamengo",
+      "granizo",
+      "corinthians x colo colo",
+      "pesquisa",
+      "bournemouth x sturm",
+      "alexandre de moraes"
+    ],
+    "MG": [
+      "a fazenda 18 enquetes",
+      "marco antonio villa foragido",
+      "previsão do tempo juiz de fora",
+      "pastor motel catanduva",
+      "mega sena 3071",
+      "quina 7143",
+      "tesla",
+      "lotofacil 3805",
+      "fiat argo",
+      "clima"
+    ],
+    "PA": [
+      "como foi a entrevista do lula na globo",
+      "aposentadoria",
+      "disney",
+      "globoplay",
+      "ufpa castanhal",
+      "disney plus",
+      "corinthians x colo colo",
+      "inep enem",
+      "estudiantes x flamengo",
+      "pé-de-meia"
+    ],
+    "PB": [
+      "como foi a entrevista do lula na globo",
+      "disney",
+      "disney plus",
+      "globoplay",
+      "energisa",
+      "estudiantes x flamengo",
+      "campina grande",
+      "inep",
+      "pesquisa",
+      "bournemouth x sturm"
+    ],
+    "PR": [
+      "unifil",
+      "quina 7143",
+      "idoso",
+      "delegado",
+      "band",
+      "tesla roadster",
+      "bradesco",
+      "como foi a entrevista do lula na globo",
+      "weather",
+      "salário"
+    ],
+    "PE": [
+      "marco antonio villa foragido",
+      "como foi a entrevista do lula na globo",
+      "br-232",
+      "disney",
+      "programação da globo",
+      "crime hediondo",
+      "disney plus",
+      "globoplay",
+      "cleitinho",
+      "debate lula e flavio"
+    ],
+    "PI": [
+      "disney",
+      "globoplay",
+      "corinthians x colo colo",
+      "clima para amanhã",
+      "estudiantes x flamengo",
+      "enem",
+      "pesquisa",
+      "bournemouth x sturm",
+      "alexandre de moraes",
+      "rb salzburg x milan"
+    ],
+    "RJ": [
+      "marco antonio villa foragido",
+      "jottapê",
+      "a fazenda 18 enquetes",
+      "pastor motel catanduva",
+      "previsão do tempo são gonçalo",
+      "clima tempo",
+      "climatempo",
+      "lotofacil 3805",
+      "tesla",
+      "mega sena 3071"
+    ],
+    "RN": [
+      "como foi a entrevista do lula na globo",
+      "disney",
+      "disney plus",
+      "globoplay",
+      "estudiantes x flamengo",
+      "andré mendonça",
+      "enem",
+      "pesquisa",
+      "inep",
+      "bournemouth x sturm"
+    ],
+    "RS": [
+      "marco antonio villa foragido",
+      "quina 7143",
+      "wsl",
+      "cachoeirinha",
+      "idoso",
+      "tesla roadster",
+      "como foi a entrevista do lula na globo",
+      "santos cruz",
+      "band",
+      "kick"
+    ],
+    "RO": [
+      "pesquisa",
+      "previsão do tempo",
+      "estudiantes x flamengo",
+      "alexandre de moraes"
+    ],
+    "RR": [
+      "estudiantes x flamengo"
+    ],
+    "SC": [
+      "blumenau",
+      "tesla",
+      "como foi a entrevista do lula na globo",
+      "band",
+      "wsl",
+      "kick",
+      "rato",
+      "copa libertadores",
+      "bianca rinaldi",
+      "disney"
+    ],
+    "SP": [
+      "sócio",
+      "lagartos",
+      "iphone duo",
+      "marco antonio villa foragido",
+      "a fazenda 18 enquetes",
+      "daniil medvedev",
+      "rússia",
+      "ameaça de morte",
+      "renato purini",
+      "dec"
+    ],
+    "SE": [
+      "globoplay",
+      "estudiantes x flamengo",
+      "pesquisa",
+      "inep",
+      "bournemouth x sturm",
+      "alexandre de moraes"
+    ],
+    "TO": [
+      "pesquisa",
+      "estudiantes x flamengo",
+      "alexandre de moraes"
+    ]
+  },
+  "monitored": {
+    "AC": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 41.0
+      },
+      {
+        "term": "MEI",
+        "index": 23.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 12.9
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.5
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "AL": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 17.3
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 16.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 14.1
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.4
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "AP": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 17.3
+      },
+      {
+        "term": "MEI",
+        "index": 16.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 14.3
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.6
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "AM": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 25.0
+      },
+      {
+        "term": "MEI",
+        "index": 22.1
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 12.9
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.5
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "BA": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 18.9
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 16.2
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 11.5
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.3
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.1
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "CE": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 15.6
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 14.3
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 11.5
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.3
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.1
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "DF": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 18.5
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 15.7
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 4.9
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.6
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "ES": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 27.4
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 14.1
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 9.6
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.4
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "GO": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 28.8
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 12.9
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 8.2
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.5
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "MA": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 16.9
+      },
+      {
+        "term": "MEI",
+        "index": 13.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 10.1
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.1
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 1.1
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "MT": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 31.9
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 13.1
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 6.9
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.6
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 2.4
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "MS": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 31.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 12.9
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 9.9
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.5
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "MG": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 25.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 12.9
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 6.6
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.5
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "PA": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 20.8
+      },
+      {
+        "term": "MEI",
+        "index": 18.1
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 11.5
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.3
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.1
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "PB": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 15.8
+      },
+      {
+        "term": "MEI",
+        "index": 15.8
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 11.5
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.3
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.1
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "PR": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 35.7
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 14.1
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 7.1
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.4
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "PE": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 14.1
+      },
+      {
+        "term": "MEI",
+        "index": 14.1
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 10.2
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.3
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.1
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "PI": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 15.6
+      },
+      {
+        "term": "MEI",
+        "index": 14.3
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 10.2
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.3
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.1
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "RJ": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 24.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 16.9
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 9.3
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.4
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "RN": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 17.3
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 16.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 12.8
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.3
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "RS": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 34.3
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 14.3
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 8.6
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.6
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "RO": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 31.9
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 13.3
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 13.0
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 4.8
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 2.4
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "RR": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 23.5
+      },
+      {
+        "term": "MEI",
+        "index": 23.5
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 10.6
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 5.9
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "SC": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 37.1
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 13.1
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 5.7
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.6
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 2.4
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "SP": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 30.1
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 15.7
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 6.8
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 2.4
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.4
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "SE": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 17.3
+      },
+      {
+        "term": "MEI",
+        "index": 16.0
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 12.8
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 2.3
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ],
+    "TO": [
+      {
+        "term": "Lula",
+        "index": 100.0
+      },
+      {
+        "term": "MEI",
+        "index": 28.2
+      },
+      {
+        "term": "Bolsa Família",
+        "index": 12.7
+      },
+      {
+        "term": "Flavio Bolsonaro",
+        "index": 11.6
+      },
+      {
+        "term": "Nikolas Ferreira",
+        "index": 3.5
+      },
+      {
+        "term": "Erika Hilton",
+        "index": 1.2
+      },
+      {
+        "term": "André Janones",
+        "index": 0.0
+      },
+      {
+        "term": "PT Brasil",
+        "index": 0.0
+      },
+      {
+        "term": "Tarifa Zero",
+        "index": 0.0
+      }
+    ]
+  },
   "report": {
-    "title": "Mensagem original recuperada do Discord",
+    "title": "Tendências de busca por estado",
     "description": "",
     "url": "https://trends.google.com/trending?geo=BR",
-    "published": "2026-10-16T14:18:25.592961+00:00",
-    "alert_title": "[TESTE] Buscas por estado — resumo consolidado",
-    "message": "**Assuntos em alta — últimas 24 horas**\nAté dois destaques por UF, na ordem dos feeds.\n\n**Acre:** clima, clima para amanhã\n**Alagoas:** globoplay, estudiantes x flamengo\n**Amapá:** estudiantes x flamengo\n**Amazonas:** globoplay, disney\n**Bahia:** arena fonte nova, tesla roadster\n**Ceará:** marco antonio villa foragido, como foi a entrevista do lula na g…\n**Distrito Federal:** tesla roadster, como foi a entrevista do lula na g…\n**Espírito Santo:** como foi a entrevista do lula na g…, meteorologia\n**Goiás:** tesla roadster, band\n**Maranhão:** como foi a entrevista do lula na g…, espn\n**Mato Grosso:** como foi a entrevista do lula na g…, disney\n**Mato Grosso do Sul:** como foi a entrevista do lula na g…, polícia\n**Minas Gerais:** a fazenda 18 enquetes, marco antonio villa foragido\n**Pará:** como foi a entrevista do lula na g…, aposentadoria\n**Paraíba:** como foi a entrevista do lula na g…, disney\n**Paraná:** unifil, quina 7143\n**Pernambuco:** como foi a entrevista do lula na g…, br-232\n**Piauí:** disney, globoplay\n**Rio de Janeiro:** marco antonio villa foragido, a fazenda 18 enquetes\n**Rio Grande do Norte:** como foi a entrevista do lula na g…, disney\n**Rio Grande do Sul:** marco antonio villa foragido, quina 7143\n**Rondônia:** pesquisa, previsão do tempo\n**Roraima:** estudiantes x flamengo\n**Santa Catarina:** blumenau, tesla\n**São Paulo:** sócio, lagartos\n**Sergipe:** globoplay, estudiantes x flamengo\n**Tocantins:** pesquisa, estudiantes x flamengo",
-    "details_message": "**Escuta Social — comparação de todos os termos**\nLista: 9 termos · versão 2026-10-15\nAté dois destaques; índice relativo entre monitorados.\n\n**Acre:** Lula, Bolsa Família\n**Alagoas:** Lula, MEI\n**Amapá:** Lula, Bolsa Família\n**Amazonas:** Lula, Bolsa Família\n**Bahia:** Lula, MEI\n**Ceará:** Lula, MEI\n**Distrito Federal:** Lula, MEI\n**Espírito Santo:** Lula, MEI\n**Goiás:** Lula, MEI\n**Maranhão:** Lula, Bolsa Família\n**Mato Grosso:** Lula, MEI\n**Mato Grosso do Sul:** Lula, MEI\n**Minas Gerais:** Lula, MEI\n**Pará:** Lula, Bolsa Família\n**Paraíba:** Lula, Bolsa Família\n**Paraná:** Lula, MEI\n**Pernambuco:** Lula, Bolsa Família\n**Piauí:** Lula, Bolsa Família\n**Rio de Janeiro:** Lula, MEI\n**Rio Grande do Norte:** Lula, MEI\n**Rio Grande do Sul:** Lula, MEI\n**Rondônia:** Lula, MEI\n**Roraima:** Lula, Bolsa Família\n**Santa Catarina:** Lula, MEI\n**São Paulo:** Lula, MEI\n**Sergipe:** Lula, Bolsa Família\n**Tocantins:** Lula, MEI\n\nTodos os termos foram consultados; mostramos dois por UF. Valores abaixo da resolução não significam ausência de buscas. Lotes usam referência comum; amostragem e arredondamento afetam a ordem.",
+    "published": "2026-10-16T14:33:30.507892+00:00",
+    "alert_title": "Buscas por estado — resumo consolidado",
+    "message": "**Assuntos em alta — últimas 24 horas**\nAté quatro destaques por UF, na ordem dos feeds.\n\n**Acre:** clima, clima para amanhã, estudiantes x fla…\n**Alagoas:** globoplay, estudiantes x fla…, inep, pesquisa\n**Amapá:** estudiantes x fla…\n**Amazonas:** globoplay, disney, disney plus, estudiantes x fla…\n**Bahia:** arena fonte nova, tesla roadster, feira de santana, band\n**Ceará:** marco antonio vil…, como foi a entrev…, kick, crime hediondo\n**Distrito Federal:** marco antonio vil…, tesla roadster, como foi a entrev…, clima\n**Espírito Santo:** como foi a entrev…, clima, globo esporte, espn\n**Goiás:** marco antonio vil…, tesla roadster, band, como foi a entrev…\n**Maranhão:** como foi a entrev…, espn, globoplay, disney\n**Mato Grosso:** como foi a entrev…, disney, disney plus, estudiantes x fla…\n**Mato Grosso do Sul:** como foi a entrev…, polícia, globoplay, andré mendonça\n**Minas Gerais:** a fazenda 18 enqu…, marco antonio vil…, previsão do tempo…, pastor motel cata…\n**Pará:** como foi a entrev…, aposentadoria, disney, globoplay\n**Paraíba:** como foi a entrev…, disney, disney plus, globoplay\n**Paraná:** unifil, quina 7143, idoso, delegado\n**Pernambuco:** marco antonio vil…, como foi a entrev…, br-232, disney\n**Piauí:** disney, globoplay, corinthians x col…, clima para amanhã\n**Rio de Janeiro:** marco antonio vil…, jottapê, a fazenda 18 enqu…, pastor motel cata…\n**Rio Grande do Norte:** como foi a entrev…, disney, disney plus, globoplay\n**Rio Grande do Sul:** marco antonio vil…, quina 7143, wsl, cachoeirinha\n**Rondônia:** pesquisa, previsão do tempo, estudiantes x fla…, alexandre de mora…\n**Roraima:** estudiantes x fla…\n**Santa Catarina:** blumenau, tesla, como foi a entrev…, band\n**São Paulo:** sócio, lagartos, iphone duo, marco antonio vil…\n**Sergipe:** globoplay, estudiantes x fla…, pesquisa, inep\n**Tocantins:** pesquisa, estudiantes x fla…, alexandre de mora…",
+    "details_message": "**Escuta Social — comparação de todos os termos**\nLista: 9 termos · versão 2026-10-15\nAté quatro por UF; índice relativo entre monitorados (0–100).\n\n**AC:** Lula (100), Bolsa Família (41), MEI (23), Flavio Bolso… (12.9)\n**AL:** Lula (100), MEI (17.3), Bolsa Família (16), Flavio Bolso… (14.1)\n**AP:** Lula (100), Bolsa Família (17.3), MEI (16), Flavio Bolso… (14.3)\n**AM:** Lula (100), Bolsa Família (25), MEI (22.1), Flavio Bolso… (12.9)\n**BA:** Lula (100), MEI (18.9), Bolsa Família (16.2), Flavio Bolso… (11.5)\n**CE:** Lula (100), MEI (15.6), Bolsa Família (14.3), Flavio Bolso… (11.5)\n**DF:** Lula (100), MEI (18.5), Flavio Bolso… (15.7), Bolsa Família (4.9)\n**ES:** Lula (100), MEI (27.4), Flavio Bolso… (14.1), Bolsa Família (9.6)\n**GO:** Lula (100), MEI (28.8), Flavio Bolso… (12.9), Bolsa Família (8.2)\n**MA:** Lula (100), Bolsa Família (16.9), MEI (13), Flavio Bolso… (10.1)\n**MT:** Lula (100), MEI (31.9), Flavio Bolso… (13.1), Bolsa Família (6.9)\n**MS:** Lula (100), MEI (31), Flavio Bolso… (12.9), Bolsa Família (9.9)\n**MG:** Lula (100), MEI (25), Flavio Bolso… (12.9), Bolsa Família (6.6)\n**PA:** Lula (100), Bolsa Família (20.8), MEI (18.1), Flavio Bolso… (11.5)\n**PB:** Lula (100), Bolsa Família (15.8), MEI (15.8), Flavio Bolso… (11.5)\n**PR:** Lula (100), MEI (35.7), Flavio Bolso… (14.1), Bolsa Família (7.1)\n**PE:** Lula (100), Bolsa Família (14.1), MEI (14.1), Flavio Bolso… (10.2)\n**PI:** Lula (100), Bolsa Família (15.6), MEI (14.3), Flavio Bolso… (10.2)\n**RJ:** Lula (100), MEI (24), Flavio Bolso… (16.9), Bolsa Família (9.3)\n**RN:** Lula (100), MEI (17.3), Bolsa Família (16), Flavio Bolso… (12.8)\n**RS:** Lula (100), MEI (34.3), Flavio Bolso… (14.3), Bolsa Família (8.6)\n**RO:** Lula (100), MEI (31.9), Flavio Bolso… (13.3), Bolsa Família (13)\n**RR:** Lula (100), Bolsa Família (23.5), MEI (23.5), Flavio Bolso… (10.6)\n**SC:** Lula (100), MEI (37.1), Flavio Bolso… (13.1), Bolsa Família (5.7)\n**SP:** Lula (100), MEI (30.1), Flavio Bolso… (15.7), Bolsa Família (6.8)\n**SE:** Lula (100), Bolsa Família (17.3), MEI (16), Flavio Bolso… (12.8)\n**TO:** Lula (100), MEI (28.2), Bolsa Família (12.7), Flavio Bolso… (11.6)\n\n100 = maior interesse entre monitorados na UF; não é contagem nem %. Valores baixos podem ser arredondados. Nomes completos no JSON salvo.",
     "footer": "Google Trends: interesse relativo, não volume absoluto, opinião ou intenção de voto. Lista do Drive é uma versão revisada, sem sincronização automática."
   },
   "delivery": {
-    "confirmed_at": "2026-10-16T14:18:25.874000+00:00",
+    "confirmed_at": "2026-10-16T14:33:30.976114+00:00",
     "test": true,
     "message": {
-      "id": "1560658180566941798",
-      "channel_id": "1560658180566941798"
+      "id": "1560661976441688146",
+      "channel_id": "1560661976441688146"
     }
-  },
-  "discord_message": {
-    "url": "https://discord.com/channels/1559694483199762492/1560658180566941798/1560658180566941798",
-    "content": "",
-    "embeds": [
-      {
-        "type": "rich",
-        "url": "https://trends.google.com/trending?geo=BR",
-        "title": "[TESTE] Buscas por estado — resumo consolidado",
-        "description": "**Assuntos em alta — últimas 24 horas**\nAté dois destaques por UF, na ordem dos feeds.\n\n**Acre:** clima, clima para amanhã\n**Alagoas:** globoplay, estudiantes x flamengo\n**Amapá:** estudiantes x flamengo\n**Amazonas:** globoplay, disney\n**Bahia:** arena fonte nova, tesla roadster\n**Ceará:** marco antonio villa foragido, como foi a entrevista do lula na g…\n**Distrito Federal:** tesla roadster, como foi a entrevista do lula na g…\n**Espírito Santo:** como foi a entrevista do lula na g…, meteorologia\n**Goiás:** tesla roadster, band\n**Maranhão:** como foi a entrevista do lula na g…, espn\n**Mato Grosso:** como foi a entrevista do lula na g…, disney\n**Mato Grosso do Sul:** como foi a entrevista do lula na g…, polícia\n**Minas Gerais:** a fazenda 18 enquetes, marco antonio villa foragido\n**Pará:** como foi a entrevista do lula na g…, aposentadoria\n**Paraíba:** como foi a entrevista do lula na g…, disney\n**Paraná:** unifil, quina 7143\n**Pernambuco:** como foi a entrevista do lula na g…, br-232\n**Piauí:** disney, globoplay\n**Rio de Janeiro:** marco antonio villa foragido, a fazenda 18 enquetes\n**Rio Grande do Norte:** como foi a entrevista do lula na g…, disney\n**Rio Grande do Sul:** marco antonio villa foragido, quina 7143\n**Rondônia:** pesquisa, previsão do tempo\n**Roraima:** estudiantes x flamengo\n**Santa Catarina:** blumenau, tesla\n**São Paulo:** sócio, lagartos\n**Sergipe:** globoplay, estudiantes x flamengo\n**Tocantins:** pesquisa, estudiantes x flamengo",
-        "fields": [
-          {
-            "name": "Fonte",
-            "value": "Google Trends",
-            "inline": false
-          },
-          {
-            "name": "Publicado em",
-            "value": "2026-10-16T14:18:25.592961+00:00",
-            "inline": false
-          }
-        ],
-        "footer": {
-          "text": "Google Trends: interesse relativo, não volume absoluto, opinião ou intenção de voto. Lista do Drive é uma versão revisada, sem sincronização automática."
-        },
-        "content_scan_version": 4
-      },
-      {
-        "type": "rich",
-        "description": "**Escuta Social — comparação de todos os termos**\nLista: 9 termos · versão 2026-10-15\nAté dois destaques; índice relativo entre monitorados.\n\n**Acre:** Lula, Bolsa Família\n**Alagoas:** Lula, MEI\n**Amapá:** Lula, Bolsa Família\n**Amazonas:** Lula, Bolsa Família\n**Bahia:** Lula, MEI\n**Ceará:** Lula, MEI\n**Distrito Federal:** Lula, MEI\n**Espírito Santo:** Lula, MEI\n**Goiás:** Lula, MEI\n**Maranhão:** Lula, Bolsa Família\n**Mato Grosso:** Lula, MEI\n**Mato Grosso do Sul:** Lula, MEI\n**Minas Gerais:** Lula, MEI\n**Pará:** Lula, Bolsa Família\n**Paraíba:** Lula, Bolsa Família\n**Paraná:** Lula, MEI\n**Pernambuco:** Lula, Bolsa Família\n**Piauí:** Lula, Bolsa Família\n**Rio de Janeiro:** Lula, MEI\n**Rio Grande do Norte:** Lula, MEI\n**Rio Grande do Sul:** Lula, MEI\n**Rondônia:** Lula, MEI\n**Roraima:** Lula, Bolsa Família\n**Santa Catarina:** Lula, MEI\n**São Paulo:** Lula, MEI\n**Sergipe:** Lula, Bolsa Família\n**Tocantins:** Lula, MEI\n\nTodos os termos foram consultados; mostramos dois por UF. Valores abaixo da resolução não significam ausência de buscas. Lotes usam referência comum; amostragem e arredondamento afetam a ordem.",
-        "content_scan_version": 4
-      }
-    ]
   }
 }
