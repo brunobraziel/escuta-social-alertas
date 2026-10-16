@@ -1,74 +1,72 @@
-# Buscas por estado — resumo consolidado
+Coleta: 2026-10-16T16:13:01.963631+00:00
 
-Coleta: 2026-10-16T14:36:59.074445+00:00
+# Assuntos em alta por estado
 
-Comparação monitorada: 2026-10-16T14:36:59.074445+00:00
+**Assuntos em alta — geral**
+Até quatro destaques por UF.
 
-Origem: coleta
+**AC:** clima, clima para amanhã, estudiantes x fla…
+**AL:** globoplay, estudiantes x fla…, inep, pesquisa
+**AP:** estudiantes x fla…
+**AM:** gov, globoplay, disney, disney plus
+**BA:** mãe, gov.br, gov, arena fonte nova
+**CE:** mãe, gov, marco antonio vil…, como foi a entrev…
+**DF:** mãe, gov, marco antonio vil…, tesla roadster
+**ES:** band, edital banestes, gov, fcc
+**GO:** mãe, marco antonio vil…, tesla roadster, band
+**MA:** como foi a entrev…, espn, globoplay, disney
+**MT:** gov, como foi a entrev…, disney, disney plus
+**MS:** gov, como foi a entrev…, polícia, globoplay
+**MG:** instituto naciona…, salário, pesquisa verita, mãe
+**PA:** gov, como foi a entrev…, aposentadoria, disney
+**PB:** gov, como foi a entrev…, disney, disney plus
+**PR:** pastor motel cata…, instituto naciona…, mãe, gov.br
+**PE:** mãe, gov, marco antonio vil…, como foi a entrev…
+**PI:** disney, globoplay, corinthians x col…, clima para amanhã
+**RJ:** segunda feira é f…, mãe, gov br, gov.br
+**RN:** gov, como foi a entrev…, disney, disney plus
+**RS:** instituto naciona…, mãe, salário, gov
+**RO:** pesquisa, previsão do tempo, estudiantes x fla…, alexandre de mora…
+**RR:** estudiantes x fla…
+**SC:** mãe, gov, blumenau, tesla
+**SP:** tribunal superior…, leandro karnal, 13 de novembro, one piece 1196
+**SE:** globoplay, estudiantes x fla…, pesquisa, inep
+**TO:** pesquisa, estudiantes x fla…, alexandre de mora…
 
-**Assuntos em alta — últimas 24 horas**
-Até quatro destaques por UF, na ordem dos feeds.
+Feed Google Trends · últimas 24h · ordem do RSS, sem ranking absoluto ou intenção de voto.
 
-**Acre:** clima, clima para amanhã, estudiantes x fla…
-**Alagoas:** globoplay, estudiantes x fla…, inep, pesquisa
-**Amapá:** estudiantes x fla…
-**Amazonas:** globoplay, disney, disney plus, estudiantes x fla…
-**Bahia:** arena fonte nova, tesla roadster, feira de santana, band
-**Ceará:** marco antonio vil…, como foi a entrev…, kick, crime hediondo
-**Distrito Federal:** marco antonio vil…, tesla roadster, como foi a entrev…, clima
-**Espírito Santo:** como foi a entrev…, clima, globo esporte, espn
-**Goiás:** marco antonio vil…, tesla roadster, band, como foi a entrev…
-**Maranhão:** como foi a entrev…, espn, globoplay, disney
-**Mato Grosso:** como foi a entrev…, disney, disney plus, estudiantes x fla…
-**Mato Grosso do Sul:** como foi a entrev…, polícia, globoplay, andré mendonça
-**Minas Gerais:** a fazenda 18 enqu…, marco antonio vil…, previsão do tempo…, pastor motel cata…
-**Pará:** como foi a entrev…, aposentadoria, disney, globoplay
-**Paraíba:** como foi a entrev…, disney, disney plus, globoplay
-**Paraná:** unifil, quina 7143, idoso, delegado
-**Pernambuco:** marco antonio vil…, como foi a entrev…, br-232, disney
-**Piauí:** disney, globoplay, corinthians x col…, clima para amanhã
-**Rio de Janeiro:** 19 de outubro é f…, marco antonio vil…, jottapê, a fazenda 18 enqu…
-**Rio Grande do Norte:** como foi a entrev…, disney, disney plus, globoplay
-**Rio Grande do Sul:** marco antonio vil…, quina 7143, wsl, cachoeirinha
-**Rondônia:** pesquisa, previsão do tempo, estudiantes x fla…, alexandre de mora…
-**Roraima:** estudiantes x fla…
-**Santa Catarina:** blumenau, tesla, como foi a entrev…, band
-**São Paulo:** promulgação escal…, sócio, lagartos, iphone duo
-**Sergipe:** globoplay, estudiantes x fla…, pesquisa, inep
-**Tocantins:** pesquisa, estudiantes x fla…, alexandre de mora…
+# Escuta Social por estado — grupos 1, 2 e 3
 
-**Escuta Social — comparação de todos os termos**
-Lista: 9 termos · versão 2026-10-15
-Até quatro por UF; índice relativo entre monitorados (0–100).
+**Escuta Social — assuntos em alta filtrados**
+20 termos dos grupos 1–3 · versão 2026-10-16
+Até quatro correspondências por UF; sem contagem de buscas.
 
-**AC:** Lula (100), Bolsa Família (41), MEI (23), Flavio Bolso… (12.9)
-**AL:** Lula (100), MEI (17.3), Bolsa Família (16), Flavio Bolso… (14.1)
-**AP:** Lula (100), Bolsa Família (17.3), MEI (16), Flavio Bolso… (14.3)
-**AM:** Lula (100), Bolsa Família (25), MEI (22.1), Flavio Bolso… (12.9)
-**BA:** Lula (100), MEI (18.9), Bolsa Família (16.2), Flavio Bolso… (11.5)
-**CE:** Lula (100), MEI (15.6), Bolsa Família (14.3), Flavio Bolso… (11.5)
-**DF:** Lula (100), MEI (18.5), Flavio Bolso… (15.7), Bolsa Família (4.9)
-**ES:** Lula (100), MEI (27.4), Flavio Bolso… (14.1), Bolsa Família (9.6)
-**GO:** Lula (100), MEI (28.8), Flavio Bolso… (12.9), Bolsa Família (8.2)
-**MA:** Lula (100), Bolsa Família (16.9), MEI (13), Flavio Bolso… (10.1)
-**MT:** Lula (100), MEI (31.9), Flavio Bolso… (13.1), Bolsa Família (6.9)
-**MS:** Lula (100), MEI (31), Flavio Bolso… (12.9), Bolsa Família (9.9)
-**MG:** Lula (100), MEI (25), Flavio Bolso… (12.9), Bolsa Família (6.6)
-**PA:** Lula (100), Bolsa Família (20.8), MEI (18.1), Flavio Bolso… (11.5)
-**PB:** Lula (100), Bolsa Família (15.8), MEI (15.8), Flavio Bolso… (11.5)
-**PR:** Lula (100), MEI (35.7), Flavio Bolso… (14.1), Bolsa Família (7.1)
-**PE:** Lula (100), Bolsa Família (14.1), MEI (14.1), Flavio Bolso… (10.2)
-**PI:** Lula (100), Bolsa Família (15.6), MEI (14.3), Flavio Bolso… (10.2)
-**RJ:** Lula (100), MEI (24), Flavio Bolso… (16.9), Bolsa Família (9.3)
-**RN:** Lula (100), MEI (17.3), Bolsa Família (16), Flavio Bolso… (12.8)
-**RS:** Lula (100), MEI (34.3), Flavio Bolso… (14.3), Bolsa Família (8.6)
-**RO:** Lula (100), MEI (31.9), Flavio Bolso… (13.3), Bolsa Família (13)
-**RR:** Lula (100), Bolsa Família (23.5), MEI (23.5), Flavio Bolso… (10.6)
-**SC:** Lula (100), MEI (37.1), Flavio Bolso… (13.1), Bolsa Família (5.7)
-**SP:** Lula (100), MEI (30.1), Flavio Bolso… (15.7), Bolsa Família (6.8)
-**SE:** Lula (100), Bolsa Família (17.3), MEI (16), Flavio Bolso… (12.8)
-**TO:** Lula (100), MEI (28.2), Bolsa Família (12.7), Flavio Bolso… (11.6)
+**AC:** nenhuma correspondência
+**AL:** nenhuma correspondência
+**AP:** nenhuma correspondência
+**AM:** nenhuma correspondência
+**BA:** nenhuma correspondência
+**CE:** nenhuma correspondência
+**DF:** nenhuma correspondência
+**ES:** nenhuma correspondência
+**GO:** nenhuma correspondência
+**MA:** nenhuma correspondência
+**MT:** nenhuma correspondência
+**MS:** nenhuma correspondência
+**MG:** nenhuma correspondência
+**PA:** aposentadoria
+**PB:** nenhuma correspondência
+**PR:** nenhuma correspondência
+**PE:** nenhuma correspondência
+**PI:** nenhuma correspondência
+**RJ:** nenhuma correspondência
+**RN:** nenhuma correspondência
+**RS:** nenhuma correspondência
+**RO:** nenhuma correspondência
+**RR:** nenhuma correspondência
+**SC:** nenhuma correspondência
+**SP:** nenhuma correspondência
+**SE:** nenhuma correspondência
+**TO:** nenhuma correspondência
 
-100 = maior interesse entre monitorados na UF; não é contagem nem %. Valores baixos podem ser arredondados. Nomes completos no JSON salvo.
-
-Google Trends: interesse relativo, não volume absoluto, opinião ou intenção de voto. Lista do Drive é uma versão revisada, sem sincronização automática.
+Filtro textual sem acentos, com palavras completas. Ausência no feed não significa ausência de buscas. Temas completos e clusters no JSON salvo.
