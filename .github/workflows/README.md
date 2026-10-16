@@ -32,3 +32,5 @@ Diagnóstico de Trends: `mode: probe` + `alert: tendencias_por_estado` executa u
 Tendências usa SerpApi e recebe o repository secret `SERPAPI_API_KEY`. Sua agenda no catálogo prevê 00h07 de Fortaleza até o fim de 24/10/2026; os outros alertas não herdam essa agenda. O executor e o diagnóstico também bloqueiam consultas após o encerramento.
 
 Cache de tendências: `replay` lê o snapshot sem nenhuma consulta externa nem envio; `recover` recupera comparações já arquivadas e atualiza RSS público uma vez, sem criar novas pesquisas SerpApi. Ambos exigem `alert: tendencias_por_estado`. O workflow exporta snapshots para `dados/tendencias/` na branch `alert-state` durante a persistência. Testes agora também salvam snapshots, sem marcar entrega na deduplicação de produção.
+
+Para reenviar o snapshot ao Discord sem consultas externas, selecione `mode: replay-test`, `alert: tendencias_por_estado`. Envia uma única mensagem com `[TESTE] [CACHE]`, preserva a data original e não modifica estado, histórico de entregas ou cota. O preview `replay` continua sem envio.

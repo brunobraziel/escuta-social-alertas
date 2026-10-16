@@ -67,3 +67,18 @@ class CacheTests(unittest.TestCase):
             self.assertEqual(saved["report"]["message"], "Texto original")
             self.assertIsNone(saved["monitored"])
             self.assertEqual(saved["discord_message"]["embeds"], payload["embeds"])
+
+    def test_cached_test_only_calls_discord(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)/"state.json"
+            save_state(path, {"sent": ["existing"], "trends_last_snapshot": self.saved()})
+            original = path.read_bytes()
+            with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "example"}), patch("tendencias_busca.run.compare_all") as compare, patch("tendencias_busca.run.trending") as rss, patch("tendencias_busca.run.load_terms") as terms, patch("tendencias_busca.run.send_discord") as send:
+                run(["--cached", "--test", "--state", str(path)])
+                compare.assert_not_called()
+                rss.assert_not_called()
+                terms.assert_not_called()
+                send.assert_called_once()
+                self.assertTrue(send.call_args.kwargs["test"])
+                self.assertIn("[CACHE]", send.call_args.args[1]["alert_title"])
+            self.assertEqual(path.read_bytes(), original)

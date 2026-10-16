@@ -143,3 +143,5 @@ Para reenviar o cache como teste, sem recolher dados, use `--cached --test` com 
 A mensagem de teste de 16/10/2026 foi recuperada diretamente do Discord (somente GET), sem novas buscas SerpApi. Há uma cópia permanente em [dados/exemplos](../dados/exemplos/README.md), na branch principal. Ela tem dois destaques e não contém índices: o registro original é preservado, não retroativamente ampliado.
 
 O histórico SerpApi retornou HTTP 403 na tentativa de recuperação; não há fallback que gere buscas novas. Para novas recuperações de uma mensagem conhecida, o workflow aceita `mode: recover-discord`, `alert: tendencias_por_estado` e `message_url` com o link da mensagem enviada pelo mesmo webhook. Essa operação só lê o Discord e persiste o resultado.
+
+Para reenviar o snapshot ao Discord sem consultas externas, selecione `mode: replay-test`, `alert: tendencias_por_estado`. Envia uma única mensagem com `[TESTE] [CACHE]`, preserva a data original e não modifica estado, histórico de entregas ou cota. O preview `replay` continua sem envio.

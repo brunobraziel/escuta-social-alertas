@@ -31,6 +31,7 @@ def run(argv=None):
             if not webhook:
                 parser.error("Configure DISCORD_WEBHOOK_URL para reenviar teste em cache")
             report = dict(saved["report"])
+            report["alert_title"] = "[CACHE] " + report.get("alert_title", "Resumo").removeprefix("[TESTE] ")
             report["footer"] = "REPRODUÇÃO DE CACHE, sem nova coleta. " + report["footer"]
             send_discord(webhook, report, "Google Trends (cache)", test=True)
         else:

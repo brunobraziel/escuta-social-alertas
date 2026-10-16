@@ -7,7 +7,7 @@ on:
       mode:
         description: Modo de execução
         type: choice
-        options: [dry-run, live, test, probe, replay, recover, recover-discord]
+        options: [dry-run, live, test, probe, replay, replay-test, recover, recover-discord]
         default: dry-run
       alert:
         description: ID do alerta (consulte alertas.json); all executa todos os ativos
@@ -59,12 +59,14 @@ jobs:
             echo '::warning::Configure DISCORD_WEBHOOK_URL; executando dry-run.'
             MODE=dry-run
           fi
-          if [ "$MODE" = replay ] || [ "$MODE" = recover ] || [ "$MODE" = recover-discord ]; then
+          if [ "$MODE" = replay ] || [ "$MODE" = replay-test ] || [ "$MODE" = recover ] || [ "$MODE" = recover-discord ]; then
             if [ "$ALERT" != tendencias_por_estado ]; then
               echo '::error::replay/recover exigem tendencias_por_estado.'
               exit 1
             fi
-            if [ "$MODE" = recover-discord ]; then
+            if [ "$MODE" = replay-test ]; then
+              python -m tendencias_busca.run --cached --test
+            elif [ "$MODE" = recover-discord ]; then
               python -m tendencias_busca.recuperar_discord --message-url "$MESSAGE_URL"
             elif [ "$MODE" = recover ]; then
               python -m tendencias_busca.recuperar
