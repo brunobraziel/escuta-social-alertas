@@ -81,3 +81,9 @@ class SerpTests(unittest.TestCase):
         for hour in range(24):
             now = datetime.fromisoformat(f"2026-10-20T{hour:02d}:07:00-03:00")
             self.assertEqual(bool(scheduled_entries(entries, now)), hour in (0, 4, 8, 12, 16, 20))
+
+    def test_three_hour_agenda(self):
+        entries = [{"id": "trends", "agenda": {"intervalo_horas": 3}}]
+        for hour in range(24):
+            now = datetime.fromisoformat(f"2026-10-20T{hour:02d}:07:00-03:00")
+            self.assertEqual(bool(scheduled_entries(entries, now)), hour in (0, 3, 6, 9, 12, 15, 18, 21))

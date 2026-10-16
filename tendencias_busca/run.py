@@ -50,10 +50,10 @@ def run(argv=None):
     path = Path(args.state)
     state = json.loads(path.read_text()) if path.exists() else {"sent": []}
     now = now_local()
-    slot = f"{now.date().isoformat()}T{now.hour // 4 * 4:02d}"
+    slot = f"{now.date().isoformat()}T{now.hour // 3 * 3:02d}"
     if not args.dry_run and not args.test:
         if state.get("trends_attempt_slot") == slot:
-            print("Coleta de tendências já tentada nesta janela de 4h; sem novas consultas.")
+            print("Coleta de tendências já tentada nesta janela de 3h; sem novas consultas.")
             return
         # Salvar a tentativa ANTES da API limita também reexecuções após falha.
         state["trends_attempt_slot"] = slot

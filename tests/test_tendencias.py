@@ -121,11 +121,11 @@ class TrendsTests(unittest.TestCase):
                 run(["--states", "MG", "--state", str(path)])
                 compare.assert_called_once()
 
-    def test_new_four_hour_slot_allows_next_collection(self):
+    def test_new_three_hour_slot_allows_next_collection(self):
         from datetime import datetime
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "state.json"
-            path.write_text(json.dumps({"sent": [], "trends_attempt_slot": "2026-10-16T08"}))
+            path.write_text(json.dumps({"sent": [], "trends_attempt_slot": "2026-10-16T09"}))
             with patch("tendencias_busca.run.load_terms", return_value=SNAPSHOT), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("tendencias_busca.run.now_local", return_value=datetime.fromisoformat("2026-10-16T12:07:00-03:00")), patch("tendencias_busca.run.compare_all", side_effect=SourceUnavailable("quota")) as compare:
                 with self.assertRaises(SourceUnavailable):
                     run(["--states", "MG", "--state", str(path)])

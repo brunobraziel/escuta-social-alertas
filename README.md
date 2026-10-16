@@ -130,9 +130,9 @@ O catálogo inclui `tendencias_por_estado`, ativo após validação SerpApi; a l
 
 O estado pode conter, além de `sent`, o hash `latest_trends`; executores devem preservar todos os campos desconhecidos ao gravar. Não coloque o documento ou a lista privada na branch de estado.
 
-A agenda preparada para tendências é a cada quatro horas, até 24/10/2026 às 23h59 em Fortaleza; os alertas de notícias permanecem de hora em hora. O provedor é **SerpApi (serpapi.com, oferta consultada de 250 buscas/mês)**, diferente de **SearchApi (searchapi.io, 100 requisições de teste)**. O repository secret `SERPAPI_API_KEY` foi cadastrado e o diagnóstico real passou.
+A agenda preparada para tendências é a cada três horas, até 24/10/2026 às 23h59 em Fortaleza; os alertas de notícias permanecem de hora em hora. O provedor é **SerpApi (serpapi.com, oferta consultada de 250 buscas/mês)**, diferente de **SearchApi (searchapi.io, 100 requisições de teste)**. O repository secret `SERPAPI_API_KEY` foi cadastrado e o diagnóstico real passou.
 
-O resumo de tendências roda **a cada quatro horas: 00h07, 04h07, 08h07, 12h07, 16h07 e 20h07 de Fortaleza**, até o fim de 24/10. Há trava por janela de quatro horas para impedir nova tentativa `live` no mesmo período, mesmo após falha. A rotina prevista custa no máximo doze consultas SerpApi por dia; os testes/diagnósticos manuais são adicionais. O teste real de ativação foi entregue ao Discord com sucesso em 16/10/2026.
+O resumo de tendências roda **a cada três horas: 00h07, 03h07, 06h07, 09h07, 12h07, 15h07, 18h07 e 21h07 de Fortaleza**, até o fim de 24/10. Há trava por janela de três horas para impedir nova tentativa `live` no mesmo período, mesmo após falha. A rotina prevista custa no máximo dezesseis consultas SerpApi por dia; os testes/diagnósticos manuais são adicionais. O teste real de ativação foi entregue ao Discord com sucesso em 16/10/2026.
 
 ## Testar a apresentação sem consumir a API
 
