@@ -14,7 +14,7 @@ pesquisas_eleitorais/run.py         Execução do alerta pesquisa_presidente
 pesquisas_eleitorais/parser.py      Extração e validação das pesquisas
 pesquisas_eleitorais/{site}/        Configuração de cada fonte do escopo
 core/                              RSS, fontes e envio compartilhados
-tendencias_busca/                   Resumo estadual em duas seções (inativo)
+tendencias_busca/                   Resumo estadual em duas seções (SerpApi)
 tests/                             Testes sem rede e sem mensagens reais
 ```
 
@@ -124,10 +124,10 @@ Fontes ativas: G1 e CNN via RSS; sem coleta adicional do HTML das matérias. RSS
 
 Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/README.md) e [pesquisas](pesquisas_eleitorais/README.md).
 
-## Resumo estadual de buscas (em preparação)
+## Resumo estadual de buscas
 
-O catálogo inclui `tendencias_por_estado`, desativado até cadastrar a chave SerpApi e validar os dados reais; a lista privada do Drive já está configurada como secret autorizado. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
+O catálogo inclui `tendencias_por_estado`, ativo após validação SerpApi; a lista privada do Drive está configurada como secret autorizado. O post prevê assuntos em alta por UF e comparação de todos os termos monitorados, em duas seções de uma única mensagem. Veja [configuração, método e pendências](tendencias_busca/README.md). Os alertas de notícias existentes continuam ativos.
 
 O estado pode conter, além de `sent`, o hash `latest_trends`; executores devem preservar todos os campos desconhecidos ao gravar. Não coloque o documento ou a lista privada na branch de estado.
 
-A agenda preparada para tendências é de duas em duas horas, até 24/10/2026 às 23h59 em Fortaleza; os alertas de notícias permanecem de hora em hora. O provedor é **SerpApi (serpapi.com, oferta consultada de 250 buscas/mês)**, diferente de **SearchApi (searchapi.io, 100 requisições de teste)**. Falta o repository secret `SERPAPI_API_KEY`; sem chave/validação, o alerta fica inativo.
+A agenda preparada para tendências é de duas em duas horas, até 24/10/2026 às 23h59 em Fortaleza; os alertas de notícias permanecem de hora em hora. O provedor é **SerpApi (serpapi.com, oferta consultada de 250 buscas/mês)**, diferente de **SearchApi (searchapi.io, 100 requisições de teste)**. O repository secret `SERPAPI_API_KEY` foi cadastrado e o diagnóstico real passou.

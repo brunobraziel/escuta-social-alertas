@@ -1,6 +1,6 @@
 # Tendências de busca por estado
 
-ID: `tendencias_por_estado`. Executor: `tendencias_busca.run`, com o mesmo contrato `run(argv=None)` dos demais alertas. **Está desativado no catálogo**: falta cadastrar `SERPAPI_API_KEY` e validar a comparação real. O endpoint direto do Google retornou HTTP 429; a operação foi preparada para SerpApi. Não houve ativação automática nem envio real deste resumo.
+ID: `tendencias_por_estado`. Executor: `tendencias_busca.run`, com o mesmo contrato `run(argv=None)` dos demais alertas. **Ativo no catálogo**: a chave `SERPAPI_API_KEY` foi cadastrada e o diagnóstico SerpApi foi concluído com sucesso em 16/10/2026. O endpoint direto do Google retornou HTTP 429 e não é usado como fallback.
 
 ## O que o post deve mostrar
 
@@ -47,9 +47,9 @@ O snapshot autorizado está armazenado como repository secret; o workflow já pa
 
 ## Comparabilidade
 
-O primeiro termo é a referência comum entre lotes. Os valores de cada termo são divididos pelo valor dessa referência na mesma UF e depois reescalados em relação ao maior entre os monitorados naquela UF. Isso evita concatenar índices normalizados independentes sem referência. O método produz uma aproximação sensível à amostragem/arredondamento; não é uma contagem de pessoas ou buscas.
+A referência comum é escolhida entre os cinco termos do primeiro lote, priorizando presença mensurável nas UFs e mediana do índice. A seleção não usa consulta extra. Os valores de cada termo são divididos pelo valor dessa referência na mesma UF e depois reescalados em relação ao maior entre os monitorados naquela UF. Isso evita concatenar índices normalizados independentes sem referência. O método produz uma aproximação sensível à amostragem/arredondamento; não é uma contagem de pessoas ou buscas.
 
-Se qualquer termo estiver sem valor positivo mensurável, ou a referência não puder ser medida, o estado fica como `dados insuficientes`: não se produz ranking de todos os termos com um subconjunto de dados. As comparações usam a mesma janela de 24 horas, tipo de pesquisa e abrangência Brasil. O corpo mostra apenas os destaques; os demais termos foram consultados, não omitidos da coleta. Os números do índice não são exibidos no post.
+Se faltarem termos ou a referência não puder ser medida, a UF fica como `dados insuficientes`. Valores zero são tratados como abaixo da resolução, não ausência de buscas. Os destaques só são exibidos quando o segundo colocado supera o limite conservador de incerteza dos termos arredondados a zero em todos os lotes. Todos os termos são consultados. As comparações usam a mesma janela de 24 horas, tipo de pesquisa e abrangência Brasil. O corpo mostra apenas os destaques; os demais termos foram consultados, não omitidos da coleta. Os números do índice não são exibidos no post.
 
 ## SerpApi: conta e limites
 
@@ -76,12 +76,12 @@ Conta conservadora para nove dias completos de 16 a 24/10: 108 coletas × 2 cons
 
 O encerramento também é aplicado dentro do executor e do diagnóstico: depois dele não há consultas, mesmo em chamadas manuais. Os outros alertas continuam de hora em hora, sem data final nesta configuração.
 
-## Validação e ativação pendentes
+## Validação e operação
 
 1. Lista revisada do Drive: já configurada como secret autorizado.
-2. Cadastre `SERPAPI_API_KEY` da SerpApi. A chave ainda não existia na verificação desta entrega.
+2. `SERPAPI_API_KEY` foi cadastrada pelo responsável e validada.
 3. Rode o diagnóstico `probe` pelo workflow: só mostra contagens/códigos de erro, sem termos ou resultados individuais. Cada diagnóstico pode consumir até duas consultas.
-4. Revise o resultado e somente depois altere `ativo` para `true` no catálogo. Enquanto estiver `false`, o alerta não participa do agendamento.
+4. O alerta foi ativado após diagnóstico válido. Para suspender, altere `ativo` para `false`, preservando histórico.
 
 Para validação local, com os secrets no ambiente:
 
@@ -90,7 +90,7 @@ python -m tendencias_busca.diagnostico
 python -m tendencias_busca.run --dry-run --states MG,SP
 ```
 
-O `dry-run` imprime o resumo: não rode com a lista privada em logs públicos sem autorização para divulgar os resultados. `--test` envia um resumo real identificado como teste, não um exemplo fictício; não foi executado nesta entrega por falta da chave. A alternativa oficial do Google continua em acesso antecipado: https://developers.google.com/search/apis/trends .
+O `dry-run` imprime o resumo: não rode com a lista privada em logs públicos sem autorização para divulgar os resultados. `--test` envia um resumo real identificado como teste, não um exemplo fictício; pode ser solicitado manualmente após configuração da chave. A alternativa oficial do Google continua em acesso antecipado: https://developers.google.com/search/apis/trends .
 
 ## Silêncio e estado
 
