@@ -59,20 +59,20 @@ Cadastre a chave da SerpApi como **Repository secret `SERPAPI_API_KEY`**, sem co
 
 A lista atual de nove termos exige dois lotes, com um termo comum. Cada lote retorna recortes estaduais do Brasil; não se faz uma consulta paga por estado. O código bloqueia listas que exijam mais de dois lotes, evitando ampliar consumo sem rever a cota. Não há retentativas automáticas. O consumo real deve ser confirmado no painel: consultas com erro/cache podem ter tratamento próprio do provedor.
 
-## Agenda diária e encerramento
+## Agenda de quatro horas e encerramento
 
 O workflow único continua de hora em hora. Em execuções `schedule`, chama `main.py --scheduled`, que aplica `agenda` do catálogo. Para este alerta:
 
 ```json
 {
-  "intervalo_horas": 24,
+  "intervalo_horas": 4,
   "fim_exclusivo": "2026-10-25T00:00:00-03:00"
 }
 ```
 
-Horários previstos em Fortaleza: **00h07, uma vez por dia**. Até **24/10/2026 às 23h59**; a última execução prevista é 24/10 às 00h07. Não há promessa de envio às 23h59: esse é o encerramento. O Google Trends pode retornar dados insuficientes; o GitHub pode atrasar ou perder uma execução.
+Horários previstos em Fortaleza: **00h07, 04h07, 08h07, 12h07, 16h07 e 20h07**. Até **24/10/2026 às 23h59**; a última execução prevista é 24/10 às 20h07. Não há promessa de envio às 23h59: esse é o encerramento. O Google Trends pode retornar dados insuficientes; o GitHub pode atrasar ou perder uma execução.
 
-Conta conservadora para nove dias completos de 16 a 24/10: 9 coletas × 2 consultas = **18 consultas**, deixando 232 de uma cota intacta de 250 para diagnóstico e testes. Começar depois reduz as execuções restantes. Chamadas manuais consomem cota adicional e não seguem a restrição de horário diário; até simulações usam a API. Não use a chave em outros projetos sem recalcular o saldo.
+Conta conservadora para nove dias completos de 16 a 24/10: 54 coletas × 2 consultas = **108 consultas**, deixando 142 de uma cota intacta de 250 para diagnóstico e testes. Começar depois reduz as execuções restantes. Chamadas manuais consomem cota adicional e não seguem a restrição de horário de quatro horas; até simulações usam a API. Não use a chave em outros projetos sem recalcular o saldo.
 
 O encerramento também é aplicado dentro do executor e do diagnóstico: depois dele não há consultas, mesmo em chamadas manuais. Os outros alertas continuam de hora em hora, sem data final nesta configuração.
 
@@ -94,7 +94,7 @@ O `dry-run` imprime o resumo: não rode com a lista privada em logs públicos se
 
 ## Silêncio e estado
 
-Com autorização para guardar os dados no repositório, o estado preserva `sent`, `latest_trends` e `trends_attempt_date` e também armazena snapshots do resumo/dados normalizados. Não inclui credenciais, URLs de requisição com chave, respostas brutas do provedor nem o texto do documento privado. A cada execução, compara com o último resumo entregue; se a lista/ordem dos destaques não mudou, fica em silêncio. Mudança apenas de horário, pontuação ou versão do documento sem mudança na lista não gera notificação.
+Com autorização para guardar os dados no repositório, o estado preserva `sent`, `latest_trends` e `trends_attempt_slot` e também armazena snapshots do resumo/dados normalizados. Não inclui credenciais, URLs de requisição com chave, respostas brutas do provedor nem o texto do documento privado. A cada execução, compara com o último resumo entregue; se a lista/ordem dos destaques não mudou, fica em silêncio. Mudança apenas de horário, pontuação ou versão do documento sem mudança na lista não gera notificação.
 
 `dry-run` imprime o conteúdo que seria enviado e não modifica o estado. **Não rode o dry-run com a lista privada em logs públicos sem autorização para divulgar os resultados.** O modo test ignora a deduplicação e não marca a ocorrência como entregue na rotina normal, mas salva o snapshot e a confirmação do teste para permitir reprodução. Erros ficam no status/log do job, sem mensagem ao Discord.
 
@@ -106,9 +106,9 @@ Localmente, com o secret no ambiente: `python -m tendencias_busca.diagnostico`. 
 
 ## Limite adicional para preservar a cota
 
-O executor em `live` registra `trends_attempt_date` antes de consultar a SerpApi. Se já houve tentativa naquele dia de Fortaleza, termina sem novas consultas, mesmo após falha. Isso evita consumo duplicado por reexecução do workflow. A tentativa é salva pelo workflow mesmo se a API falhar. Os identificadores de entregas continuam preservados; falha não marca resumo como enviado.
+O executor em `live` registra `trends_attempt_slot` antes de consultar a SerpApi. Se já houve tentativa naquela janela de quatro horas de Fortaleza, termina sem novas consultas, mesmo após falha. Isso evita consumo duplicado por reexecução do workflow. A tentativa é salva pelo workflow mesmo se a API falhar. Os identificadores de entregas continuam preservados; falha não marca resumo como enviado.
 
-`probe`, `test` e `dry-run` são ações manuais que podem consumir até duas consultas extras cada; não executá-las repetidamente. O diagnóstico e o teste de ativação já foram solicitados e não fazem parte das 18 consultas estimadas de nove dias completos. O consumo efetivo deve ser acompanhado no painel do provedor.
+`probe`, `test` e `dry-run` são ações manuais que podem consumir até duas consultas extras cada; não executá-las repetidamente. O diagnóstico e o teste de ativação já foram solicitados e não fazem parte das 108 consultas estimadas de nove dias completos. O consumo efetivo deve ser acompanhado no painel do provedor.
 
 ## Métrica quantitativa e top 4
 

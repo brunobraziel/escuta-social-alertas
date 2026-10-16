@@ -70,7 +70,7 @@ class TrendsTests(unittest.TestCase):
                     run(["--states", "MG", "--state", str(path)])
                 send.assert_not_called()
             self.assertEqual(json.loads(path.read_text())["sent"], ["existing"])
-            self.assertIn("trends_attempt_date", json.loads(path.read_text()))
+            self.assertIn("trends_attempt_slot", json.loads(path.read_text()))
 
     def test_full_report_fits_one_discord_message(self):
         from tendencias_busca.estados import ESTADOS
@@ -112,7 +112,7 @@ class TrendsTests(unittest.TestCase):
         result = merge_batches(["A", "B", "C"], [{"MG": {"A": 99, "B": 1, "C": 0}}], ["MG"])
         self.assertIsNone(result["MG"])
 
-    def test_one_attempt_per_day_even_after_api_failure(self):
+    def test_one_attempt_per_slot_even_after_api_failure(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "state.json"
             with patch("tendencias_busca.run.load_terms", return_value=SNAPSHOT), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("tendencias_busca.run.compare_all", side_effect=SourceUnavailable("quota")) as compare:
@@ -120,3 +120,14 @@ class TrendsTests(unittest.TestCase):
                     run(["--states", "MG", "--state", str(path)])
                 run(["--states", "MG", "--state", str(path)])
                 compare.assert_called_once()
+
+    def test_new_four_hour_slot_allows_next_collection(self):
+        from datetime import datetime
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "state.json"
+            path.write_text(json.dumps({"sent": [], "trends_attempt_slot": "2026-10-16T08"}))
+            with patch("tendencias_busca.run.load_terms", return_value=SNAPSHOT), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("tendencias_busca.run.now_local", return_value=datetime.fromisoformat("2026-10-16T12:07:00-03:00")), patch("tendencias_busca.run.compare_all", side_effect=SourceUnavailable("quota")) as compare:
+                with self.assertRaises(SourceUnavailable):
+                    run(["--states", "MG", "--state", str(path)])
+                compare.assert_called_once()
+                self.assertEqual(json.loads(path.read_text())["trends_attempt_slot"], "2026-10-16T12")

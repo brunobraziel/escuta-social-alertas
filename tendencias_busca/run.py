@@ -49,13 +49,14 @@ def run(argv=None):
         parser.error("Configure DISCORD_WEBHOOK_URL")
     path = Path(args.state)
     state = json.loads(path.read_text()) if path.exists() else {"sent": []}
-    day = now_local().date().isoformat()
+    now = now_local()
+    slot = f"{now.date().isoformat()}T{now.hour // 4 * 4:02d}"
     if not args.dry_run and not args.test:
-        if state.get("trends_attempt_date") == day:
-            print("Coleta de tendências já tentada hoje; sem novas consultas.")
+        if state.get("trends_attempt_slot") == slot:
+            print("Coleta de tendências já tentada nesta janela de 4h; sem novas consultas.")
             return
         # Salvar a tentativa ANTES da API limita também reexecuções após falha.
-        state["trends_attempt_date"] = day
+        state["trends_attempt_slot"] = slot
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps(state))
         temporary.replace(path)
