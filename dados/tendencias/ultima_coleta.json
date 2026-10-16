@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "origin": "mensagem_original_discord_sem_nova_coleta",
+  "collected_at": "2026-10-16T14:18:25.592961+00:00",
+  "monitored_at": "2026-10-16T14:18:25.592961+00:00",
+  "terms_count": null,
+  "source_version": null,
+  "general": null,
+  "monitored": null,
+  "report": {
+    "title": "Mensagem original recuperada do Discord",
+    "description": "",
+    "url": "https://trends.google.com/trending?geo=BR",
+    "published": "2026-10-16T14:18:25.592961+00:00",
+    "alert_title": "[TESTE] Buscas por estado — resumo consolidado",
+    "message": "**Assuntos em alta — últimas 24 horas**\nAté dois destaques por UF, na ordem dos feeds.\n\n**Acre:** clima, clima para amanhã\n**Alagoas:** globoplay, estudiantes x flamengo\n**Amapá:** estudiantes x flamengo\n**Amazonas:** globoplay, disney\n**Bahia:** arena fonte nova, tesla roadster\n**Ceará:** marco antonio villa foragido, como foi a entrevista do lula na g…\n**Distrito Federal:** tesla roadster, como foi a entrevista do lula na g…\n**Espírito Santo:** como foi a entrevista do lula na g…, meteorologia\n**Goiás:** tesla roadster, band\n**Maranhão:** como foi a entrevista do lula na g…, espn\n**Mato Grosso:** como foi a entrevista do lula na g…, disney\n**Mato Grosso do Sul:** como foi a entrevista do lula na g…, polícia\n**Minas Gerais:** a fazenda 18 enquetes, marco antonio villa foragido\n**Pará:** como foi a entrevista do lula na g…, aposentadoria\n**Paraíba:** como foi a entrevista do lula na g…, disney\n**Paraná:** unifil, quina 7143\n**Pernambuco:** como foi a entrevista do lula na g…, br-232\n**Piauí:** disney, globoplay\n**Rio de Janeiro:** marco antonio villa foragido, a fazenda 18 enquetes\n**Rio Grande do Norte:** como foi a entrevista do lula na g…, disney\n**Rio Grande do Sul:** marco antonio villa foragido, quina 7143\n**Rondônia:** pesquisa, previsão do tempo\n**Roraima:** estudiantes x flamengo\n**Santa Catarina:** blumenau, tesla\n**São Paulo:** sócio, lagartos\n**Sergipe:** globoplay, estudiantes x flamengo\n**Tocantins:** pesquisa, estudiantes x flamengo",
+    "details_message": "**Escuta Social — comparação de todos os termos**\nLista: 9 termos · versão 2026-10-15\nAté dois destaques; índice relativo entre monitorados.\n\n**Acre:** Lula, Bolsa Família\n**Alagoas:** Lula, MEI\n**Amapá:** Lula, Bolsa Família\n**Amazonas:** Lula, Bolsa Família\n**Bahia:** Lula, MEI\n**Ceará:** Lula, MEI\n**Distrito Federal:** Lula, MEI\n**Espírito Santo:** Lula, MEI\n**Goiás:** Lula, MEI\n**Maranhão:** Lula, Bolsa Família\n**Mato Grosso:** Lula, MEI\n**Mato Grosso do Sul:** Lula, MEI\n**Minas Gerais:** Lula, MEI\n**Pará:** Lula, Bolsa Família\n**Paraíba:** Lula, Bolsa Família\n**Paraná:** Lula, MEI\n**Pernambuco:** Lula, Bolsa Família\n**Piauí:** Lula, Bolsa Família\n**Rio de Janeiro:** Lula, MEI\n**Rio Grande do Norte:** Lula, MEI\n**Rio Grande do Sul:** Lula, MEI\n**Rondônia:** Lula, MEI\n**Roraima:** Lula, Bolsa Família\n**Santa Catarina:** Lula, MEI\n**São Paulo:** Lula, MEI\n**Sergipe:** Lula, Bolsa Família\n**Tocantins:** Lula, MEI\n\nTodos os termos foram consultados; mostramos dois por UF. Valores abaixo da resolução não significam ausência de buscas. Lotes usam referência comum; amostragem e arredondamento afetam a ordem.",
+    "footer": "Google Trends: interesse relativo, não volume absoluto, opinião ou intenção de voto. Lista do Drive é uma versão revisada, sem sincronização automática."
+  },
+  "delivery": {
+    "confirmed_at": "2026-10-16T14:18:25.874000+00:00",
+    "test": true,
+    "message": {
+      "id": "1560658180566941798",
+      "channel_id": "1560658180566941798"
+    }
+  },
+  "discord_message": {
+    "url": "https://discord.com/channels/1559694483199762492/1560658180566941798/1560658180566941798",
+    "content": "",
+    "embeds": [
+      {
+        "type": "rich",
+        "url": "https://trends.google.com/trending?geo=BR",
+        "title": "[TESTE] Buscas por estado — resumo consolidado",
+        "description": "**Assuntos em alta — últimas 24 horas**\nAté dois destaques por UF, na ordem dos feeds.\n\n**Acre:** clima, clima para amanhã\n**Alagoas:** globoplay, estudiantes x flamengo\n**Amapá:** estudiantes x flamengo\n**Amazonas:** globoplay, disney\n**Bahia:** arena fonte nova, tesla roadster\n**Ceará:** marco antonio villa foragido, como foi a entrevista do lula na g…\n**Distrito Federal:** tesla roadster, como foi a entrevista do lula na g…\n**Espírito Santo:** como foi a entrevista do lula na g…, meteorologia\n**Goiás:** tesla roadster, band\n**Maranhão:** como foi a entrevista do lula na g…, espn\n**Mato Grosso:** como foi a entrevista do lula na g…, disney\n**Mato Grosso do Sul:** como foi a entrevista do lula na g…, polícia\n**Minas Gerais:** a fazenda 18 enquetes, marco antonio villa foragido\n**Pará:** como foi a entrevista do lula na g…, aposentadoria\n**Paraíba:** como foi a entrevista do lula na g…, disney\n**Paraná:** unifil, quina 7143\n**Pernambuco:** como foi a entrevista do lula na g…, br-232\n**Piauí:** disney, globoplay\n**Rio de Janeiro:** marco antonio villa foragido, a fazenda 18 enquetes\n**Rio Grande do Norte:** como foi a entrevista do lula na g…, disney\n**Rio Grande do Sul:** marco antonio villa foragido, quina 7143\n**Rondônia:** pesquisa, previsão do tempo\n**Roraima:** estudiantes x flamengo\n**Santa Catarina:** blumenau, tesla\n**São Paulo:** sócio, lagartos\n**Sergipe:** globoplay, estudiantes x flamengo\n**Tocantins:** pesquisa, estudiantes x flamengo",
+        "fields": [
+          {
+            "name": "Fonte",
+            "value": "Google Trends",
+            "inline": false
+          },
+          {
+            "name": "Publicado em",
+            "value": "2026-10-16T14:18:25.592961+00:00",
+            "inline": false
+          }
+        ],
+        "footer": {
+          "text": "Google Trends: interesse relativo, não volume absoluto, opinião ou intenção de voto. Lista do Drive é uma versão revisada, sem sincronização automática."
+        },
+        "content_scan_version": 4
+      },
+      {
+        "type": "rich",
+        "description": "**Escuta Social — comparação de todos os termos**\nLista: 9 termos · versão 2026-10-15\nAté dois destaques; índice relativo entre monitorados.\n\n**Acre:** Lula, Bolsa Família\n**Alagoas:** Lula, MEI\n**Amapá:** Lula, Bolsa Família\n**Amazonas:** Lula, Bolsa Família\n**Bahia:** Lula, MEI\n**Ceará:** Lula, MEI\n**Distrito Federal:** Lula, MEI\n**Espírito Santo:** Lula, MEI\n**Goiás:** Lula, MEI\n**Maranhão:** Lula, Bolsa Família\n**Mato Grosso:** Lula, MEI\n**Mato Grosso do Sul:** Lula, MEI\n**Minas Gerais:** Lula, MEI\n**Pará:** Lula, Bolsa Família\n**Paraíba:** Lula, Bolsa Família\n**Paraná:** Lula, MEI\n**Pernambuco:** Lula, Bolsa Família\n**Piauí:** Lula, Bolsa Família\n**Rio de Janeiro:** Lula, MEI\n**Rio Grande do Norte:** Lula, MEI\n**Rio Grande do Sul:** Lula, MEI\n**Rondônia:** Lula, MEI\n**Roraima:** Lula, Bolsa Família\n**Santa Catarina:** Lula, MEI\n**São Paulo:** Lula, MEI\n**Sergipe:** Lula, Bolsa Família\n**Tocantins:** Lula, MEI\n\nTodos os termos foram consultados; mostramos dois por UF. Valores abaixo da resolução não significam ausência de buscas. Lotes usam referência comum; amostragem e arredondamento afetam a ordem.",
+        "content_scan_version": 4
+      }
+    ]
+  }
+}
