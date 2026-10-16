@@ -60,7 +60,7 @@ class TrendsTests(unittest.TestCase):
                 self.assertIn("details_message", send.call_args.args[1])
             self.assertEqual(json.loads(path.read_text())["sent"], ["existing"])
 
-    def test_failure_never_sends_partial_or_changes_state(self):
+    def test_failure_preserves_deliveries_and_records_attempt_only(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "state.json"
             original = '{"sent": ["existing"]}'
@@ -69,7 +69,8 @@ class TrendsTests(unittest.TestCase):
                 with self.assertRaises(SourceUnavailable):
                     run(["--states", "MG", "--state", str(path)])
                 send.assert_not_called()
-            self.assertEqual(path.read_text(), original)
+            self.assertEqual(json.loads(path.read_text())["sent"], ["existing"])
+            self.assertIn("trends_attempt_date", json.loads(path.read_text()))
 
     def test_full_report_fits_one_discord_message(self):
         from tendencias_busca.estados import ESTADOS
@@ -110,3 +111,12 @@ class TrendsTests(unittest.TestCase):
     def test_unresolved_zero_limit_cannot_rank(self):
         result = merge_batches(["A", "B", "C"], [{"MG": {"A": 99, "B": 1, "C": 0}}], ["MG"])
         self.assertIsNone(result["MG"])
+
+    def test_one_attempt_per_day_even_after_api_failure(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "state.json"
+            with patch("tendencias_busca.run.load_terms", return_value=SNAPSHOT), patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "test"}), patch("tendencias_busca.run.compare_all", side_effect=SourceUnavailable("quota")) as compare:
+                with self.assertRaises(SourceUnavailable):
+                    run(["--states", "MG", "--state", str(path)])
+                run(["--states", "MG", "--state", str(path)])
+                compare.assert_called_once()

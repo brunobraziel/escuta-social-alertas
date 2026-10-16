@@ -29,4 +29,4 @@ O agendamento inicia a consulta, não uma mensagem obrigatória. Os executores f
 
 Diagnóstico de Trends: `mode: probe` + `alert: tendencias_por_estado` executa uma tentativa isolada, inclusive quando o alerta está inativo. Não passa pelo envio nem grava estado. Os logs contêm apenas contagens, códigos HTTP e tipos de erro, sem termos privados. Outros IDs não aceitam `probe`.
 
-Tendências usa SerpApi e recebe o repository secret `SERPAPI_API_KEY`. Sua agenda no catálogo prevê horas pares de Fortaleza até o fim de 24/10/2026; os outros alertas não herdam essa agenda. O executor e o diagnóstico também bloqueiam consultas após o encerramento.
+Tendências usa SerpApi e recebe o repository secret `SERPAPI_API_KEY`. Sua agenda no catálogo prevê 00h07 de Fortaleza até o fim de 24/10/2026; os outros alertas não herdam essa agenda. O executor e o diagnóstico também bloqueiam consultas após o encerramento.

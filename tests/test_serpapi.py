@@ -70,3 +70,8 @@ class SerpTests(unittest.TestCase):
             self.assertEqual(len(calls), 2)
             self.assertEqual(calls[1][0], "D")
             self.assertIsNotNone(result["MG"])
+
+    def test_daily_agenda(self):
+        entries = [{"id": "trends", "agenda": {"intervalo_horas": 24}}]
+        self.assertEqual(scheduled_entries(entries, datetime.fromisoformat("2026-10-20T00:07:00-03:00")), entries)
+        self.assertEqual(scheduled_entries(entries, datetime.fromisoformat("2026-10-20T02:07:00-03:00")), [])
