@@ -15,7 +15,7 @@
     {
       "id": "tendencias_por_estado",
       "modulo": "tendencias_busca.run",
-      "ativo": true,
+      "ativo": false,
       "descricao": "Assuntos em alta e interesse regional dos nove clusters, uma vez por dia até 24/10/2026 às 23h59 de Fortaleza",
       "agenda": {
         "intervalo_horas": 24,
