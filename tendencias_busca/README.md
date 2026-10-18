@@ -1,4 +1,6 @@
-# Tendências e Escuta Social diária
+# Fluxo legado de tendências e Escuta Social diária
+
+Este é o fluxo anterior, mantido temporariamente durante a validação do alerta BQ `gtrends_em_alta_brasil`. Ele ainda está ativo e envia as mensagens via SerpApi/RSS. O novo alerta é independente e usa a última ingestão de `gtrends_em_alta_brasil`; veja [a documentação BQ](../tendencias_bq/README.md). Após validar o novo alerta, o fluxo legado será removido.
 
 ID `tendencias_por_estado`; módulo `tendencias_busca.run`; modo atual `clusters_daily` na variável do repositório `ESCUTA_SOCIAL_TERMS_JSON`.
 

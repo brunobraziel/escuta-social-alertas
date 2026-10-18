@@ -34,3 +34,5 @@ Tendências usa RSS e nove clusters via SerpApi, configurados na repository vari
 Cache de tendências: `replay` lê o snapshot sem nenhuma consulta externa nem envio; `recover` recupera comparações já arquivadas e atualiza RSS público uma vez, sem criar novas pesquisas SerpApi. Ambos exigem `alert: tendencias_por_estado`. O workflow exporta snapshots para `dados/tendencias/` na branch `alert-state` durante a persistência. Testes agora também salvam snapshots, sem marcar entrega na deduplicação de produção.
 
 Para reenviar o snapshot ao Discord sem consultas externas, selecione `mode: replay-test`, `alert: tendencias_por_estado`. Envia as mensagens salvas com `[TESTE] [CACHE]`, preserva a data original e não modifica estado, histórico de entregas ou cota. O preview `replay` continua sem envio.
+
+O alerta temporário `gtrends_em_alta_brasil` requer o repository secret `BQ_SERVICE_ACCOUNT_JSON`, com permissão para consultar a tabela `analise_redes.gtrends_em_alta_brasil`. O workflow genérico o executa de hora em hora em paralelo com o alerta antigo durante a validação.

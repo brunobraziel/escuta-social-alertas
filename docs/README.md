@@ -1,6 +1,6 @@
 # Como criar um alerta
 
-Este tutorial usa **calendário de pagamentos do Bolsa Família** como exemplo. Ele não está instalado nem ativo no catálogo: os trechos abaixo servem para criar um alerta novo. Execute os comandos a partir da raiz do repositório.
+Este tutorial usa **calendário de pagamentos do Bolsa Família** como exemplo. Ele não está instalado nem ativo no catálogo: os trechos abaixo servem para criar um alerta novo. Execute os comandos a partir da raiz do repositório. Para um checklist independente do exemplo, consulte o [plano e conhecimento para novos alertas](PLANO_NOVO_ALERTA.md).
 
 ## 1. Defina o comportamento
 

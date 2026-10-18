@@ -1,6 +1,6 @@
 # Escuta Social Alertas
 
-Scripts Python para coletar notícias via RSS e enviar alertas ao Discord. Python 3.12, somente biblioteca padrão. Um workflow executa os alertas ativos do catálogo uma vez por hora.
+Scripts Python para coletar notícias via RSS e BigQuery e enviar alertas ao Discord. Python 3.12, com `google-cloud-bigquery` para o alerta BQ. Um workflow executa os alertas ativos do catálogo uma vez por hora.
 
 ## Organização
 
@@ -15,6 +15,7 @@ pesquisas_eleitorais/parser.py      Extração e validação das pesquisas
 pesquisas_eleitorais/{site}/        Configuração de cada fonte do escopo
 core/                              RSS, fontes e envio compartilhados
 tendencias_busca/                   Resumo estadual em duas seções (SerpApi)
+tendencias_bq/                      Alertas diários com dados do BigQuery
 tests/                             Testes sem rede e sem mensagens reais
 ```
 
@@ -29,6 +30,7 @@ python main.py --list
 python main.py --mode dry-run
 python main.py --alert escala_6x1 --mode dry-run
 python main.py --alert pesquisa_presidente --mode dry-run
+python -m tendencias_bq.em_alta_brasil --dry-run  # consulta BigQuery
 python -m unittest discover -s tests -v
 ```
 
@@ -53,11 +55,12 @@ O teste legislativo usa exemplo fictício; o teste de pesquisa busca uma notíci
 Existe somente um workflow: **Executar alertas**. Roda no minuto 7 de cada hora, selecionando os alertas ativos em `alertas.json` conforme a agenda individual. A frequência fica apenas em `.github/workflows/monitorar.yml`, no campo `schedule.cron`. Para mudar para 15 minutos, por exemplo, use `7,22,37,52 * * * *`.
 
 1. Cadastre um **Repository secret** `DISCORD_WEBHOOK_URL` em Settings → Secrets and variables → Actions.
-2. Abra Actions → Executar alertas → Run workflow.
-3. Escolha `mode` e informe `alert`: `all`, `escala_6x1` ou `pesquisa_presidente`.
-4. Para `test`, informe um ID específico; `all` é recusado para evitar mensagens de teste em massa.
+2. Cadastre `BQ_SERVICE_ACCOUNT_JSON` como repository secret, contendo a credencial JSON de uma conta de serviço com acesso de leitura ao dataset `analise_redes` e permissão para executar jobs BigQuery.
+3. Abra Actions → Executar alertas → Run workflow.
+4. Escolha `mode` e informe `alert`: `all`, `escala_6x1`, `pesquisa_presidente`, `gtrends_em_alta_brasil` ou `tendencias_por_estado`.
+5. Para `test`, informe um ID específico; `all` é recusado para evitar mensagens de teste em massa.
 
-Sem o secret, agendamentos e execuções `live` passam a simulação com aviso. O envio cria um tópico por alerta em canais de fórum; em canais de texto, envia diretamente. Parâmetros de tópico existentes na URL são preservados.
+Sem `DISCORD_WEBHOOK_URL`, agendamentos e execuções `live` passam a simulação com aviso. O alerta BQ também requer `BQ_SERVICE_ACCOUNT_JSON`; sem ele, esse alerta registra falha e os outros continuam. O envio cria um tópico por alerta em canais de fórum; em canais de texto, envia diretamente. Parâmetros de tópico existentes na URL são preservados.
 
 A execução é sequencial e mantém o estado compartilhado na branch `alert-state`. A migração preserva os hashes já existentes; não apague essa branch. Entregas confirmadas são salvas mesmo se outro alerta falhar. O token precisa de `contents: write` para atualizar a branch. Não existe garantia de entrega exatamente uma vez: falhas entre envio e gravação podem causar repetição.
 
@@ -94,7 +97,7 @@ O estado só recebe uma ocorrência depois da confirmação do Discord. Preserva
 
 ## Criar novos alertas
 
-Siga o [tutorial completo, com exemplo de Bolsa Família](docs/README.md). Ele mostra quais arquivos criar, como escrever o executor, registrar o catálogo e validar no GitHub.
+Siga o [tutorial completo, com exemplo de Bolsa Família](docs/README.md) ou o [plano/checklist para novos alertas](docs/PLANO_NOVO_ALERTA.md). Eles mostram como estruturar o executor, registrá-lo no catálogo, testar e ativar no GitHub.
 
 O fluxo de chamada é:
 
@@ -120,17 +123,17 @@ Não crie um YAML por alerta. O workflow base é compartilhado; campos opcionais
 
 ## Cobertura
 
-Fontes de notícias: G1 e CNN via RSS. O escopo de pesquisas também lê HTML público de matérias candidatas e descobre notícias na editoria PoderData do Poder360. RSS tem janela limitada e não garante cobertura integral. UOL permanece reservado e desativado porque o endpoint consultado não forneceu XML válido. BBC, Metrópoles e Brasil Paralelo não estão implementados. Reavalie as condições de uso de cada fonte antes de ampliar a coleta; esta implementação não pressupõe licença irrestrita de reprodução.
+Fontes de notícias: G1 e CNN via RSS. RSS tem janela limitada e não garante cobertura integral. Reavalie as condições de uso de cada fonte antes de ampliar a coleta; esta implementação não pressupõe licença irrestrita de reprodução.
 
-Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/README.md) e [pesquisas](pesquisas_eleitorais/README.md).
+Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/README.md), [pesquisas](pesquisas_eleitorais/README.md) e [alertas BQ](tendencias_bq/README.md).
 
 ## Resumo estadual de buscas
 
-O alerta `tendencias_por_estado` envia duas mensagens: assuntos em alta por UF e interesse regional de **todos os 20 termos**, em nove clusters independentes da guia Google Trends do Drive. Os termos e clusters ficam na variável editável `ESCUTA_SOCIAL_TERMS_JSON`, com `mode: clusters_daily`. Veja [configuração e métricas](tendencias_busca/README.md).
+O alerta `gtrends_em_alta_brasil` roda de hora em hora e envia assuntos em alta por UF a partir da ingestão mais recente de `comite-tecnologia.analise_redes.gtrends_em_alta_brasil`, desde que `hora_ingestao` esteja dentro da última hora. Durante a validação, `tendencias_por_estado` continua ativo em paralelo; ele envia as duas mensagens antigas usando SerpApi e RSS. Veja [configuração do alerta BQ](tendencias_bq/README.md) e [detalhes do fluxo anterior](tendencias_busca/README.md).
 
 A agenda é **uma vez por dia, às 00h07 de Fortaleza**, até 24/10/2026. Os alertas de pesquisas eleitorais e escala 6x1 continuam **de hora em hora**, com envio só quando houver novidade elegível. O workflow genérico continua único e horário.
 
-Tendências consome até **9 consultas SerpApi por dia**: 72 consultas de 17 a 24/10, além das já usadas e dos testes. O job não usa IA nem tokens de IA. Cache e trava por cluster evitam repetir chamadas pagas no mesmo dia após falhas ou reexecuções. A mensagem normal não é repetida no mesmo dia e não é enviada se seu conteúdo não mudou.
+O alerta BQ consulta a ingestão da última hora e envia um alerta por novo lote. Enquanto o alerta legado `tendencias_por_estado` permanecer ativo, ele ainda consome até **9 consultas SerpApi por dia** e lê feeds RSS; cache e trava por cluster evitam repetir chamadas pagas no mesmo dia após falhas ou reexecuções.
 
 ## Testar a apresentação sem novas consultas
 
