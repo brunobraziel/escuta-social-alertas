@@ -66,6 +66,16 @@ class EmAltaBrasilTests(unittest.TestCase):
         self.assertEqual(payload["ingestao_id"], "batch-1")
         self.assertEqual(payload["rows"], 1)
 
+    def test_no_ingestion_in_last_hour_does_not_send(self):
+        with patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/test/token"}), \
+             patch("tendencias_bq.em_alta_brasil.fetch_latest_ingestion", return_value={
+                 "rows": [], "hora_ingestao": None, "ingestao_id": None}), \
+             patch("tendencias_bq.em_alta_brasil.send_discord") as send, \
+             patch("builtins.print") as output:
+            run([])
+        send.assert_not_called()
+        self.assertIn("Sem ingestão na última hora", output.call_args.args[0])
+
     def test_run_deduplicates_same_ingestion_and_preserves_shared_state(self):
         stamp = datetime(2026, 10, 18, 3, 0, tzinfo=timezone.utc)
         latest = {"rows": [{"uf": "SP", "rotulo": "Tema", "volume": 10, "aumento": 20,

@@ -120,6 +120,8 @@ def run(argv=None):
     if not rows:
         if args.dry_run:
             print(json.dumps({"alert": ALERT_ID, "rows": [], "hora_ingestao": None}, ensure_ascii=False, indent=2))
+        else:
+            print("Sem ingestão na última hora para gtrends_em_alta_brasil; nenhum alerta enviado.")
         return
 
     report = render(rows, latest["hora_ingestao"])

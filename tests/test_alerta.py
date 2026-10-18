@@ -53,6 +53,21 @@ class AlertTests(unittest.TestCase):
             self.assertIn("thread_id=456", urlopen.call_args.args[0].full_url)
             self.assertIn("wait=true", urlopen.call_args.args[0].full_url)
 
+    def test_webhook_accepts_custom_message_without_article_description(self):
+        from core.alerta import send_discord
+        report = {
+            "title": "Tendências BQ",
+            "alert_title": "Assuntos em alta por estado",
+            "message": "Relatório preparado no BigQuery",
+            "url": "https://console.cloud.google.com/bigquery?project=comite-tecnologia",
+            "published": "2026-10-18T18:27:35+00:00",
+        }
+        with patch("urllib.request.urlopen") as urlopen:
+            urlopen.return_value.__enter__.return_value.read.return_value = b'{"id":"123"}'
+            send_discord("https://discord.com/api/webhooks/123/token", report, "BigQuery", test=True)
+        payload = json.loads(urlopen.call_args.args[0].data)
+        self.assertEqual(payload["embeds"][0]["description"], "Relatório preparado no BigQuery")
+
     def test_forum_creates_topic_after_rejection(self):
         import io
         import urllib.error

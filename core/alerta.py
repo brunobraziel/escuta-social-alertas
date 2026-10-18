@@ -70,10 +70,13 @@ def send_discord(webhook, article, site, test=False):
     parsed = urlparse(webhook)
     if parsed.scheme != "https" or parsed.hostname != "discord.com" or not parsed.path.startswith("/api/webhooks/"):
         raise ValueError("Webhook Discord inválido")
+    description = article.get("message")
+    if description is None:
+        description = article.get("title", "")[:250] + "\n\n" + article.get("description", "")[:450]
     payload = {"allowed_mentions": {"parse": []}, "embeds": [{
         "title": ("[TESTE] " if test else "") + article.get("alert_title", "Escala 6x1 — próximos passos"),
         "url": article["url"],
-        "description": article.get("message", article["title"][:250] + "\n\n" + article["description"][:450])[:4000],
+        "description": description[:4000],
         "fields": [{"name": "Fonte", "value": site}, {"name": "Publicado em", "value": article["published"]}],
         "footer": {"text": article.get("footer", "Correspondência temática; não confirma mudança legislativa.")}
     }]}
