@@ -23,6 +23,16 @@ class ClusterTests(unittest.TestCase):
         catalog = load_catalog()
         self.assertNotIn('noticias_mei', [entry['id'] for entry in catalog])
         entries = [e for e in catalog if e['ativo']]
+        
+    def test_catalog_daily_trends_hourly_news(self):
+        entries = [
+            {'id': 'pesquisa_presidente', 'ativo': True},
+            {'id': 'escala_6x1', 'ativo': True},
+            {'id': 'tendencias_por_estado', 'ativo': True, 'agenda': {
+                'intervalo_horas': 24,
+                'fim_exclusivo': '2026-10-25T00:00:00-03:00',
+            }},
+        ]
         for hour in range(24):
             selected = [e['id'] for e in scheduled_entries(entries, datetime.fromisoformat(f'2026-10-20T{hour:02d}:07:00-03:00'))]
             self.assertIn('pesquisa_presidente', selected)
@@ -30,6 +40,19 @@ class ClusterTests(unittest.TestCase):
             self.assertEqual('tendencias_por_estado' in selected, hour == 0)
             self.assertIn('gtrends_em_alta_brasil', selected)
             self.assertNotIn('noticias_mei', selected)
+
+    def test_catalog_keeps_serpapi_disabled_and_news_active(self):
+        catalog = load_catalog()
+        trends = next(e for e in catalog if e['id'] == 'tendencias_por_estado')
+        self.assertFalse(trends['ativo'])
+        entries = [e for e in catalog if e['ativo']]
+        for hour in range(24):
+            with self.subTest(hour=hour):
+                now = datetime.fromisoformat(f'2026-10-20T{hour:02d}:07:00-03:00')
+                selected = {e['id'] for e in scheduled_entries(entries, now)}
+                self.assertNotIn('tendencias_por_estado', selected)
+                self.assertIn('pesquisa_presidente', selected)
+                self.assertIn('escala_6x1', selected)
 
     def test_nine_isolated_clusters_and_cache_on_repeat(self):
         with tempfile.TemporaryDirectory() as tmp:
