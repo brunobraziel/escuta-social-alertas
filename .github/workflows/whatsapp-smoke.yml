@@ -1,0 +1,40 @@
+name: Testar envio WhatsApp
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      WHATSAPP_TOPIC: ${{ vars.WHATSAPP_TOPIC }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WHATSAPP_WIF_PROVIDER }}
+          service_account: ${{ vars.WHATSAPP_PUBLISHER_SA }}
+          export_environment_variables: false
+      - name: Send labelled test to Discord and WhatsApp queue
+        env:
+          WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          TEST_DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL || secrets.DISCORD_WEBHOOK }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pip install 'google-auth==2.40.3' 'requests==2.32.5'
+          python .github/scripts/whatsapp_smoke.py
+      - name: Preserve pending publications
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: whatsapp-pending-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .whatsapp-outbox/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
