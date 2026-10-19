@@ -4,3 +4,8 @@ __pycache__/
 .env
 state.json
 comite-tecnologia*.json
+
+# WhatsApp outbox and temporary federated credentials
+.whatsapp-outbox/
+gha-creds-*.json
+whatsapp-credentials.json

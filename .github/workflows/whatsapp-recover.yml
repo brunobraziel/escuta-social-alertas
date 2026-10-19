@@ -1,0 +1,63 @@
+name: Recuperar WhatsApp
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Execução com artifact de mensagens WhatsApp pendentes
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      WHATSAPP_TOPIC: ${{ vars.WHATSAPP_TOPIC }}
+      WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/whatsapp-credentials.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate configuration
+        env:
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]]
+          test -n "$WHATSAPP_TOPIC"
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.run_id }}
+          pattern: whatsapp-pending-*
+          merge-multiple: true
+          path: .whatsapp-outbox
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WHATSAPP_WIF_PROVIDER }}
+          service_account: ${{ vars.WHATSAPP_PUBLISHER_SA }}
+          export_environment_variables: false
+      - name: Publish preserved messages
+        env:
+          CREDENTIALS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
+        run: |
+          cp "$CREDENTIALS_PATH" "$WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS"
+          chmod 600 "$WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS"
+          pip install 'google-auth==2.40.3' 'requests==2.32.5'
+          python whatsapp_bridge.py --flush
+      - name: Preserve messages still pending
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: whatsapp-pending-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .whatsapp-outbox/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Remove temporary credentials
+        if: always()
+        run: rm -f "$WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS"
