@@ -49,6 +49,22 @@ def accept(db, event):
                    (event["event_id"], json.dumps(event), now, now))
 
 
+def message_receipt(data, group):
+    # NOWEB sendText returns the raw Baileys message with key.id, whereas
+    # other engines expose the normalized top-level id.
+    if not isinstance(data, dict):
+        raise ValueError("Invalid WhatsApp response")
+    receipt = data.get("id")
+    if isinstance(receipt, str) and receipt:
+        return receipt
+    key = data.get("key")
+    if (isinstance(key, dict) and key.get("fromMe") is True
+            and key.get("remoteJid") == group
+            and isinstance(key.get("id"), str) and key["id"]):
+        return key["id"]
+    raise ValueError("Missing WhatsApp receipt")
+
+
 def send_one(db, session, waha, group, api_key):
     row = db.execute("SELECT event_id,payload,next_part,receipts FROM deliveries WHERE status='pending' ORDER BY created LIMIT 1").fetchone()
     if not row:
@@ -68,9 +84,7 @@ def send_one(db, session, waha, group, api_key):
                                 json={"session": "default", "chatId": group,
                                       "text": chunks[index], "linkPreview": False}, timeout=45)
         response.raise_for_status()
-        receipt = response.json().get("id")
-        if not receipt:
-            raise ValueError("Missing WhatsApp receipt")
+        receipt = message_receipt(response.json(), group)
     except Exception as exc:
         # Never blindly replay an ambiguous send. Reconciliation is manual.
         with db:

@@ -66,6 +66,30 @@ class WhatsAppWorkerTests(unittest.TestCase):
         self.assertEqual(self.status(), "uncertain")
         self.assertEqual(http.post.call_count, 1)
 
+    def test_noweb_raw_message_confirmation(self):
+        worker.accept(self.db, self.event)
+        http = Mock()
+        http.get.return_value.json.return_value = {"status": "WORKING"}
+        http.post.return_value.json.return_value = {
+            "key": {"id": "3EB0123456", "remoteJid": "123@g.us", "fromMe": True},
+            "message": {"conversation": "Alerta"}}
+        self.assertTrue(worker.send_one(self.db, http, "http://waha", "123@g.us", "secret"))
+        self.assertEqual(self.status(), "sent")
+        receipts = self.db.execute("SELECT receipts FROM deliveries").fetchone()[0]
+        self.assertEqual(json.loads(receipts), ["3EB0123456"])
+
+    def test_raw_confirmation_for_other_destination_is_rejected(self):
+        with self.assertRaises(ValueError):
+            worker.message_receipt({"key": {"id": "3EB0123456", "remoteJid": "other@g.us", "fromMe": True}}, "123@g.us")
+
+    def test_missing_receipt_remains_uncertain(self):
+        worker.accept(self.db, self.event)
+        http = Mock()
+        http.get.return_value.json.return_value = {"status": "WORKING"}
+        http.post.return_value.json.return_value = {"success": True}
+        self.assertFalse(worker.send_one(self.db, http, "http://waha", "123@g.us", "secret"))
+        self.assertEqual(self.status(), "uncertain")
+
     def test_restart_after_interrupted_send_is_uncertain(self):
         worker.accept(self.db, self.event)
         with self.db:
