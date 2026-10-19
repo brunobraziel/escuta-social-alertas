@@ -1,0 +1,36 @@
+services:
+  waha:
+    image: ${WAHA_IMAGE:?Set an immutable WAHA image digest}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      WHATSAPP_DEFAULT_ENGINE: NOWEB
+      WHATSAPP_START_SESSION: default
+      WHATSAPP_RESTART_ALL_SESSIONS: "true"
+      WAHA_LOG_LEVEL: warn
+      WAHA_API_KEY: ${WAHA_API_KEY_HASH:?Set hashed WAHA key}
+      WAHA_PRINT_QR: "false"
+      WAHA_DASHBOARD_ENABLED: "false"
+      WHATSAPP_SWAGGER_ENABLED: "false"
+    volumes:
+      - /var/lib/escuta-whatsapp/sessions:/app/.sessions
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+  worker:
+    build: .
+    restart: unless-stopped
+    depends_on: [waha]
+    environment:
+      PUBSUB_SUBSCRIPTION: ${PUBSUB_SUBSCRIPTION:?Set subscription}
+      ALLOWED_SOURCES: brunobraziel/escuta-social-alertas,brunobraziel/escuta-social-etl
+      HEALTH_TOPIC: ${HEALTH_TOPIC:?Set health topic}
+      STOP_AT: "2026-10-25T03:00:00+00:00"
+    volumes:
+      - /var/lib/escuta-whatsapp/delivery:/data
+      - /etc/escuta-whatsapp/config:/config:ro
+      - /etc/escuta-whatsapp/secrets:/run/secrets:ro
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}

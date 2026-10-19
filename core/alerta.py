@@ -95,6 +95,8 @@ def send_discord(webhook, article, site, test=False):
                 result = json.load(response)
                 if not result.get("id"):
                     raise RuntimeError("Discord não confirmou a mensagem")
+                from whatsapp_bridge import mirror
+                mirror(payload, result)
                 return {"id": result["id"], "channel_id": result.get("channel_id")}
         except urllib.error.HTTPError as error:
             try:

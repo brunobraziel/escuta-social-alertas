@@ -1,0 +1,36 @@
+name: Saúde WhatsApp
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: whatsapp-health
+  cancel-in-progress: false
+jobs:
+  health:
+    if: vars.WHATSAPP_HEALTH_SUBSCRIPTION != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WHATSAPP_WIF_PROVIDER }}
+          service_account: ${{ vars.WHATSAPP_PUBLISHER_SA }}
+          export_environment_variables: false
+      - name: Deliver operational events to Discord
+        env:
+          WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          WHATSAPP_HEALTH_SUBSCRIPTION: ${{ vars.WHATSAPP_HEALTH_SUBSCRIPTION }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pip install 'google-auth==2.40.3' 'requests==2.32.5'
+          python infra/whatsapp/health_to_discord.py
