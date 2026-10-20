@@ -13,10 +13,10 @@
       "descricao": "Percentuais de pesquisas presidenciais: Brasil, segundo turno, votos totais"
     },
     {
-      "id": "gtrends_em_alta_brasil",
-      "modulo": "tendencias_bq.em_alta_brasil",
+      "id": "gtrends_monitoramento_temas",
+      "modulo": "tendencias_bq.monitoramento_temas",
       "ativo": true,
-      "descricao": "Assuntos em alta por UF da última hora, carregados do BigQuery"
+      "descricao": "Consultas relacionadas por tema do último lote do Trends Monitor no BigQuery"
     },
     {
       "id": "tendencias_por_estado",

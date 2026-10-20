@@ -30,7 +30,7 @@ python main.py --list
 python main.py --mode dry-run
 python main.py --alert escala_6x1 --mode dry-run
 python main.py --alert pesquisa_presidente --mode dry-run
-python -m tendencias_bq.em_alta_brasil --dry-run  # consulta BigQuery
+python -m tendencias_bq.monitoramento_temas --dry-run  # consulta BigQuery
 python -m unittest discover -s tests -v
 ```
 
@@ -57,7 +57,7 @@ Existe somente um workflow: **Executar alertas**. Roda no minuto 7 de cada hora,
 1. Cadastre um **Repository secret** `DISCORD_WEBHOOK_URL` em Settings → Secrets and variables → Actions.
 2. Cadastre `BQ_SERVICE_ACCOUNT_JSON` como repository secret, contendo a credencial JSON de uma conta de serviço com acesso de leitura ao dataset `analise_redes` e permissão para executar jobs BigQuery.
 3. Abra Actions → Executar alertas → Run workflow.
-4. Escolha `mode` e informe `alert`: `all`, `escala_6x1`, `pesquisa_presidente`, `gtrends_em_alta_brasil` ou `tendencias_por_estado`.
+4. Escolha `mode` e informe `alert`: `all`, `escala_6x1`, `pesquisa_presidente`, `gtrends_monitoramento_temas` ou `tendencias_por_estado`.
 5. Para `test`, informe um ID específico; `all` é recusado para evitar mensagens de teste em massa.
 
 Sem `DISCORD_WEBHOOK_URL`, agendamentos e execuções `live` passam a simulação com aviso. O alerta BQ também requer `BQ_SERVICE_ACCOUNT_JSON`; sem ele, esse alerta registra falha e os outros continuam. O envio cria um tópico por alerta em canais de fórum; em canais de texto, envia diretamente. Parâmetros de tópico existentes na URL são preservados.
@@ -127,13 +127,11 @@ Fontes de notícias: G1 e CNN via RSS. RSS tem janela limitada e não garante co
 
 Detalhes dos filtros e limitações: [legislativo](acompanhamento_legislativo/README.md), [pesquisas](pesquisas_eleitorais/README.md) e [alertas BQ](tendencias_bq/README.md).
 
-## Resumo estadual de buscas
+## Resumo de consultas relacionadas
 
-O alerta `gtrends_em_alta_brasil` roda de hora em hora e envia assuntos em alta por UF a partir da ingestão mais recente de `comite-tecnologia.analise_redes.gtrends_em_alta_brasil`, desde que `hora_ingestao` esteja dentro da última hora. Durante a validação, `tendencias_por_estado` continua ativo em paralelo; ele envia as duas mensagens antigas usando SerpApi e RSS. Veja [configuração do alerta BQ](tendencias_bq/README.md) e [detalhes do fluxo anterior](tendencias_busca/README.md).
+O alerta ativo `gtrends_monitoramento_temas` consulta o lote mais recente do Trends Monitor no BigQuery e resume as consultas por tema, busca-base e área. A coleta atual é nacional. Lê o lote inteiro pelo identificador, mesmo com horários individuais por linha, e não repete um lote já enviado. Veja [configuração](tendencias_bq/README.md).
 
-A agenda é **uma vez por dia, às 00h07 de Fortaleza**, até 24/10/2026. Os alertas de pesquisas eleitorais e escala 6x1 continuam **de hora em hora**, com envio só quando houver novidade elegível. O workflow genérico continua único e horário.
-
-O alerta BQ consulta a ingestão da última hora e envia um alerta por novo lote. Enquanto o alerta legado `tendencias_por_estado` permanecer ativo, ele ainda consome até **9 consultas SerpApi por dia** e lê feeds RSS; cache e trava por cluster evitam repetir chamadas pagas no mesmo dia após falhas ou reexecuções.
+O alerta antigo que consultava SerpAPI diretamente permanece desativado. Os alertas ativos são verificados de hora em hora e após ingestões concluídas; isso não garante mensagem quando não houver novidade elegível.
 
 ## Testar a apresentação sem novas consultas
 

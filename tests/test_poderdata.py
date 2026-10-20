@@ -66,3 +66,28 @@ class ExpandedPollTests(unittest.TestCase):
         poll=parse_poll(item)
         self.assertIsNotNone(poll)
         self.assertEqual([r['percent'] for r in poll['results']],[50.5,49.5])
+
+
+class SecondRoundLeadTests(unittest.TestCase):
+    def test_round_in_lead_missing_from_title_still_notifies_without_inferred_numbers(self):
+        item = news()
+        item['title'] = 'Flávio reage e vai a 52% contra 48% de Lula, diz PoderData/Aya'
+        item['description'] = 'A seis dias do segundo turno, pesquisa nacional para presidente. ' + item['description'].replace('BR-04258/2026', 'BR-02586/2026')
+        notice = parse_notice(item)
+        self.assertIsNotNone(notice)
+        self.assertTrue(notice['notice'])
+        self.assertEqual(notice['registration'], 'BR-02586/2026')
+        self.assertEqual(notice['results'], [])
+
+    def test_first_round_title_does_not_borrow_second_round_from_body(self):
+        item = news()
+        item['title'] = 'PoderData: pesquisa para presidente no 1º turno'
+        item['description'] = 'Cenário histórico do segundo turno. ' + item['description']
+        self.assertIsNone(parse_poll(item))
+        self.assertIsNone(parse_notice(item))
+
+    def test_mentions_after_lead_do_not_change_scope(self):
+        item = news()
+        item['title'] = 'PoderData: pesquisa para presidente'
+        item['description'] = 'Texto sem definição de turno. ' * 100 + ' segundo turno ' + item['description']
+        self.assertIsNone(parse_notice(item))

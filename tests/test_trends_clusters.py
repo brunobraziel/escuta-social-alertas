@@ -23,18 +23,18 @@ class ClusterTests(unittest.TestCase):
         catalog = load_catalog()
         self.assertNotIn('noticias_mei', [entry['id'] for entry in catalog])
         entries = [e for e in catalog if e['ativo']]
-        self.assertIn('gtrends_em_alta_brasil', [entry['id'] for entry in entries])
+        self.assertIn('gtrends_monitoramento_temas', [entry['id'] for entry in entries])
         for hour in range(24):
             with self.subTest(hour=hour):
                 selected = {e['id'] for e in scheduled_entries(
                     entries, datetime.fromisoformat(f'2026-10-20T{hour:02d}:07:00-03:00'))}
-                self.assertIn('gtrends_em_alta_brasil', selected)
+                self.assertIn('gtrends_monitoramento_temas', selected)
 
     def test_schedule_includes_hourly_bq_alert_and_daily_legacy_alert(self):
         entries = [
             {'id': 'pesquisa_presidente', 'ativo': True},
             {'id': 'escala_6x1', 'ativo': True},
-            {'id': 'gtrends_em_alta_brasil', 'ativo': True},
+            {'id': 'gtrends_monitoramento_temas', 'ativo': True},
             {'id': 'tendencias_por_estado', 'ativo': True, 'agenda': {
                 'intervalo_horas': 24,
                 'fim_exclusivo': '2026-10-25T00:00:00-03:00',
@@ -45,7 +45,7 @@ class ClusterTests(unittest.TestCase):
             self.assertIn('pesquisa_presidente', selected)
             self.assertIn('escala_6x1', selected)
             self.assertEqual('tendencias_por_estado' in selected, hour == 0)
-            self.assertIn('gtrends_em_alta_brasil', selected)
+            self.assertIn('gtrends_monitoramento_temas', selected)
             self.assertNotIn('noticias_mei', selected)
 
     def test_catalog_keeps_legacy_trends_disabled_and_bq_alert_active(self):
@@ -58,7 +58,7 @@ class ClusterTests(unittest.TestCase):
                 now = datetime.fromisoformat(f'2026-10-20T{hour:02d}:07:00-03:00')
                 selected = {e['id'] for e in scheduled_entries(entries, now)}
                 self.assertNotIn('tendencias_por_estado', selected)
-                self.assertIn('gtrends_em_alta_brasil', selected)
+                self.assertIn('gtrends_monitoramento_temas', selected)
                 self.assertIn('pesquisa_presidente', selected)
                 self.assertIn('escala_6x1', selected)
 
