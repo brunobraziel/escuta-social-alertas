@@ -22,13 +22,25 @@ def matches_poll(title, description):
             or (any(normalize(name) in text for name in INSTITUTES) and any(w in text for w in ("%", "turno", "presiden"))))
 
 
+
+def second_round(article):
+    title = normalize(article['title'])
+    # Não confundir matéria do primeiro turno com menção histórica no corpo.
+    if re.search(r'(?:1[ºo°]?|primeiro)\s*turno', title):
+        return False
+    pattern = r'(?:2[ºo°]?|segundo)\s*turno'
+    return bool(re.search(pattern, title) or
+                (matches_poll(article['title'], '') and
+                 re.search(pattern, normalize(article['description'][:1500]))))
+
+
 def parse_total_poll(article):
     text = article["description"]
     normalized = normalize(text)
     # Este primeiro conector cobre exclusivamente presidente, Brasil, segundo turno.
     if not ("presidente" in article["url"] or "presidencia" in normalized):
         return None
-    if not re.search(r"(?:2[ºo°]?|segundo)\s*turno", normalize(article["title"])):
+    if not second_round(article):
         return None
     marker = re.search(r"(?:veja os numeros\s*[-–:]?\s*)?votos totais\s*:", normalized)
     if not marker:
@@ -104,7 +116,7 @@ def parse_valid_poll(article):
     if not national_scope(article):
         return None
     normalized = normalize(text)
-    if not re.search(r'(?:2[ºo°]?|segundo)\s*turno', normalize(title)):
+    if not second_round(article):
         return None
     if not any(w in normalize(title + ' ' + text[:4000] + ' ' + article['url']) for w in ('presiden', 'presidencia')):
         return None
@@ -183,7 +195,7 @@ def parse_notice(article):
     title, text = article['title'], article['description']
     if re.search(r"\b(?:governador|prefeito|senado|vereador)\b", normalize(title)):
         return None
-    if not matches_poll(title, text) or not re.search(r'(?:2[ºo°]?|segundo)\s*turno', normalize(title)):
+    if not matches_poll(title, text) or not second_round(article):
         return None
     if not any(w in normalize(title+' '+text[:2000]) for w in ('presidente', 'presidencia')):
         return None

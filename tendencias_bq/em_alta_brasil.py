@@ -135,7 +135,7 @@ def _timestamp(value):
     return value.isoformat() if hasattr(value, "isoformat") else value
 
 
-def run(argv=None):
+def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test", action="store_true")
@@ -146,22 +146,22 @@ def run(argv=None):
     if not args.dry_run and not webhook:
         parser.error("Configure DISCORD_WEBHOOK_URL ou use --dry-run")
 
-    latest = fetch_latest_ingestion("gtrends_em_alta_brasil")
+    latest = fetch_latest_ingestion(table_id)
     rows = latest["rows"]
     if not rows:
         if args.dry_run:
-            print(json.dumps({"alert": ALERT_ID, "rows": [], "hora_ingestao": None}, ensure_ascii=False, indent=2))
+            print(json.dumps({"alert": alert_id, "rows": [], "hora_ingestao": None}, ensure_ascii=False, indent=2))
         else:
-            print("Sem ingestão na última hora para gtrends_em_alta_brasil; nenhum alerta enviado.")
+            print(f"Sem ingestão recente para {table_id}; nenhum alerta enviado.")
         return
 
-    report = render(rows, latest["hora_ingestao"])
+    report = renderer(rows, latest["hora_ingestao"])
     ingestion_fingerprint = hashlib.sha256(
         f"{_timestamp(latest['hora_ingestao'])}:{latest['ingestao_id']}".encode("utf-8")
     ).hexdigest()
     if args.dry_run:
         print(json.dumps({
-            "alert": ALERT_ID,
+            "alert": alert_id,
             "hora_ingestao": _timestamp(latest["hora_ingestao"]),
             "ingestao_id": latest["ingestao_id"],
             "rows": len(rows),
@@ -171,16 +171,16 @@ def run(argv=None):
 
     path = Path(args.state)
     state = json.loads(path.read_text()) if path.exists() else {"sent": []}
-    if not args.test and state.get(f"{ALERT_ID}_latest") == ingestion_fingerprint:
+    if not args.test and state.get(f"{alert_id}_latest") == ingestion_fingerprint:
         return
 
     delivery = send_discord(webhook, report, "BigQuery · analise_redes", test=args.test)
     if args.test:
         return
 
-    state[f"{ALERT_ID}_latest"] = ingestion_fingerprint
-    state[f"{ALERT_ID}_delivered_at"] = datetime.now(timezone.utc).isoformat()
-    state[f"{ALERT_ID}_message"] = delivery
+    state[f"{alert_id}_latest"] = ingestion_fingerprint
+    state[f"{alert_id}_delivered_at"] = datetime.now(timezone.utc).isoformat()
+    state[f"{alert_id}_message"] = delivery
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(state, ensure_ascii=False))
     temporary.replace(path)

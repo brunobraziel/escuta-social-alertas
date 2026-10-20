@@ -44,3 +44,5 @@ Em Actions → Executar alertas, escolha o ID `pesquisa_presidente`. `test` envi
 O estado compartilhado é preservado. A última entrega normal é salva em `poll_last_delivery`, além dos hashes em `sent`. A mesma pesquisa/base em URLs diferentes não repete o alerta. Após confirmação de cada envio, o estado é gravado imediatamente; falha posterior não perde entregas anteriores. Uma pesquisa antiga ainda inédita não é ocultada pela notícia mais recente já enviada.
 
 Para adicionar fonte, crie sua pasta/configuração, inclua o site no executor e valide o formato antes de publicar números. Use o workflow único; não crie YAML por site. Veja o [tutorial](../docs/README.md).
+
+A identificação de segundo turno aceita o título ou os primeiros 1.500 caracteres do texto quando o título já identifica uma notícia de pesquisa. Títulos explicitamente de primeiro turno permanecem excluídos; menções históricas após o início não definem o escopo.

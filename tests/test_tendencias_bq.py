@@ -97,7 +97,7 @@ class EmAltaBrasilTests(unittest.TestCase):
              patch("builtins.print") as output:
             run([])
         send.assert_not_called()
-        self.assertIn("Sem ingestão na última hora", output.call_args.args[0])
+        self.assertIn("Sem ingestão recente", output.call_args.args[0])
 
     def test_run_deduplicates_same_ingestion_and_preserves_shared_state(self):
         stamp = datetime(2026, 10, 18, 3, 0, tzinfo=timezone.utc)
