@@ -15,7 +15,7 @@ def main():
     url = "https://github.com/" + repository + "/actions/runs/" + os.environ["GITHUB_RUN_ID"]
     payload = {"content": "🧪 **TESTE — integração WhatsApp**\n"
                + "• **Origem:** " + repository + "\n"
-               + "• **Grupo:** GT2 - Dados e Automação\n"
+               + "• **Grupo:** Alerta de tendencias\n"
                + "• **Horário:** " + datetime.now(ZoneInfo("America/Fortaleza")).strftime("%d/%m/%Y %H:%M:%S") + "\n"
                + "• **Validação:** envio Discord → fila → WhatsApp.\n"
                + "• Esta mensagem não representa uma coleta ou ingestão real.\n" + url,

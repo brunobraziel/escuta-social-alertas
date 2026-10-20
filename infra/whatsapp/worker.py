@@ -70,7 +70,14 @@ def send_one(db, session, waha, group, api_key):
     if not row:
         return False
     event_id, raw, index, receipts_raw = row
-    chunks = parts(json.loads(raw)["text"])
+    event = json.loads(raw)
+    if event.get("source") not in os.environ["ALLOWED_SOURCES"].split(","):
+        with db:
+            db.execute("UPDATE deliveries SET status='cancelled',updated=? WHERE event_id=?",
+                       (time.time(), event_id))
+        logging.info("WhatsApp evento cancelado por mudança de origem autorizada event=%s", event_id)
+        return True
+    chunks = parts(event["text"])
     receipts = json.loads(receipts_raw)
     # Check before changing delivery state; offline sessions leave messages pending.
     health = session.get(waha + "/api/sessions/default", headers={"X-Api-Key": api_key}, timeout=10)
