@@ -9,6 +9,11 @@ import whatsapp_bridge as bridge
 
 
 class WhatsAppBridgeTests(unittest.TestCase):
+    def setUp(self):
+        self.source = patch.dict(os.environ, {"GITHUB_REPOSITORY": "owner/repo"})
+        self.source.start()
+        self.addCleanup(self.source.stop)
+
     def test_disabled_does_not_create_files_or_authenticate(self):
         with patch.dict(os.environ, {"WHATSAPP_TOPIC": ""}), patch.object(bridge, "client") as client:
             bridge.mirror({"content": "hello"}, {"id": "123"})
@@ -47,6 +52,23 @@ class WhatsAppBridgeTests(unittest.TestCase):
             with patch.object(bridge, "client", return_value=session):
                 bridge.mirror({"content": "hello"}, {"id": "123"})
             self.assertEqual(len(list(Path(directory).glob("*.json"))), 1)
+
+    def test_etl_regular_status_cannot_use_either_whatsapp_topic(self):
+        with patch.dict(os.environ, {"GITHUB_REPOSITORY": "brunobraziel/escuta-social-etl",
+                "WHATSAPP_TOPIC": "projects/test-project/topics/alerts",
+                "WHATSAPP_LAST_TOKEN_TOPIC": "projects/test-project/topics/critical"}), patch.object(bridge, "client") as client:
+            bridge.mirror({"content": "Ingestão concluída"}, {"id": "123"})
+            bridge.mirror({"content": "Rotação de token"}, {"id": "124"}, kind="rotation")
+            client.assert_not_called()
+
+    def test_last_token_event_uses_only_explicit_exception_topic(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {
+                "GITHUB_REPOSITORY": "brunobraziel/escuta-social-etl", "WHATSAPP_TOPIC": "",
+                "WHATSAPP_LAST_TOKEN_TOPIC": "projects/test-project/topics/critical", "WHATSAPP_OUTBOX": directory}), patch.object(bridge, "client", side_effect=RuntimeError("offline")):
+            bridge.mirror({"content": "Último token"}, {"id": "123"}, kind="serpapi_last_token")
+            record = json.loads(next(Path(directory).glob("*.json")).read_text())
+            self.assertEqual(record["topic"], "projects/test-project/topics/critical")
+            self.assertEqual(record["event"]["kind"], "serpapi_last_token")
 
 
 if __name__ == "__main__":

@@ -14,7 +14,10 @@ def run(argv=None):
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test", action="store_true", help="Envia uma única pesquisa real identificada como teste")
     parser.add_argument("--state", default="state.json")
+    parser.add_argument("--limit", type=int, default=5)
     args = parser.parse_args(argv)
+    if not 1 <= args.limit <= 20:
+        parser.error("--limit deve estar entre 1 e 20")
     webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
     if not args.dry_run and not webhook:
         parser.error("Configure DISCORD_WEBHOOK_URL ou use --dry-run")
@@ -63,7 +66,7 @@ def run(argv=None):
             covered = covered or any(identifier("pesquisa:" + poll["registration"] + ":presidente:BR:2:" + base) in state["sent"] for base in ("votos_totais", "votos_validos"))
         if not covered and key not in unique and (args.test or key not in state["sent"]):
             unique[key] = (article, poll, site)
-    pending = list(unique.items())[:1 if args.test else 5]
+    pending = list(unique.items())[:1 if args.test else args.limit]
     if not pending:
         logging.warning("Pesquisas elegíveis já enviadas")
     for key, (article, poll, site) in pending:
