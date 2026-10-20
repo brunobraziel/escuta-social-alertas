@@ -5,6 +5,7 @@ import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from core.alerta import send_discord
 from tendencias_bq.bigquery import fetch_latest_ingestion
@@ -14,6 +15,35 @@ ALERT_ID = "gtrends_em_alta_brasil"
 MAX_TOPICS_PER_UF = 4
 MAX_LINE_LENGTH = 2700
 BIGQUERY_URL = "https://console.cloud.google.com/bigquery?project=comite-tecnologia"
+
+
+STATE_NAMES = {
+    'AC': 'Acre', 'AL': 'Alagoas', 'AM': 'Amazonas', 'AP': 'Amapá',
+    'BA': 'Bahia', 'CE': 'Ceará', 'DF': 'Distrito Federal', 'ES': 'Espírito Santo',
+    'GO': 'Goiás', 'MA': 'Maranhão', 'MG': 'Minas Gerais', 'MS': 'Mato Grosso do Sul',
+    'MT': 'Mato Grosso', 'PA': 'Pará', 'PB': 'Paraíba', 'PE': 'Pernambuco',
+    'PI': 'Piauí', 'PR': 'Paraná', 'RJ': 'Rio de Janeiro', 'RN': 'Rio Grande do Norte',
+    'RO': 'Rondônia', 'RR': 'Roraima', 'RS': 'Rio Grande do Sul', 'SC': 'Santa Catarina',
+    'SE': 'Sergipe', 'SP': 'São Paulo', 'TO': 'Tocantins',
+}
+
+
+def render_whatsapp(by_state, timestamp):
+    stamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    updated = stamp.astimezone(ZoneInfo('America/Fortaleza')).strftime('%d/%m às %H:%M')
+    blocks = ['📈 *Assuntos em alta por estado*',
+              f'*Dados atualizados:* {updated} — Brasília\nAté 4 assuntos por estado.']
+    for uf in sorted(by_state):
+        header = f'📍 *{STATE_NAMES.get(uf, uf)} ({uf})*'
+        topics = ['• *' + (_display(row.get('rotulo'), 60) or 'Assunto sem rótulo') + '*'
+                  for row in by_state[uf][:MAX_TOPICS_PER_UF]]
+        blocks.append(header + '\n' + '\n'.join(topics))
+    if not by_state:
+        blocks.append('Nenhum assunto disponível nesta ingestão.')
+    blocks.append('_Fonte: Google Trends. Tendências de busca não representam intenção de voto._')
+    return '\n\n'.join(blocks)
 
 
 def _display(value, limit=24):
@@ -94,6 +124,7 @@ def render(rows, ingestion_time):
         "url": BIGQUERY_URL,
         "published": timestamp,
         "alert_title": "Assuntos em alta por estado — BigQuery",
+        "whatsapp_message": render_whatsapp(by_state, timestamp),
         "message": "\n".join(sections[0]),
         "details_message": "\n".join(sections[1]) if sections[1] else "",
         "footer": "Fonte: BigQuery · analise_redes.gtrends_em_alta_brasil. Ordenação por aumento e volume; dados da última hora_ingestao. Valores não representam intenção de voto.",

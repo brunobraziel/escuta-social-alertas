@@ -28,6 +28,15 @@ class WhatsAppWorkerTests(unittest.TestCase):
     def status(self):
         return self.db.execute("SELECT status FROM deliveries").fetchone()[0]
 
+    def test_message_parts_preserve_state_blocks_when_they_fit(self):
+        block = "📍 *São Paulo (SP)*\n" + "• *Tema*\n" * 8
+        text = (block + "\n") * 8
+        chunks = worker.parts(text, limit=len(block) * 3)
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(chunk.startswith("📍 *São Paulo (SP)*") for chunk in chunks))
+        self.assertEqual(sum(chunk.count("• *Tema*") for chunk in chunks), 64)
+        self.assertTrue(all(len(chunk) <= len(block) * 3 for chunk in chunks))
+
     def test_pubsub_redelivery_is_persisted_once(self):
         worker.accept(self.db, self.event)
         worker.accept(self.db, self.event)

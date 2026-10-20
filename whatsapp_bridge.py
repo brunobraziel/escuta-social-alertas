@@ -66,7 +66,7 @@ def flush(session=None):
     return len(list(directory.glob("*.json")))
 
 
-def mirror(payload, receipt, *, kind=None):
+def mirror(payload, receipt, *, kind=None, text=None):
     source = os.getenv("GITHUB_REPOSITORY", "local")
     topic = os.getenv("WHATSAPP_TOPIC", "")
     if source == "brunobraziel/escuta-social-etl":
@@ -79,9 +79,11 @@ def mirror(payload, receipt, *, kind=None):
         message_id = receipt.get("id") if isinstance(receipt, dict) else None
         if not message_id:
             raise ValueError("Discord receipt missing")
+        if text is not None and (not isinstance(text, str) or not 0 < len(text) <= 30000):
+            raise ValueError("WhatsApp text invalid")
         event_id = hashlib.sha256((source + ":discord:" + str(message_id)).encode()).hexdigest()
         event = {"version": 1, "event_id": event_id, "source": source,
-                 "discord_message_id": str(message_id), "text": render(payload),
+                 "discord_message_id": str(message_id), "text": text if text is not None else render(payload),
                  "created_at": datetime.now(timezone.utc).isoformat()}
         if kind:
             event["kind"] = kind

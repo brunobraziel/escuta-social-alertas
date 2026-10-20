@@ -44,6 +44,16 @@ class WhatsAppBridgeTests(unittest.TestCase):
             self.assertEqual(bridge.flush(session), 0)
             self.assertFalse(files[0].exists())
 
+    def test_custom_whatsapp_text_preserves_the_discord_payload(self):
+        payload = {"embeds": [{"description": "Tema (vol. 2000; aumento 1000)"}]}
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {
+            "WHATSAPP_TOPIC": "projects/test-project/topics/alerts", "WHATSAPP_OUTBOX": directory
+        }), patch.object(bridge, "client", side_effect=RuntimeError("offline")):
+            bridge.mirror(payload, {"id": "123"}, text="*São Paulo (SP)*\n• *Tema*")
+            event = json.loads(next(Path(directory).glob("*.json")).read_text())["event"]
+            self.assertEqual(event["text"], "*São Paulo (SP)*\n• *Tema*")
+            self.assertIn("vol. 2000", payload["embeds"][0]["description"])
+
     def test_missing_publication_receipt_keeps_outbox(self):
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {
             "WHATSAPP_TOPIC": "projects/test-project/topics/alerts", "WHATSAPP_OUTBOX": directory}):

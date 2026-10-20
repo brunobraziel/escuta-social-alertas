@@ -27,7 +27,9 @@ def connect(path):
 def parts(text, limit=3500):
     result = []
     while len(text) > limit:
-        split = text.rfind("\n", 0, limit)
+        split = text.rfind("\n\n", 0, limit)
+        if split < limit // 2:
+            split = text.rfind("\n", 0, limit)
         if split < limit // 2:
             split = limit
         result.append(text[:split])
