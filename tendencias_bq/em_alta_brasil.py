@@ -135,7 +135,7 @@ def _timestamp(value):
     return value.isoformat() if hasattr(value, "isoformat") else value
 
 
-def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render):
+def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hourly=False):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test", action="store_true")
@@ -159,6 +159,11 @@ def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render):
     ingestion_fingerprint = hashlib.sha256(
         f"{_timestamp(latest['hora_ingestao'])}:{latest['ingestao_id']}".encode("utf-8")
     ).hexdigest()
+    if hourly:
+        # Uma entrega por hora UTC, inclusive quando o lote não mudou.
+        ingestion_fingerprint = hashlib.sha256(
+            f"{alert_id}:{datetime.now(timezone.utc):%Y%m%d%H}".encode("utf-8")
+        ).hexdigest()
     if args.dry_run:
         print(json.dumps({
             "alert": alert_id,

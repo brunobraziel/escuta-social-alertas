@@ -5,7 +5,7 @@ import os
 
 PROJECT_ID = "comite-tecnologia"
 DATASET_ID = "analise_redes"
-TABLES = {"gtrends_em_alta_brasil", "gtrends_monitoramento_temas"}
+TABLES = {"gtrends_em_alta_brasil", "gtrends_monitoramento_temas", "gtrends_monitoramento_cidades"}
 
 
 class BigQueryUnavailable(RuntimeError):
@@ -60,6 +60,20 @@ def fetch_latest_ingestion(table_id):
             WHERE ingestao_id = (SELECT ingestao_id FROM latest)
             ORDER BY macrotema, termo_base, lista, posicao, consulta
         """
+    if table_id == "gtrends_monitoramento_cidades":
+        query = f"""
+            WITH latest AS (
+              SELECT ingestao_id FROM `{table}`
+              WHERE resolucao = 'REGION' AND job = 'estados'
+                AND hora_ingestao >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 24 HOUR)
+                AND ingestao_id IS NOT NULL
+              ORDER BY hora_ingestao DESC, ingestao_id DESC LIMIT 1
+            )
+            SELECT * FROM `{table}`
+            WHERE ingestao_id = (SELECT ingestao_id FROM latest)
+              AND resolucao = 'REGION' AND job = 'estados'
+            ORDER BY uf, termo
+        """
     try:
         rows = list(_client().query(query).result())
     except Exception as error:
@@ -71,7 +85,7 @@ def fetch_latest_ingestion(table_id):
     normalized_rows = [dict(row.items()) for row in rows]
     ingestion_times = {row["hora_ingestao"] for row in normalized_rows}
     ingestion_ids = {row.get("ingestao_id") for row in normalized_rows}
-    if (table_id != "gtrends_monitoramento_temas" and len(ingestion_times) != 1) or len(ingestion_ids) != 1 or None in ingestion_ids:
+    if (table_id == "gtrends_em_alta_brasil" and len(ingestion_times) != 1) or len(ingestion_ids) != 1 or None in ingestion_ids:
         raise BigQueryUnavailable("A hora mais recente contém mais de uma ingestão")
 
     return {
