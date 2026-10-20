@@ -68,6 +68,19 @@ class AlertTests(unittest.TestCase):
         payload = json.loads(urlopen.call_args.args[0].data)
         self.assertEqual(payload["embeds"][0]["description"], "Relatório preparado no BigQuery")
 
+    def test_whatsapp_summary_is_not_sent_as_a_discord_field(self):
+        from core.alerta import send_discord
+        report = {"title": "Tendências", "message": "Tema (vol. 2000; aumento 1000)",
+                  "whatsapp_message": "📍 *São Paulo (SP)*\n• *Tema*", "url": "https://example.com",
+                  "published": "2026-10-20T13:00:00Z"}
+        with patch("urllib.request.urlopen") as urlopen, patch("whatsapp_bridge.mirror") as mirror:
+            urlopen.return_value.__enter__.return_value.read.return_value = b'{"id":"123"}'
+            send_discord("https://discord.com/api/webhooks/123/token", report, "Fonte")
+        payload = json.loads(urlopen.call_args.args[0].data)
+        self.assertNotIn("whatsapp_message", payload)
+        self.assertIn("vol. 2000", payload["embeds"][0]["description"])
+        self.assertEqual(mirror.call_args.kwargs["text"], report["whatsapp_message"])
+
     def test_forum_creates_topic_after_rejection(self):
         import io
         import urllib.error

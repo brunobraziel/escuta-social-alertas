@@ -52,6 +52,29 @@ class EmAltaBrasilTests(unittest.TestCase):
         self.assertNotIn("Tema 1", report["message"])
         self.assertIn("BigQuery", report["footer"])
 
+    def test_whatsapp_has_separate_state_blocks_and_no_metrics(self):
+        rows = [
+            {"uf": "SP", "rotulo": "Tema paulista", "volume": 2000, "aumento": 1000},
+            {"uf": "CE", "rotulo": "Tema cearense", "volume": 100, "aumento": 20},
+        ]
+        report = render(rows, datetime(2026, 10, 20, 13, 32, tzinfo=timezone.utc))
+        text = report["whatsapp_message"]
+        self.assertIn("📍 *Ceará (CE)*\n• *Tema cearense*", text)
+        self.assertIn("\n\n📍 *São Paulo (SP)*\n• *Tema paulista*", text)
+        self.assertIn("20/10 às 10:32", text)
+        self.assertNotIn("vol.", text)
+        self.assertNotIn("aumento", text)
+        self.assertIn("vol. 2000", report["message"])
+        self.assertIn("aumento 1000", report["message"])
+
+    def test_whatsapp_keeps_only_the_same_top_four_topics(self):
+        rows = [{"uf": "SP", "rotulo": f"Tema {n}", "volume": n, "aumento": n} for n in range(6)]
+        report = render(rows, datetime(2026, 10, 20, 13, tzinfo=timezone.utc))
+        for n in (2, 3, 4, 5):
+            self.assertIn(f"• *Tema {n}*", report["whatsapp_message"])
+        for n in (0, 1):
+            self.assertNotIn(f"Tema {n}", report["whatsapp_message"])
+
     def test_run_dry_run_prints_latest_data_without_sending(self):
         stamp = datetime(2026, 10, 18, 3, 0, tzinfo=timezone.utc)
         latest = {"rows": [{"uf": "SP", "rotulo": "Tema", "volume": 10, "aumento": 20,
