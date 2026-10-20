@@ -140,3 +140,16 @@ O alerta BQ consulta a ingestão da última hora e envia um alerta por novo lote
 A branch `alert-state` guarda `dados/tendencias/ultima_coleta.json` e `dados/tendencias/ultima_mensagem.md`. Use `replay` para ler os dados sem rede, ou `replay-test` para reenviar as mensagens salvas como teste. `test` pode fazer até nove consultas na primeira coleta do dia; testes posteriores reutilizam os resultados preservados.
 
 Os valores são relativos ao termo/cluster e não representam contagem absoluta de buscas. Não há ranking único dos 20 termos. A [amostra original](dados/exemplos/README.md) permanece como registro histórico.
+
+## Alertas após conclusão do ETL
+
+Os workflows ativos Boralula e Trends Monitor de escuta-social-etl solicitam
+`workflow_dispatch` de `monitorar.yml` em `main`, com `mode=live` e `alert=all`,
+somente após sucesso da ingestão. O campo opcional `etl_run_url` identifica a
+execução de origem no título e nos logs. A execução usa o mesmo histórico
+`alert-state` e a mesma fila das verificações horárias, preservando a deduplicação.
+Não cria mensagens de status de ETL no WhatsApp.
+
+No repositório ETL, `ALERTAS_DISPATCH_TOKEN` deve conter um fine-grained PAT
+com acesso apenas a este repositório e permissão `Actions: write`. Não usar
+a credencial local do GitHub CLI nem um token com acesso a todos os repositórios.

@@ -1,4 +1,5 @@
 name: Executar alertas
+run-name: ${{ inputs.etl_run_url && format('Alertas após ETL · {0}', inputs.etl_run_url) || 'Executar alertas' }}
 on:
   schedule:
     - cron: '7 * * * *'
@@ -17,11 +18,16 @@ on:
         description: Link da mensagem existente (somente recover-discord)
         type: string
         required: false
+      etl_run_url:
+        description: 'URL da execução ETL que solicitou os alertas (opcional)'
+        type: string
+        required: false
 permissions:
   id-token: write
   contents: write
 concurrency:
   group: alertas
+  queue: max
   cancel-in-progress: false
 jobs:
   monitorar:
@@ -81,7 +87,15 @@ jobs:
           BQ_SERVICE_ACCOUNT_JSON: ${{ secrets.BQ_SERVICE_ACCOUNT_JSON }}
           EVENT_NAME: ${{ github.event_name }}
           MESSAGE_URL: ${{ inputs.message_url }}
+          ETL_RUN_URL: ${{ inputs.etl_run_url }}
         run: |
+          if [ -n "$ETL_RUN_URL" ]; then
+            if [[ ! "$ETL_RUN_URL" =~ ^https://github\.com/brunobraziel/escuta-social-etl/actions/runs/[0-9]+$ ]]; then
+              echo '::error::Origem ETL inválida.'
+              exit 1
+            fi
+            echo "Execução solicitada por $ETL_RUN_URL"
+          fi
           if [ "$MODE" = live ] && [ -z "$DISCORD_WEBHOOK_URL" ]; then
             echo '::warning::Configure DISCORD_WEBHOOK_URL; executando dry-run.'
             MODE=dry-run
