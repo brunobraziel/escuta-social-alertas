@@ -1,0 +1,58 @@
+name: Validar todos os alertas com dados reais
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: validar-alertas-reais
+  cancel-in-progress: false
+jobs:
+  validar:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      WHATSAPP_TOPIC: ${{ vars.WHATSAPP_TOPIC }}
+      WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/whatsapp-credentials.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Autenticar publicador WhatsApp separado do BigQuery
+        id: whatsapp_auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WHATSAPP_WIF_PROVIDER }}
+          service_account: ${{ vars.WHATSAPP_PUBLISHER_SA }}
+          export_environment_variables: false
+      - name: Preparar credenciais WhatsApp
+        env:
+          CREDENTIALS_PATH: ${{ steps.whatsapp_auth.outputs.credentials_file_path }}
+        run: |
+          cp "$CREDENTIALS_PATH" "$WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS"
+          chmod 600 "$WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS"
+      - name: Enviar uma ocorrência real de cada alerta ativo
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          BQ_SERVICE_ACCOUNT_JSON: ${{ secrets.BQ_SERVICE_ACCOUNT_JSON }}
+          ESCUTA_SOCIAL_TERMS_JSON: ${{ vars.ESCUTA_SOCIAL_TERMS_JSON }}
+        run: python validar_alertas_reais.py
+      - name: Publicar pendências WhatsApp
+        if: always()
+        run: python whatsapp_bridge.py --flush
+      - name: Guardar relatório e pendências
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validacao-alertas-reais-${{ github.run_id }}
+          path: |
+            .generated/live-alert-validation.json
+            .whatsapp-outbox/
+          include-hidden-files: true
+          retention-days: 7
+      - name: Remover credenciais temporárias
+        if: always()
+        run: rm -f "$WHATSAPP_GOOGLE_APPLICATION_CREDENTIALS"

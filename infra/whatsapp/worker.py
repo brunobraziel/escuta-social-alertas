@@ -37,10 +37,17 @@ def parts(text, limit=3500):
     return result
 
 
+def allowed_event(event):
+    if event.get("source") == "brunobraziel/escuta-social-etl":
+        return (event.get("kind") == "serpapi_last_token"
+                and os.getenv("ALLOW_ETL_LAST_TOKEN", "false").lower() == "true")
+    return event.get("source") in os.environ["ALLOWED_SOURCES"].split(",")
+
+
 def accept(db, event):
     if (event.get("version") != 1 or
         not re.fullmatch(r"[a-f0-9]{64}", event.get("event_id", "")) or
-        event.get("source") not in os.environ["ALLOWED_SOURCES"].split(",") or
+        not allowed_event(event) or
         not isinstance(event.get("text"), str) or not 0 < len(event["text"]) <= 30000):
         raise ValueError("Invalid event")
     now = time.time()
@@ -71,7 +78,7 @@ def send_one(db, session, waha, group, api_key):
         return False
     event_id, raw, index, receipts_raw = row
     event = json.loads(raw)
-    if event.get("source") not in os.environ["ALLOWED_SOURCES"].split(","):
+    if not allowed_event(event):
         with db:
             db.execute("UPDATE deliveries SET status='cancelled',updated=? WHERE event_id=?",
                        (time.time(), event_id))

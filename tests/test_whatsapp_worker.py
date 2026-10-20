@@ -46,6 +46,25 @@ class WhatsAppWorkerTests(unittest.TestCase):
         http.get.assert_not_called()
         http.post.assert_not_called()
 
+    def test_etl_can_only_send_explicit_last_token_event(self):
+        etl = dict(self.event, source="brunobraziel/escuta-social-etl")
+        with patch.dict(os.environ, {"ALLOW_ETL_LAST_TOKEN": "true"}):
+            with self.assertRaises(ValueError):
+                worker.accept(self.db, etl)
+            with self.assertRaises(ValueError):
+                worker.accept(self.db, dict(etl, kind="ingestion_success"))
+            worker.accept(self.db, dict(etl, kind="serpapi_last_token"))
+            http = Mock()
+            http.get.return_value.json.return_value = {"status": "WORKING"}
+            http.post.return_value.json.return_value = {"id": "message-1"}
+            self.assertTrue(worker.send_one(self.db, http, "http://waha", "123@g.us", "secret"))
+        self.assertEqual(self.status(), "sent")
+
+    def test_last_token_event_fails_closed_without_explicit_enablement(self):
+        with patch.dict(os.environ, {"ALLOW_ETL_LAST_TOKEN": "false"}):
+            with self.assertRaises(ValueError):
+                worker.accept(self.db, dict(self.event, source="brunobraziel/escuta-social-etl", kind="serpapi_last_token"))
+
     def test_offline_session_preserves_pending(self):
         worker.accept(self.db, self.event)
         http = Mock()

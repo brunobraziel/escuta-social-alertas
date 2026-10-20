@@ -106,3 +106,19 @@ Para trocar o grupo, exigir também a comunidade:
 
 O número conectado precisa ser administrador se o grupo permitir mensagens
 somente de administradores. A configuração atual foi conferida na API.
+
+## Exceção para o último token SerpAPI
+
+O worker aceita alertas normais apenas de escuta-social-alertas. Para o ETL,
+aceita exclusivamente eventos com kind=serpapi_last_token, quando
+ALLOW_ETL_LAST_TOKEN=true. Estados de ingestão, conclusão, falhas e rotações
+comuns continuam somente no Discord, inclusive se já estiverem na fila.
+O ETL publica essa exceção usando WHATSAPP_LAST_TOKEN_TOPIC, sem habilitar
+WHATSAPP_TOPIC. O aviso ocorre uma vez por execução ao iniciar consultas
+com apenas uma cota disponível acima da reserva de rotação; tokens da mesma
+conta não contam como cotas independentes.
+
+O workflow manual Validar todos os alertas com dados reais envia uma ocorrência
+elegível por alerta ativo, identificada como validação. Usa estado temporário,
+preserva os filtros de produção e não modifica alert-state. Ausência de notícia,
+pesquisa ou ingestão recente é registrada como validação incompleta.
