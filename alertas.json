@@ -19,6 +19,16 @@
       "descricao": "Consultas relacionadas por tema do último lote do Trends Monitor no BigQuery"
     },
     {
+      "id": "monitoramento_estados_horario",
+      "modulo": "tendencias_bq.estados",
+      "ativo": true,
+      "descricao": "Resumo horário dos termos monitorados por UF, usando o último lote REGION sem novas buscas SerpAPI",
+      "agenda": {
+        "intervalo_horas": 1,
+        "fim_exclusivo": "2026-10-25T00:00:00-03:00"
+      }
+    },
+    {
       "id": "tendencias_por_estado",
       "modulo": "tendencias_busca.run",
       "ativo": false,
