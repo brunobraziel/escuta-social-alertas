@@ -1,7 +1,9 @@
 # WhatsApp: espelhamento dos alertas do Discord
 
 O envio usa um projeto Google Cloud exclusivo, sem consultar BigQuery e sem
-reutilizar BQ_CRED. A implementação permanece inativa enquanto WHATSAPP_TOPIC
+reutilizar BQ_CRED. Desde 20/10, somente escuta-social-alertas publica no
+WhatsApp: grupo Alerta de tendencias, na comunidade Operativo do CP Lula -
+Tecnologia. Status do escuta-social-etl permanecem exclusivamente no Discord. A implementação permanece inativa enquanto WHATSAPP_TOPIC
 não estiver configurada nos repositórios.
 
 ## Componentes
@@ -28,8 +30,9 @@ e acesso somente à chave WAHA no Secret Manager. Não criar chaves JSON.
 
 Configurar Workload Identity Federation para GitHub OIDC. Restringir por
 repository_owner_id, IDs dos dois repositórios e ref refs/heads/main.
-Cada repositório utiliza uma conta publisher distinta, autorizada somente no
-tópico. Registrar nas variables GitHub:
+O repositório de alertas utiliza uma conta publisher autorizada somente no
+tópico. WHATSAPP_TOPIC fica ausente no ETL e ALLOWED_SOURCES aceita somente
+alertas, inclusive ao processar mensagens que já estavam na fila. Registrar nas variables GitHub:
 
 - WHATSAPP_TOPIC: projects/PROJECT/topics/discord-mirror
 - WHATSAPP_WIF_PROVIDER: projects/NUMBER/locations/global/workloadIdentityPools/POOL/providers/github
@@ -96,3 +99,10 @@ ambas as cópias precisam ter o mesmo hash e passar pelos testes.
 - VM: escuta-waha, zona us-central1-a.
 - WAHA NOWEB: digest sha256:be61f8cd7774ab22bd1b755cbc539f98d71d81d5ca83555fdddfa4fddd7924e1.
 - BigQuery permanece em outro projeto e não participa desta integração.
+
+Para trocar o grupo, exigir também a comunidade:
+
+`sudo python3 manage.py select-group --name "Alerta de tendencias" --community "Operativo do CP Lula - Tecnologia"`
+
+O número conectado precisa ser administrador se o grupo permitir mensagens
+somente de administradores. A configuração atual foi conferida na API.

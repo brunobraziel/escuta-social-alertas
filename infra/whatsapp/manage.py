@@ -18,6 +18,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=["status", "qr", "select-group"])
     parser.add_argument("--name")
+    parser.add_argument("--community", help="Require membership in this community")
     args = parser.parse_args()
     if args.command == "status":
         session = json.loads(request("/api/sessions/default"))
@@ -37,7 +38,23 @@ def main():
         groups = json.loads(request("/api/default/groups"))
         if isinstance(groups, dict):
             groups = list(groups.values())
-        matches = [g for g in groups if g.get("subject", g.get("name")) == args.name]
+        normalize = lambda value: " ".join(str(value or "").casefold().split())
+        matches = [g for g in groups if normalize(g.get("subject", g.get("name"))) == normalize(args.name)]
+        if args.community:
+            verified = []
+            from urllib.parse import quote
+            for candidate in matches:
+                candidate_id = candidate.get("id")
+                if isinstance(candidate_id, dict):
+                    candidate_id = candidate_id.get("_serialized")
+                details = json.loads(request("/api/default/groups/" + quote(candidate_id, safe="")))
+                parent = details.get("linkedParent") or details.get("parentGroupId")
+                if not parent:
+                    continue
+                community = json.loads(request("/api/default/groups/" + quote(parent, safe="")))
+                if normalize(community.get("subject", community.get("name"))) == normalize(args.community):
+                    verified.append(candidate)
+            matches = verified
         if len(matches) != 1:
             raise SystemExit("Expected one exact group match; found " + str(len(matches)))
         group_id = matches[0].get("id")

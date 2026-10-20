@@ -37,6 +37,15 @@ class WhatsAppWorkerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             worker.accept(self.db, dict(self.event, source="other/repo"))
 
+    def test_queued_event_cancelled_when_source_is_no_longer_allowed(self):
+        worker.accept(self.db, self.event)
+        http = Mock()
+        with patch.dict(os.environ, {"ALLOWED_SOURCES": "alerts/repo"}):
+            self.assertTrue(worker.send_one(self.db, http, "http://waha", "123@g.us", "secret"))
+        self.assertEqual(self.status(), "cancelled")
+        http.get.assert_not_called()
+        http.post.assert_not_called()
+
     def test_offline_session_preserves_pending(self):
         worker.accept(self.db, self.event)
         http = Mock()

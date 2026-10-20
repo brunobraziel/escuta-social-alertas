@@ -24,7 +24,7 @@ services:
     depends_on: [waha]
     environment:
       PUBSUB_SUBSCRIPTION: ${PUBSUB_SUBSCRIPTION:?Set subscription}
-      ALLOWED_SOURCES: brunobraziel/escuta-social-alertas,brunobraziel/escuta-social-etl
+      ALLOWED_SOURCES: brunobraziel/escuta-social-alertas
       HEALTH_TOPIC: ${HEALTH_TOPIC:?Set health topic}
       STOP_AT: "2026-10-25T03:00:00+00:00"
     volumes:
