@@ -28,8 +28,8 @@ class StateHourlyTests(unittest.TestCase):
                 [("SUS",50,False),("sus",40,False),("Referência",100,True),("Sem índice",None,False),("Zero",0,False)]]
         report = render(rows, datetime(2026, 10, 20, 14, tzinfo=timezone.utc))
         text = report["whatsapp_message"]
-        self.assertIn("📍 *Ceará (CE)*\n• *SUS*", text)
-        self.assertEqual(text.count("• *SUS*"), 1)
+        self.assertIn("📍 *Ceará (CE)*\n1. *SUS*", text)
+        self.assertEqual(text.count("1. *SUS*"), 1)
         self.assertNotIn("• *Referência*", text)
         self.assertNotIn("• *Zero*", text)
         self.assertIn("20/10 às 11:00", text)
@@ -37,11 +37,11 @@ class StateHourlyTests(unittest.TestCase):
         self.assertIn("Sem índice válido disponível neste lote", text)
 
     def test_all_states_and_long_topics_fit_discord_and_keep_whatsapp_blocks(self):
-        rows = [dict(uf=uf, termo=f"Termo de busca bastante longo numero {i}", indice_vs_ancora=10+i, eh_ancora=False) for uf in STATE_NAMES for i in range(4)]
+        rows = [dict(uf=uf, termo=f"Termo de busca bastante longo numero {i}", indice_vs_ancora=10+i, eh_ancora=False) for uf in STATE_NAMES for i in range(5)]
         report = render(rows, datetime.now(timezone.utc))
         self.assertLessEqual(len(report["message"]),2700)
         self.assertLessEqual(len(report["details_message"]),2700)
-        self.assertEqual(report["whatsapp_message"].count("• *"),108)
+        self.assertEqual(sum(report["whatsapp_message"].count(f"{n}. *") for n in range(1,6)),135)
 
     def test_same_batch_repeats_next_hour_but_not_within_same_hour(self):
         class Clock(datetime):
@@ -88,7 +88,7 @@ class MovementTests(unittest.TestCase):
         current=self.row(25);previous=self.row(20)
         now=datetime(2026,10,21,14,tzinfo=timezone.utc)
         report=render([current],now,previous_rows=[previous],previous_ingestion_time=now-timedelta(hours=3))
-        self.assertIn('• *SUS* ↑ (+25,0%)',report['whatsapp_message'])
+        self.assertIn('1. *SUS* ↑ (+25,0%)',report['whatsapp_message'])
         self.assertIn('21/10 às 08:00',report['whatsapp_message'])
         self.assertIn('não da quantidade absoluta',report['whatsapp_message'])
         self.assertIn('↑ (+25,0%)',report['message']+report['details_message'])
@@ -108,9 +108,9 @@ class MovementTests(unittest.TestCase):
 
 class LargeMovementMessageTests(unittest.TestCase):
     def test_all_states_with_zero_baseline_fit_without_omitting_topics(self):
-        rows=[dict(uf=uf,termo=f'Termo de busca bastante longo numero {i}',indice_vs_ancora=10+i,eh_ancora=False,grupo='a',periodo='now 7-d') for uf in STATE_NAMES for i in range(4)]
+        rows=[dict(uf=uf,termo=f'Termo de busca bastante longo numero {i}',indice_vs_ancora=10+i,eh_ancora=False,grupo='a',periodo='now 7-d') for uf in STATE_NAMES for i in range(5)]
         now=datetime.now(timezone.utc)
         report=render(rows,now,previous_rows=[dict(r,indice_vs_ancora=0) for r in rows],previous_ingestion_time=now-timedelta(hours=3))
-        self.assertEqual(report['whatsapp_message'].count('base zero; sem %'),108)
+        self.assertEqual(report['whatsapp_message'].count('base zero; sem %'),135)
         self.assertLessEqual(len(report['message']),2700)
         self.assertLessEqual(len(report['details_message']),2700)

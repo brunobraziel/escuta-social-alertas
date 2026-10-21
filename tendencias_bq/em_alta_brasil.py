@@ -135,7 +135,7 @@ def _timestamp(value):
     return value.isoformat() if hasattr(value, "isoformat") else value
 
 
-def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hourly=False, comparison_reader=None):
+def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hourly=False, comparison_reader=None, ai_kind=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test", action="store_true")
@@ -155,12 +155,6 @@ def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hou
             print(f"Sem ingestão recente para {table_id}; nenhum alerta enviado.")
         return
 
-    if comparison_reader is not None:
-        previous = comparison_reader(latest)
-        report = renderer(rows, latest["hora_ingestao"],
-                          previous_rows=previous['rows'], previous_ingestion_time=previous['hora_ingestao'])
-    else:
-        report = renderer(rows, latest["hora_ingestao"])
     ingestion_fingerprint = hashlib.sha256(
         f"{_timestamp(latest['hora_ingestao'])}:{latest['ingestao_id']}".encode("utf-8")
     ).hexdigest()
@@ -169,7 +163,16 @@ def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hou
         ingestion_fingerprint = hashlib.sha256(
             f"{alert_id}:{datetime.now(timezone.utc):%Y%m%d%H}".encode("utf-8")
         ).hexdigest()
+    previous = comparison_reader(latest) if comparison_reader is not None else None
+    def make_report(analysis=None):
+        kwargs = {}
+        if previous is not None:
+            kwargs.update(previous_rows=previous['rows'], previous_ingestion_time=previous['hora_ingestao'])
+        if ai_kind:
+            kwargs['analysis'] = analysis
+        return renderer(rows, latest['hora_ingestao'], **kwargs)
     if args.dry_run:
+        report = make_report()
         print(json.dumps({
             "alert": alert_id,
             "hora_ingestao": _timestamp(latest["hora_ingestao"]),
@@ -184,6 +187,18 @@ def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hou
     if not args.test and state.get(f"{alert_id}_latest") == ingestion_fingerprint:
         return
 
+    def persist():
+        temporary = path.with_suffix('.tmp')
+        temporary.write_text(json.dumps(state, ensure_ascii=False))
+        temporary.replace(path)
+    analysis = None
+    if ai_kind:
+        from .analise_ia import analyze
+        analysis = analyze(rows, kind=ai_kind, batch_id=latest['ingestao_id'],
+                           previous_rows=previous['rows'] if previous else (),
+                           previous_batch_id=previous.get('ingestao_id') if previous else None,
+                           state=state, persist=persist)
+    report = make_report(analysis)
     delivery = send_discord(webhook, report, "BigQuery · analise_redes", test=args.test)
     if args.test:
         return

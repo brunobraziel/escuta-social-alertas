@@ -8,33 +8,31 @@ from .em_alta_brasil import run as run_alert, _display, BIGQUERY_URL
 TABLE_ID = "gtrends_monitoramento_temas"
 
 
-def render(rows, ingestion_time):
+def render(rows, ingestion_time, *, analysis=None):
+    from .analise_ia import related_entries, related_groups, summary_block
     groups = defaultdict(list)
-    for row in rows:
-        label = str(row.get("consulta") or "").strip()
-        if label:
-            groups[(row.get("macrotema") or "Outros temas", row.get("termo_base") or "", row.get("geo_busca") or "BR")].append(row)
+    for members in related_groups(related_entries(rows), analysis):
+        groups[members[0]['context']].append(members)
     stamp = ingestion_time.isoformat() if hasattr(ingestion_time, "isoformat") else str(ingestion_time)
     updated = datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(ZoneInfo("America/Fortaleza")).strftime("%d/%m às %H:%M")
     blocks = ["📈 *Consultas relacionadas — Trends Monitor*", f"*Dados atualizados:* {updated} — Brasília"]
+    summary = summary_block(analysis)
+    if summary:
+        blocks.append(summary)
     discord_blocks = blocks.copy()
     for (theme, base, geo), items in sorted(groups.items()):
-        # As posições só são comparáveis dentro de cada lista; prioriza em alta.
-        items.sort(key=lambda row: (row.get("lista") != "em alta", int(row.get("posicao") or 999), str(row.get("consulta"))))
-        seen = set()
         topics = []
-        for item in items:
-            key = " ".join(str(item["consulta"]).casefold().split())
-            if key in seen:
-                continue
-            seen.add(key)
-            topics.append("• *" + _display(item["consulta"], 90) + "*")
-            if len(topics) == 4:
-                break
+        for n, members in enumerate(items[:4], 1):
+            representative = members[0]['term']
+            line = f"{n}. *{_display(representative, 120)}*"
+            variants = [m['term'] for m in members[1:]]
+            if variants:
+                line += "\n   Agrupadas: " + ' · '.join(variants)
+            topics.append(line)
         area = "Brasil" if geo == "BR" else _display(geo)
         blocks.append(f"*{_display(theme, 60)}* — {area}\nBusca-base: {_display(base, 70)}\n" + "\n".join(topics))
-        discord_blocks.append(f"**{_display(theme, 35)} · {_display(base, 35)} · {area}**\n" + topics[0])
-    blocks.append("_Até quatro consultas por tema e busca-base; prioridade para a lista em alta. Fonte: Google Trends. Não representa intenção de voto._")
+        discord_blocks.append(f"**{_display(theme, 35)} · {_display(base, 35)} · {area}**\n" + topics[0].split("\n")[0])
+    blocks.append("_Até quatro grupos por busca-base, com prioridade para consultas em alta. Variantes agrupadas permanecem visíveis; posições e índices não são somados. Fonte: Google Trends._")
     text = "\n\n".join(blocks)
     # Divide mensagens longas antes do sender; nenhum tema é descartado.
     sections = [""]
@@ -53,7 +51,7 @@ def render(rows, ingestion_time):
 
 
 def run(argv=None):
-    return run_alert(argv, table_id=TABLE_ID, alert_id=TABLE_ID, renderer=render)
+    return run_alert(argv, table_id=TABLE_ID, alert_id=TABLE_ID, renderer=render, ai_kind="consultas")
 
 
 if __name__ == "__main__":
