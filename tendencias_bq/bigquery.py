@@ -93,3 +93,39 @@ def fetch_latest_ingestion(table_id):
         "hora_ingestao": max(ingestion_times),
         "ingestao_id": next(iter(ingestion_ids)),
     }
+
+
+def fetch_previous_state_ingestion(current):
+    """Último lote estadual anterior, sem misturar municípios ou snapshots."""
+    from google.cloud import bigquery
+    table = f"{PROJECT_ID}.{DATASET_ID}.gtrends_monitoramento_cidades"
+    query = f"""
+        WITH previous AS (
+          SELECT ingestao_id, MAX(hora_ingestao) AS last_seen FROM `{table}`
+          WHERE resolucao = 'REGION' AND job = 'estados'
+            AND ingestao_id != @current_id
+            AND hora_ingestao >= TIMESTAMP_SUB(@current_time, INTERVAL 48 HOUR)
+          GROUP BY ingestao_id
+          HAVING MAX(hora_ingestao) < @current_time
+          ORDER BY last_seen DESC, ingestao_id DESC LIMIT 1
+        )
+        SELECT source.* FROM `{table}` AS source
+        JOIN previous USING (ingestao_id)
+        WHERE source.resolucao = 'REGION' AND source.job = 'estados'
+        ORDER BY uf, termo
+    """
+    config = bigquery.QueryJobConfig(query_parameters=[
+        bigquery.ScalarQueryParameter('current_id', 'STRING', current['ingestao_id']),
+        bigquery.ScalarQueryParameter('current_time', 'TIMESTAMP', current['hora_ingestao']),
+    ])
+    try:
+        rows = [dict(row.items()) for row in _client().query(query, job_config=config).result()]
+    except Exception as error:
+        raise BigQueryUnavailable("Falha ao consultar lote estadual anterior") from error
+    if not rows:
+        return {'rows': [], 'hora_ingestao': None, 'ingestao_id': None}
+    ids = {row.get('ingestao_id') for row in rows}
+    if len(ids) != 1 or None in ids or current['ingestao_id'] in ids:
+        raise BigQueryUnavailable("Lote anterior estadual ambíguo")
+    return {'rows': rows, 'hora_ingestao': max(row['hora_ingestao'] for row in rows),
+            'ingestao_id': next(iter(ids))}
