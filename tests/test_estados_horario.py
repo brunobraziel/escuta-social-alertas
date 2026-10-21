@@ -54,6 +54,7 @@ class StateHourlyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp, patch.dict("os.environ",{"DISCORD_WEBHOOK_URL":"hook"}), \
              patch("tendencias_bq.em_alta_brasil.fetch_latest_ingestion",return_value=latest), \
              patch("tendencias_bq.em_alta_brasil.datetime",Clock), \
+             patch("tendencias_bq.estados.fetch_previous_state_ingestion", return_value={"rows":[],"hora_ingestao":None}), \
              patch("tendencias_bq.em_alta_brasil.send_discord",return_value={"id":"message"}) as send:
             args=["--state",str(Path(temp)/"state.json")]
             run(args); run(args)
@@ -61,3 +62,55 @@ class StateHourlyTests(unittest.TestCase):
             Clock.current += timedelta(hours=1)
             run(args)
             self.assertEqual(send.call_count,2)
+
+
+class MovementTests(unittest.TestCase):
+    def row(self, value, **extra):
+        return dict(uf="CE",termo="SUS",grupo="SAUDE",periodo="now 7-d",indice_vs_ancora=value,eh_ancora=False,**extra)
+
+    def test_increase_decrease_and_flat_are_index_changes(self):
+        from tendencias_bq.estados import movement, comparison_key
+        previous = {comparison_key(self.row(20)):self.row(20)}
+        self.assertEqual(movement(self.row(25),previous),'↑ (+25,0%)')
+        self.assertEqual(movement(self.row(15),previous),'↓ (-25,0%)')
+        self.assertEqual(movement(self.row(20),previous),'→ (0,0%)')
+
+    def test_missing_zero_and_wrong_state_group_period_do_not_invent_percent(self):
+        from tendencias_bq.estados import movement, comparison_key
+        current = self.row(25)
+        self.assertIn('sem base',movement(current,{}))
+        self.assertIn('base zero',movement(current,{comparison_key(current):self.row(0)}))
+        for field,value in [('uf','SP'),('grupo','OUTRO'),('periodo','now 1-d')]:
+            previous = self.row(20);previous[field]=value
+            self.assertIn('sem base',movement(current,{comparison_key(previous):previous}))
+
+    def test_render_compares_against_full_previous_batch_not_only_old_top_four(self):
+        current=self.row(25);previous=self.row(20)
+        now=datetime(2026,10,21,14,tzinfo=timezone.utc)
+        report=render([current],now,previous_rows=[previous],previous_ingestion_time=now-timedelta(hours=3))
+        self.assertIn('• *SUS* ↑ (+25,0%)',report['whatsapp_message'])
+        self.assertIn('21/10 às 08:00',report['whatsapp_message'])
+        self.assertIn('não da quantidade absoluta',report['whatsapp_message'])
+        self.assertIn('↑ (+25,0%)',report['message']+report['details_message'])
+
+    def test_reader_selects_previous_batch_with_parameters_and_region_only(self):
+        stamp=datetime(2026,10,21,14,tzinfo=timezone.utc)
+        client=Mock(); client.query.return_value.result.return_value=[dict(ingestao_id='old',hora_ingestao=stamp-timedelta(hours=3))]
+        with patch('tendencias_bq.bigquery._client',return_value=client):
+            result=bigquery.fetch_previous_state_ingestion({'ingestao_id':'new','hora_ingestao':stamp})
+        self.assertEqual(result['ingestao_id'],'old')
+        sql=client.query.call_args.args[0]
+        self.assertIn('MAX(hora_ingestao) < @current_time',sql)
+        self.assertIn("resolucao = 'REGION'",sql)
+        self.assertIn('ingestao_id != @current_id',sql)
+        self.assertEqual(client.query.call_args.kwargs['job_config'].query_parameters[0].value,'new')
+
+
+class LargeMovementMessageTests(unittest.TestCase):
+    def test_all_states_with_zero_baseline_fit_without_omitting_topics(self):
+        rows=[dict(uf=uf,termo=f'Termo de busca bastante longo numero {i}',indice_vs_ancora=10+i,eh_ancora=False,grupo='a',periodo='now 7-d') for uf in STATE_NAMES for i in range(4)]
+        now=datetime.now(timezone.utc)
+        report=render(rows,now,previous_rows=[dict(r,indice_vs_ancora=0) for r in rows],previous_ingestion_time=now-timedelta(hours=3))
+        self.assertEqual(report['whatsapp_message'].count('base zero; sem %'),108)
+        self.assertLessEqual(len(report['message']),2700)
+        self.assertLessEqual(len(report['details_message']),2700)

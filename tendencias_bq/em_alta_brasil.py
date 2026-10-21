@@ -135,7 +135,7 @@ def _timestamp(value):
     return value.isoformat() if hasattr(value, "isoformat") else value
 
 
-def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hourly=False):
+def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hourly=False, comparison_reader=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test", action="store_true")
@@ -155,7 +155,12 @@ def run(argv=None, *, table_id=ALERT_ID, alert_id=ALERT_ID, renderer=render, hou
             print(f"Sem ingestão recente para {table_id}; nenhum alerta enviado.")
         return
 
-    report = renderer(rows, latest["hora_ingestao"])
+    if comparison_reader is not None:
+        previous = comparison_reader(latest)
+        report = renderer(rows, latest["hora_ingestao"],
+                          previous_rows=previous['rows'], previous_ingestion_time=previous['hora_ingestao'])
+    else:
+        report = renderer(rows, latest["hora_ingestao"])
     ingestion_fingerprint = hashlib.sha256(
         f"{_timestamp(latest['hora_ingestao'])}:{latest['ingestao_id']}".encode("utf-8")
     ).hexdigest()
