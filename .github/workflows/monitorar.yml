@@ -88,6 +88,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           MESSAGE_URL: ${{ inputs.message_url }}
           ETL_RUN_URL: ${{ inputs.etl_run_url }}
+          TRENDS_AI_ENABLED: ${{ vars.TRENDS_AI_ENABLED }}
         run: |
           if [ -n "$ETL_RUN_URL" ]; then
             if [[ ! "$ETL_RUN_URL" =~ ^https://github\.com/brunobraziel/escuta-social-etl/actions/runs/[0-9]+$ ]]; then

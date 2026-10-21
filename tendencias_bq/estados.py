@@ -35,17 +35,8 @@ def movement(row, previous):
     return f'{arrow} ({percent}%)'
 
 
-def render(rows, ingestion_time, *, previous_rows=(), previous_ingestion_time=None):
+def ranked_states(rows):
     states = defaultdict(dict)
-    previous = {}
-    ambiguous = set()
-    for row in previous_rows:
-        key = comparison_key(row)
-        if key in previous:
-            ambiguous.add(key)
-        previous[key] = row
-    for key in ambiguous:
-        previous.pop(key, None)
     for row in rows:
         uf = str(row.get("uf") or "").strip().upper()
         term = " ".join(str(row.get("termo") or "").split())
@@ -58,26 +49,47 @@ def render(rows, ingestion_time, *, previous_rows=(), previous_ingestion_time=No
         current = states[uf].get(key)
         if current is None or float(index) > float(current['indice_vs_ancora']):
             states[uf][key] = row
+    return {uf: sorted(terms.values(), key=lambda row: (-float(row['indice_vs_ancora']), str(row['termo']).casefold()))[:5]
+            for uf, terms in states.items()}
+
+
+def render(rows, ingestion_time, *, previous_rows=(), previous_ingestion_time=None, analysis=None):
+    from .analise_ia import summary_block
+    states = ranked_states(rows)
+    previous = {}
+    ambiguous = set()
+    for row in previous_rows:
+        key = comparison_key(row)
+        if key in previous:
+            ambiguous.add(key)
+        previous[key] = row
+    for key in ambiguous:
+        previous.pop(key, None)
     stamp = ingestion_time.isoformat() if hasattr(ingestion_time, "isoformat") else str(ingestion_time)
     updated = datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(ZoneInfo("America/Fortaleza")).strftime("%d/%m às %H:%M")
     now = datetime.now(timezone.utc).astimezone(ZoneInfo("America/Fortaleza")).strftime("%d/%m às %H:%M")
-    blocks = ["📍 *Tópicos monitorados por estado*", f"*Resumo:* {now}\n*Dados coletados:* {updated} — Brasília\nAté 4 termos por estado, ordenados por interesse relativo à mesma referência."]
+    blocks = ["📍 *Tópicos monitorados por estado*", f"*Resumo:* {now}\n*Dados coletados:* {updated} — Brasília\nAté 5 termos por estado, ordenados por interesse relativo à mesma referência."]
     if previous_ingestion_time:
         prior = previous_ingestion_time.isoformat() if hasattr(previous_ingestion_time, 'isoformat') else str(previous_ingestion_time)
         prior = datetime.fromisoformat(prior.replace('Z', '+00:00')).astimezone(ZoneInfo('America/Fortaleza')).strftime('%d/%m às %H:%M')
         blocks.append(f'*Comparação:* coleta de {prior} → {updated}.\nSetas e % indicam variação do índice relativo, não da quantidade absoluta de buscas.')
     else:
         blocks.append('Sem coleta anterior comparável. Setas e % aparecerão quando houver base.')
+    summary = summary_block(analysis)
+    if summary:
+        blocks.append(summary)
     discord_blocks = blocks.copy()
     for uf, name in sorted(STATE_NAMES.items(), key=lambda pair: pair[1]):
-        terms = sorted(states[uf].values(), key=lambda row: (-float(row['indice_vs_ancora']), str(row['termo']).casefold()))[:4]
-        topics = ["• *" + _display(row['termo'], 60) + "* " + movement(row, previous) for row in terms]
+        terms = states.get(uf, [])
+        topics = [f"{n}. *" + _display(row['termo'], 60) + "* " + movement(row, previous) for n, row in enumerate(terms, 1)]
         if not topics:
             topics = ["• Sem índice válido disponível neste lote."]
         header = f"📍 *{name} ({uf})*\n"
         blocks.append(header + "\n".join(topics))
-        compact = ["• *" + _display(row['termo'], 14) + "* " + movement(row, previous).replace('base zero; sem %', 'base 0') for row in terms] if terms else topics
-        discord_blocks.append(header + "\n".join(compact))
+        # Uma linha por UF no Discord; WhatsApp mantém cinco linhas numeradas.
+        compact = [f"{n}." + _display(row['termo'], 12) + " " + movement(row, previous).replace('base zero; sem %', 'base 0').replace('— (sem base)', 's/base')
+                   for n, row in enumerate(terms, 1)]
+        discord_blocks.append(f"*{uf}* " + (' · '.join(compact) if compact else 'Sem índice válido.'))
     blocks.append("_Fonte: Google Trends / BigQuery. Ranking restrito aos termos monitorados; não mede volume absoluto nem intenção de voto. O envio horário pode reutilizar o último lote._")
     discord_blocks.append(blocks[-1])
 
@@ -96,7 +108,7 @@ def render(rows, ingestion_time, *, previous_rows=(), previous_ingestion_time=No
 
 
 def run(argv=None):
-    return run_alert(argv, table_id="gtrends_monitoramento_cidades", alert_id=ALERT_ID, renderer=render, hourly=True, comparison_reader=fetch_previous_state_ingestion)
+    return run_alert(argv, table_id="gtrends_monitoramento_cidades", alert_id=ALERT_ID, renderer=render, hourly=True, comparison_reader=fetch_previous_state_ingestion, ai_kind="estados")
 
 
 if __name__ == "__main__":

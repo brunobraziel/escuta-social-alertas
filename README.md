@@ -151,3 +151,31 @@ Não cria mensagens de status de ETL no WhatsApp.
 No repositório ETL, `ALERTAS_DISPATCH_TOKEN` deve conter um fine-grained PAT
 com acesso apenas a este repositório e permissão `Actions: write`. Não usar
 a credencial local do GitHub CLI nem um token com acesso a todos os repositórios.
+
+### Síntese de IA e consultas agrupadas
+
+Os dois alertas de BigQuery podem usar Gemini 3.1 Flash-Lite via Vertex AI no projeto
+`escuta-whatsapp-261018`, endpoint global. `TRENDS_AI_ENABLED=true` habilita a camada;
+a credencial é a WIF de WhatsApp/IA, separada do BigQuery. A IA não consulta SerpAPI,
+nem busca notícias. O ranking estadual mostra até cinco termos válidos por UF,
+ordenados pelo índice relativo; a IA não altera os índices, percentuais ou ranking.
+
+Cada mensagem acrescenta no máximo uma observação e uma interpretação de até 170
+caracteres cada. Consultas similares podem ser agrupadas somente dentro da mesma
+busca-base, macrotema e geografia, com intenção e similaridade compatíveis. Os
+termos originais continuam visíveis na linha `Agrupadas:`. Não se somam índices ou
+posições; perguntas sobre criação, aumento, consulta e cadastro permanecem distintas.
+O WhatsApp mantém as variantes completas dos quatro grupos selecionados por base;
+o Discord usa uma versão compacta. Nenhuma tabela ou linha do BigQuery é modificada.
+
+O cache persistido em `alert-state/state.json` identifica lote atual, lote anterior,
+tipo de alerta e versão do analisador; reenvios horários reutilizam a mesma análise.
+A aplicação reserva US$0,02 ANTES de cada chamada (incluindo timeouts/falhas) e bloqueia
+novas chamadas ao chegar a US$3. Limites: 40.000 bytes por requisição, 4.096 tokens de
+saída, sem ferramentas, sem grounding e sem retries de geração. São limites conservadores
+pelas tarifas globais padrão de US$0,25/M entrada e US$1,50/M saída, verificadas em
+21/10/2026: https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing
+Esse teto da aplicação não substitui o faturamento ou orçamento global do projeto.
+As chamadas encerram em 25/10/2026 às 00h de Fortaleza. Falha, resposta inválida ou
+limite atingido preservam o alerta com dados originais e agrupamento básico de grafia.
+`dry-run` não chama IA nem envia mensagens.

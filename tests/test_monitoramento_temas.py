@@ -27,8 +27,8 @@ class MonitoramentoTemasTests(unittest.TestCase):
         text = report["whatsapp_message"]
         self.assertIn("Brasil", text)
         self.assertIn("*Saúde*", text)
-        self.assertEqual(text.count("• *consulta A*"), 1)
-        self.assertLess(text.index("• *consulta B*"), text.index("• *consulta A*"))
+        self.assertEqual(text.count("*consulta A*"), 1)
+        self.assertLess(text.index("1. *consulta B*"), text.index("2. *consulta A*"))
         self.assertNotIn("por estado", text)
         self.assertNotIn("vol.", text)
 
@@ -37,7 +37,7 @@ class MonitoramentoTemasTests(unittest.TestCase):
         report = render(rows, datetime.now(timezone.utc))
         self.assertLessEqual(len(report["message"]), 2700)
         self.assertLessEqual(len(report["details_message"]), 2700)
-        self.assertEqual(report["whatsapp_message"].count("• *Consulta"), 92)
+        self.assertEqual(sum(report["whatsapp_message"].count(f"{n}. *Consulta") for n in range(1,5)), 92)
 
     def test_runner_queries_new_table_and_uses_new_state_namespace(self):
         with patch("tendencias_bq.monitoramento_temas.run_alert") as runner:
