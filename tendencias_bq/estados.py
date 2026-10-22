@@ -104,6 +104,7 @@ def render(rows, ingestion_time, *, previous_rows=(), previous_ingestion_time=No
             "url": BIGQUERY_URL, "published": stamp, "message": sections[0],
             "details_message": sections[1] if len(sections) > 1 else "",
             "whatsapp_message": "\n\n".join(blocks),
+            "whatsapp_presentation": "states",
             "footer": "Fonte: analise_redes.gtrends_monitoramento_cidades · recorte REGION"}
 
 

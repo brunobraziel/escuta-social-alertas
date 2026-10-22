@@ -47,7 +47,7 @@ def render(rows, ingestion_time, *, analysis=None):
     return {"title": "Consultas relacionadas — Trends Monitor", "alert_title": "Consultas relacionadas por tema",
             "url": BIGQUERY_URL, "published": stamp, "message": sections[0],
             "details_message": sections[1] if len(sections) > 1 else "",
-            "whatsapp_message": text, "footer": "Fonte: BigQuery · analise_redes.gtrends_monitoramento_temas"}
+            "whatsapp_message": text, "whatsapp_presentation": "related", "footer": "Fonte: BigQuery · analise_redes.gtrends_monitoramento_temas"}
 
 
 def run(argv=None):

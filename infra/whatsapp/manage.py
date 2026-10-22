@@ -4,19 +4,21 @@ import json
 from pathlib import Path
 import re
 import sqlite3
+import secrets
 from urllib.request import Request, urlopen
 
 
-def request(path, accept="application/json"):
+def request(path, accept="application/json", *, body=None, method=None):
     key = Path("/etc/escuta-whatsapp/secrets/waha_api_key").read_text().strip()
-    req = Request("http://127.0.0.1:3000" + path, headers={"X-Api-Key": key, "Accept": accept})
+    req = Request("http://127.0.0.1:3000" + path, headers={"X-Api-Key": key, "Accept": accept, "Content-Type": "application/json"},
+                  data=json.dumps(body).encode() if body is not None else None, method=method)
     with urlopen(req, timeout=30) as response:
         return response.read()
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["status", "qr", "select-group"])
+    parser.add_argument("command", choices=["status", "qr", "select-group", "enable-reactions"])
     parser.add_argument("--name")
     parser.add_argument("--community", help="Require membership in this community")
     args = parser.parse_args()
@@ -27,6 +29,21 @@ def main():
         if dbpath.exists():
             with sqlite3.connect(dbpath) as db:
                 print("Deliveries:", db.execute("SELECT status,COUNT(*) FROM deliveries GROUP BY status").fetchall())
+    elif args.command == "enable-reactions":
+        key_path = Path('/etc/escuta-whatsapp/secrets/reaction_hmac_key')
+        if not key_path.exists():
+            key_path.write_text(secrets.token_hex(32))
+            key_path.chmod(0o600)
+        session = json.loads(request('/api/sessions/default'))
+        config = session.get('config') or {}
+        url = 'http://worker:8080/reactions'
+        hooks = [h for h in config.get('webhooks', []) if h.get('url') != url]
+        hooks.append({'url':url, 'events':['message.reaction'],
+                      'hmac':{'key':key_path.read_text().strip()},
+                      'retries':{'policy':'constant','delaySeconds':3,'attempts':10}})
+        config['webhooks'] = hooks
+        updated = json.loads(request('/api/sessions/default', body={'name':'default','config':config}, method='PUT'))
+        print(json.dumps({'reactions_configured':True,'status':updated.get('status')}))
     elif args.command == "qr":
         target = Path("/tmp/escuta-whatsapp-qr.png")
         target.write_bytes(request("/api/default/auth/qr", "image/png"))

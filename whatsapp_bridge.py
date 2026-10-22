@@ -66,7 +66,7 @@ def flush(session=None):
     return len(list(directory.glob("*.json")))
 
 
-def mirror(payload, receipt, *, kind=None, text=None):
+def mirror(payload, receipt, *, kind=None, text=None, presentation=None):
     source = os.getenv("GITHUB_REPOSITORY", "local")
     topic = os.getenv("WHATSAPP_TOPIC", "")
     if source == "brunobraziel/escuta-social-etl":
@@ -85,6 +85,10 @@ def mirror(payload, receipt, *, kind=None, text=None):
         event = {"version": 1, "event_id": event_id, "source": source,
                  "discord_message_id": str(message_id), "text": text if text is not None else render(payload),
                  "created_at": datetime.now(timezone.utc).isoformat()}
+        if presentation is not None:
+            if presentation not in ("states", "related") or source != "brunobraziel/escuta-social-alertas":
+                raise ValueError("Invalid presentation")
+            event["presentation"] = presentation
         if kind:
             event["kind"] = kind
         directory = outbox()
