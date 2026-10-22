@@ -122,3 +122,39 @@ O workflow manual Validar todos os alertas com dados reais envia uma ocorrência
 elegível por alerta ativo, identificada como validação. Usa estado temporário,
 preserva os filtros de produção e não modifica alert-state. Ausência de notícia,
 pesquisa ou ingestão recente é registrada como validação incompleta.
+
+## Imagens e versão acessível
+
+Os alertas `monitoramento_estados_horario` e `gtrends_monitoramento_temas`
+publicam `presentation=states|related` junto com o texto canônico. O worker
+monta o JPEG dinamicamente, sem chamadas de IA ou SerpAPI, e envia a imagem
+com resumo/comparação/leitura de IA na legenda. Não muda o cron, a fonte,
+o ranking, o agrupamento nem a deduplicação do alerta. Lotes grandes de
+consultas são paginados em imagens, preservando todos os grupos selecionados.
+
+Cada recibo de imagem aponta para uma cópia imutável do texto na SQLite.
+Uma reação ♿ no grupo configurado solicita esse texto, no privado do próprio
+participante. Não há assinatura automática de mensagens futuras. Repetições
+do webhook ou da reação não duplicam a resposta para o mesmo relatório/pessoa.
+Não há resposta a outras reações, grupos ou mensagens. IDs privados são aceitos
+somente pelo receptor interno autenticado; publicações Pub/Sub não podem escolher
+um destinatário privado. O texto é dividido sem descarte quando necessário.
+
+A API interna escuta em `worker:8080/reactions`, sem porta pública. O WAHA
+assina os eventos com HMAC SHA-512. Para ativar depois de atualizar os arquivos:
+
+1. Crie `/etc/escuta-whatsapp/secrets/reaction_hmac_key` aleatória com modo 600.
+2. Reconstrua/recrie somente o worker (`docker-compose up -d --build worker`).
+3. Execute `sudo python3 /opt/escuta-whatsapp/manage.py enable-reactions`.
+   Este comando preserva as demais configurações/webhooks da sessão e registra
+   somente `message.reaction` para a URL interna; nunca imprime a chave.
+4. Confira `manage.py status`, teste ambos os alertas e reaja a uma imagem TESTE.
+   Confirme os recibos da imagem e das partes privadas em `deliveries.sqlite`.
+
+Envios de imagem com resultado ambíguo ficam `uncertain`, sem repetição cega,
+como os envios de texto. Uma falha de renderização mantém o evento pendente;
+não publica silenciosamente o ranking completo no grupo. A SQLite contém os
+relatórios e destinatários e permanece no volume privado já usado pelo worker.
+
+Referência WAHA: https://waha.devlike.pro/docs/how-to/events/#messagereaction
+Botões nativos estão descontinuados; o mecanismo aprovado é a reação ♿.

@@ -102,7 +102,10 @@ def send_discord(webhook, article, site, test=False):
                         whatsapp_text = "*TESTE*\n\n" + whatsapp_text
                     elif article.get("alert_title", "").startswith("VALIDAÇÃO"):
                         whatsapp_text = "*VALIDAÇÃO — dados reais*\n\n" + whatsapp_text
-                    mirror(payload, result, text=whatsapp_text)
+                    mirror_options = {"text": whatsapp_text}
+                    if article.get("whatsapp_presentation"):
+                        mirror_options["presentation"] = article["whatsapp_presentation"]
+                    mirror(payload, result, **mirror_options)
                 else:
                     mirror(payload, result)
                 return {"id": result["id"], "channel_id": result.get("channel_id")}
