@@ -90,7 +90,7 @@ def render(rows, ingestion_time, *, previous_rows=(), previous_ingestion_time=No
         compact = [f"{n}." + _display(row['termo'], 12) + " " + movement(row, previous).replace('base zero; sem %', 'base 0').replace('— (sem base)', 's/base')
                    for n, row in enumerate(terms, 1)]
         discord_blocks.append(f"*{uf}* " + (' · '.join(compact) if compact else 'Sem índice válido.'))
-    blocks.append("_Fonte: Google Trends / BigQuery. Ranking restrito aos termos monitorados; não mede volume absoluto nem intenção de voto. O envio horário pode reutilizar o último lote._")
+    blocks.append("_Fonte: Google Trends / BigQuery. Ranking restrito aos termos monitorados; não mede volume absoluto nem intenção de voto. Cada lote é enviado uma única vez._")
     discord_blocks.append(blocks[-1])
 
     sections = [""]
@@ -109,7 +109,7 @@ def render(rows, ingestion_time, *, previous_rows=(), previous_ingestion_time=No
 
 
 def run(argv=None):
-    return run_alert(argv, table_id="gtrends_monitoramento_cidades", alert_id=ALERT_ID, renderer=render, hourly=True, comparison_reader=fetch_previous_state_ingestion, ai_kind="estados")
+    return run_alert(argv, table_id="gtrends_monitoramento_cidades", alert_id=ALERT_ID, renderer=render, comparison_reader=fetch_previous_state_ingestion, ai_kind="estados")
 
 
 if __name__ == "__main__":
