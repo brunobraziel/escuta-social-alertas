@@ -113,7 +113,7 @@ def send_one(db, session, waha, group, api_key):
             db.execute('INSERT OR IGNORE INTO accessible_reports VALUES (?,?,?)',
                        (event_id, event['text'], time.time()))
         # Keep summary through IA, without repeating rankings in the group.
-        instruction = '\n\n♿ Para receber este relatório completo em texto no privado, toque na reação ♿ que já aparece abaixo da imagem e selecione ♿.'
+        instruction = '\n\n♿ Reaja a esta imagem com ♿ para receber o texto completo no privado.'
         caption = header + instruction
         if len(caption) > 2000:
             raise ValueError('Caption exceeds readable limit')

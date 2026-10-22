@@ -63,7 +63,7 @@ class MediaTests(unittest.TestCase):
         self.assertEqual(self.db.execute('SELECT status FROM image_reactions').fetchone()[0],'sent')
         self.assertFalse(worker.seed_reaction(self.db,http,'http://waha','key'))
         self.assertFalse(worker.accept_reaction(self.db,self.reaction(fromMe=True),'123@g.us'))
-        self.assertIn('toque na reação ♿',http.post.call_args.kwargs['json']['caption'])
+        self.assertIn('Reaja a esta imagem com ♿ para receber o texto completo no privado.',http.post.call_args.kwargs['json']['caption'])
     def test_reaction_retry_never_resends_confirmed_image(self):
         worker.accept(self.db,self.event(state_text()))
         http=Mock();http.get.return_value.json.return_value={'status':'WORKING'}
