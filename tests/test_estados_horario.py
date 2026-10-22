@@ -43,7 +43,7 @@ class StateHourlyTests(unittest.TestCase):
         self.assertLessEqual(len(report["details_message"]),2700)
         self.assertEqual(sum(report["whatsapp_message"].count(f"{n}. *") for n in range(1,6)),135)
 
-    def test_same_batch_repeats_next_hour_but_not_within_same_hour(self):
+    def test_same_batch_is_not_repeated_next_hour_and_new_batch_sends(self):
         class Clock(datetime):
             current = datetime(2026,10,20,15,tzinfo=timezone.utc)
             @classmethod
@@ -61,7 +61,34 @@ class StateHourlyTests(unittest.TestCase):
             self.assertEqual(send.call_count,1)
             Clock.current += timedelta(hours=1)
             run(args)
+            self.assertEqual(send.call_count,1)
+            latest["ingestao_id"] = "new-batch"
+            latest["hora_ingestao"] += timedelta(hours=1)
+            run(args)
             self.assertEqual(send.call_count,2)
+
+    def test_old_hourly_state_does_not_suppress_new_batch_and_preserves_shared_state(self):
+        import hashlib
+        delivered = datetime(2026,10,22,18,7,tzinfo=timezone.utc)
+        latest = {"rows":[dict(uf="CE",termo="SUS",indice_vs_ancora=50,eh_ancora=False)],
+                  "hora_ingestao":delivered-timedelta(minutes=30),"ingestao_id":"old-batch"}
+        old_hour = hashlib.sha256(f"monitoramento_estados_horario:{delivered:%Y%m%d%H}".encode()).hexdigest()
+        for fresh in (False, True):
+            with self.subTest(fresh=fresh), tempfile.TemporaryDirectory() as temp:
+                path = Path(temp)/"state.json"
+                path.write_text(json.dumps({"monitoramento_estados_horario_latest":old_hour,
+                    "monitoramento_estados_horario_delivered_at":delivered.isoformat(),"sent":["keep"]}))
+                batch = dict(latest)
+                if fresh:
+                    batch.update(ingestao_id="new-batch",hora_ingestao=delivered+timedelta(minutes=10))
+                with patch.dict("os.environ",{"DISCORD_WEBHOOK_URL":"hook"}), \
+                     patch("tendencias_bq.em_alta_brasil.fetch_latest_ingestion",return_value=batch), \
+                     patch("tendencias_bq.estados.fetch_previous_state_ingestion",return_value={"rows":[],"hora_ingestao":None}), \
+                     patch("tendencias_bq.em_alta_brasil.send_discord",return_value={"id":"message"}) as send:
+                    run(["--state",str(path)])
+                    run(["--state",str(path)])
+                self.assertEqual(send.call_count, 1)
+                self.assertEqual(json.loads(path.read_text())["sent"],["keep"])
 
 
 class MovementTests(unittest.TestCase):
