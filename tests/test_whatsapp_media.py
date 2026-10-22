@@ -55,6 +55,26 @@ class MediaTests(unittest.TestCase):
         self.assertIn('♿',body['caption']);self.assertNotIn('text',body)
         self.assertEqual(self.db.execute('SELECT text FROM accessible_reports').fetchone()[0],full)
         self.assertEqual(len(cards.parse_states(full)[1]),27)
+    def test_image_gets_visible_accessibility_reaction_once(self):
+        full,http=self.sent_image()
+        http.put.assert_called_once()
+        body=http.put.call_args.kwargs['json']
+        self.assertEqual(body,{'session':'default','messageId':'true_123@g.us_IMAGE123','reaction':'♿'})
+        self.assertEqual(self.db.execute('SELECT status FROM image_reactions').fetchone()[0],'sent')
+        self.assertFalse(worker.seed_reaction(self.db,http,'http://waha','key'))
+        self.assertFalse(worker.accept_reaction(self.db,self.reaction(fromMe=True),'123@g.us'))
+        self.assertIn('toque na reação ♿',http.post.call_args.kwargs['json']['caption'])
+    def test_reaction_retry_never_resends_confirmed_image(self):
+        worker.accept(self.db,self.event(state_text()))
+        http=Mock();http.get.return_value.json.return_value={'status':'WORKING'}
+        http.post.return_value.json.return_value={'id':'true_123@g.us_IMAGE123'}
+        http.put.side_effect=[TimeoutError(),Mock()]
+        self.assertTrue(worker.send_one(self.db,http,'http://waha','123@g.us','key'))
+        self.assertEqual(self.db.execute('SELECT status FROM deliveries').fetchone()[0],'sent')
+        self.assertTrue(worker.seed_reaction(self.db,http,'http://waha','key'))
+        self.assertFalse(worker.send_one(self.db,http,'http://waha','123@g.us','key'))
+        self.assertEqual(http.post.call_count,1)
+        self.assertEqual(http.put.call_args_list[0].kwargs['json'],http.put.call_args_list[1].kwargs['json'])
     def test_reaction_replies_once_privately_with_same_snapshot(self):
         full,http=self.sent_image()
         self.assertTrue(worker.accept_reaction(self.db,self.reaction(),'123@g.us'))

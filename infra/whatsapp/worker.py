@@ -26,6 +26,9 @@ def connect(path):
         event_id TEXT PRIMARY KEY, text TEXT NOT NULL, created REAL NOT NULL)""")
     db.execute("""CREATE TABLE IF NOT EXISTS report_messages (
         message_id TEXT PRIMARY KEY, event_id TEXT NOT NULL)""")
+    db.execute("""CREATE TABLE IF NOT EXISTS image_reactions (
+        message_id TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'pending',
+        attempts INTEGER NOT NULL DEFAULT 0, updated REAL NOT NULL)""")
     # A crash during an HTTP request can mean it was accepted remotely.
     with db:
         db.execute("UPDATE deliveries SET status='uncertain' WHERE status='sending'")
@@ -110,7 +113,7 @@ def send_one(db, session, waha, group, api_key):
             db.execute('INSERT OR IGNORE INTO accessible_reports VALUES (?,?,?)',
                        (event_id, event['text'], time.time()))
         # Keep summary through IA, without repeating rankings in the group.
-        instruction = '\n\n♿ Reaja a esta imagem com ♿ para receber o texto completo no privado.'
+        instruction = '\n\n♿ Para receber este relatório completo em texto no privado, toque na reação ♿ que já aparece abaixo da imagem e selecione ♿. Não precisa procurar o emoji nem mandar mensagem ao bot.'
         caption = header + instruction
         if len(caption) > 2000:
             raise ValueError('Caption exceeds readable limit')
@@ -150,10 +153,37 @@ def send_one(db, session, waha, group, api_key):
         if image_chunks is not None:
             for message_id in {receipt, message_key(receipt)}:
                 db.execute('INSERT OR IGNORE INTO report_messages VALUES (?,?)', (message_id, event_id))
+            normalized = receipt if receipt.startswith('true_') else 'true_'+group+'_'+message_key(receipt)
+            db.execute('INSERT OR IGNORE INTO image_reactions(message_id,updated) VALUES (?,?)', (normalized,time.time()))
         db.execute("UPDATE deliveries SET status=?,next_part=?,receipts=?,updated=? WHERE event_id=?",
                    ("sent" if index == len(chunks) else "pending", index,
                     json.dumps(receipts), time.time(), event_id))
+    if image_chunks is not None:
+        seed_reaction(db, session, waha, api_key)
     logging.info("WhatsApp confirmação event=%s parte=%d/%d", event_id, index, len(chunks))
+    return True
+
+
+def seed_reaction(db, session, waha, api_key):
+    """PUT of the same emoji is idempotent; never resend the image to retry it."""
+    row = db.execute("SELECT message_id,attempts FROM image_reactions WHERE status='pending' AND attempts<3 ORDER BY updated LIMIT 1").fetchone()
+    if not row: return False
+    message_id,attempts = row
+    try:
+        response = session.put(waha+'/api/reaction', headers={'X-Api-Key':api_key},
+                               json={'session':'default','messageId':message_id,'reaction':'♿'}, timeout=30)
+        response.raise_for_status()
+    except Exception as exc:
+        attempts += 1
+        with db:
+            db.execute('UPDATE image_reactions SET attempts=?,status=?,updated=? WHERE message_id=?',
+                       (attempts,'failed' if attempts>=3 else 'pending',time.time(),message_id))
+        logging.warning('WhatsApp reação acessível pendente (%s)',type(exc).__name__)
+        if attempts>=3:
+            notify_health('⚠️ **WhatsApp — acessibilidade**\nA imagem foi enviada, mas não foi possível adicionar a reação ♿ automaticamente. A legenda ainda permite solicitar o texto reagindo com ♿.')
+        return False
+    with db:
+        db.execute("UPDATE image_reactions SET status='sent',attempts=?,updated=? WHERE message_id=?",(attempts+1,time.time(),message_id))
     return True
 
 
@@ -283,6 +313,8 @@ def main():
                     if not send_one(db, http, waha, group, api_key):
                         break
                     time.sleep(3)
+            for _ in range(3):
+                if not seed_reaction(db, http, waha, api_key): break
             if time.time() - last_health >= 300:
                 last_health = time.time()
                 health = http.get(waha + "/api/sessions/default", headers={"X-Api-Key": api_key}, timeout=10)

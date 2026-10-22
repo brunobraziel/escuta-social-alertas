@@ -158,3 +158,8 @@ relatórios e destinatários e permanece no volume privado já usado pelo worker
 
 Referência WAHA: https://waha.devlike.pro/docs/how-to/events/#messagereaction
 Botões nativos estão descontinuados; o mecanismo aprovado é a reação ♿.
+
+Após confirmar cada imagem, o bot adiciona a própria reação ♿ por `PUT /api/reaction`.
+A legenda explica usar essa reação para solicitar o texto no privado. Reações do
+próprio bot são ignoradas. A fila `image_reactions` registra a confirmação e permite
+até três tentativas idempotentes da reação, sem reenviar a imagem já confirmada.

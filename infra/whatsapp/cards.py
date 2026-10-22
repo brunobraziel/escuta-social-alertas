@@ -166,7 +166,7 @@ def state_images(full):
     y=h-240
     text(d,(70,y),'↑ Subiu   ↓ Caiu   → Estável • Variação do índice relativo, não de buscas absolutas.',34,w-140)
     text(d,(70,y+70),'Ranking entre termos monitorados. Comparação, resumo e leitura de IA na legenda.',32,w-140,color=MUTED)
-    text(d,(70,y+135),'Versão acessível em texto no privado: veja a instrução na legenda.',32,w-140,color=MUTED)
+    text(d,(70,y+135),'Texto completo no privado: use a reação de acessibilidade abaixo da imagem.',32,w-140,color=MUTED)
     return [jpeg(im)], header
 
 
@@ -218,7 +218,7 @@ def related_images(full):
             y+=hh+28
         text(d,(margin+20,y+20),'Consultas no buscador não são afirmações verificadas. Não indicam apoio ou rejeição.',31,inner-40)
         text(d,(margin+20,y+110),'Fonte: Google Trends • Variantes visíveis; posições e índices não são somados.',28,inner-40,color=MUTED)
-        text(d,(margin+20,y+185),'Para receber o relatório em texto no privado, veja a legenda.',28,inner-40,color=MUTED)
+        text(d,(margin+20,y+185),'Texto no privado: use a reação de acessibilidade abaixo da imagem.',28,inner-40,color=MUTED)
         results.append(jpeg(im))
     return results,header
 
