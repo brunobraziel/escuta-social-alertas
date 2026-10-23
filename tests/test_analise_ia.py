@@ -77,7 +77,7 @@ class AnalysisTests(unittest.TestCase):
     def test_five_ranked_terms_all_states_and_short_summary_fit_channels(self):
         rows=[dict(uf=uf,termo=f'Termo {i}',indice_vs_ancora=i,eh_ancora=False)
               for uf in STATE_NAMES for i in range(1,8)]
-        analysis={'observacao':'a'*170,'interpretacao':'b'*170}
+        analysis={'observacao':'a'*450,'interpretacao':'b'*450}
         report=render_states(rows,datetime.now(timezone.utc),analysis=analysis)
         text=report['whatsapp_message']
         self.assertEqual(text.count('5. *'),27)
@@ -89,3 +89,20 @@ class AnalysisTests(unittest.TestCase):
         with patch.dict('os.environ', {'TRENDS_AI_ENABLED':''}), patch.object(ai,'_generate') as call:
             self.assertIsNone(ai.analyze(self.rows(),kind='consultas',batch_id='a',state={},persist=Mock()))
             call.assert_not_called()
+
+    def test_expanded_analysis_and_related_source_values(self):
+        rows = self.rows()
+        rows[0].update(valor='+250%', valor_num=250)
+        entries = ai.related_entries(rows)
+        entry = next(e for e in entries if e['term'] == rows[0]['consulta'])
+        self.assertEqual((entry['list'], entry['value'], entry['numeric_value']),
+                         ('em alta', '+250%', 250))
+        result = self.result(rows)
+        result.update(observacao='a' * 450, interpretacao='b' * 450)
+        validated = ai.validate(result, entries)
+        report = render(rows, datetime.now(timezone.utc), analysis=validated)
+        self.assertIn(result['interpretacao'], report['whatsapp_message'])
+        self.assertLessEqual(len(report['message']), 2700)
+        result['interpretacao'] += 'x'
+        with self.assertRaises(ValueError):
+            ai.validate(result, entries)

@@ -28,7 +28,7 @@ def run(argv=None):
         if args.dry_run:
             print(json.dumps(sample, ensure_ascii=False))
         else:
-            send_discord(webhook, sample, "Teste controlado", test=True)
+            send_discord(webhook, sample, "Teste controlado", test=True, whatsapp=False)
         return
     state_path = Path(args.state)
     state = json.loads(state_path.read_text()) if state_path.exists() else {"sent": []}
@@ -51,7 +51,7 @@ def run(argv=None):
             if args.dry_run:
                 print(json.dumps({"site": site, **article}, ensure_ascii=False))
             else:
-                send_discord(webhook, article, site)
+                send_discord(webhook, article, site, whatsapp=False)
                 seen.add(key)
                 # Persistir a cada confirmação permite salvar entregas mesmo após falha posterior.
                 temporary = state_path.with_suffix(".tmp")

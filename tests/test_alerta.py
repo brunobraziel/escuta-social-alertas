@@ -105,3 +105,16 @@ class AlertTests(unittest.TestCase):
                 main.run(["--state", str(state)])
                 send.assert_not_called()
             self.assertEqual(state.read_text(), original)
+
+    def test_legislative_delivery_stays_on_discord_only(self):
+        article = {"title": "Escala 6x1", "description": "Transição",
+                   "url": "https://g1.globo.com/a", "published": "2026-10-23"}
+        with tempfile.TemporaryDirectory() as folder, \
+             patch.dict("os.environ", {"DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/123/example"}), \
+             patch("acompanhamento_legislativo.run.fetch_feed", return_value=[article]), \
+             patch("urllib.request.urlopen") as discord, patch("whatsapp_bridge.mirror") as mirror:
+            discord.return_value.__enter__.return_value.read.return_value = b'{"id":"123"}'
+            for mode in ([], ["--test"]):
+                main.run(["--site", "g1", "--state", str(Path(folder) / "state.json"), *mode])
+            self.assertEqual(discord.call_count, 2)
+            mirror.assert_not_called()
