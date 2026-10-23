@@ -160,8 +160,12 @@ a credencial é a WIF de WhatsApp/IA, separada do BigQuery. A IA não consulta S
 nem busca notícias. O ranking estadual mostra até cinco termos válidos por UF,
 ordenados pelo índice relativo; a IA não altera os índices, percentuais ou ranking.
 
-Cada mensagem acrescenta no máximo uma observação e uma interpretação de até 170
-caracteres cada. Consultas similares podem ser agrupadas somente dentro da mesma
+Cada mensagem acrescenta uma observação e uma interpretação de até 450 caracteres
+cada, com 2 a 3 frases: movimentos do índice estadual e leitura dos padrões de busca.
+O tom textual só é descrito quando explícito nas palavras; não representa sentimento
+da população, apoio ou intenção de voto. Sem evidência, o tom é indeterminado.
+Consultas nacionais recebem a lista e os valores da fonte; sem lote anterior, a IA
+não afirma quedas ou evolução entre coletas. Consultas similares podem ser agrupadas somente dentro da mesma
 busca-base, macrotema e geografia, com intenção e similaridade compatíveis. Os
 termos originais continuam visíveis na linha `Agrupadas:`. Não se somam índices ou
 posições; perguntas sobre criação, aumento, consulta e cadastro permanecem distintas.
@@ -179,3 +183,6 @@ Esse teto da aplicação não substitui o faturamento ou orçamento global do pr
 As chamadas encerram em 25/10/2026 às 00h de Fortaleza. Falha, resposta inválida ou
 limite atingido preservam o alerta com dados originais e agrupamento básico de grafia.
 `dry-run` não chama IA nem envia mensagens.
+
+O alerta `escala_6x1` é enviado somente ao Discord, inclusive no modo de teste;
+os demais alertas mantêm seu encaminhamento ao WhatsApp.

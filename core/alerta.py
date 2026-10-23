@@ -63,7 +63,7 @@ def fetch_feed(url, allowed_hosts, hours=48, predicate=matches, description_limi
     return sorted(articles, key=lambda x: x["published"], reverse=True)
 
 
-def send_discord(webhook, article, site, test=False):
+def send_discord(webhook, article, site, test=False, *, whatsapp=True):
     import time
     from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
     webhook = webhook.strip()
@@ -95,6 +95,8 @@ def send_discord(webhook, article, site, test=False):
                 result = json.load(response)
                 if not result.get("id"):
                     raise RuntimeError("Discord não confirmou a mensagem")
+                if not whatsapp:
+                    return {"id": result["id"], "channel_id": result.get("channel_id")}
                 from whatsapp_bridge import mirror
                 whatsapp_text = article.get("whatsapp_message")
                 if whatsapp_text:
