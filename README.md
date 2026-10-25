@@ -186,3 +186,13 @@ limite atingido preservam o alerta com dados originais e agrupamento básico de 
 
 O alerta `escala_6x1` é enviado somente ao Discord, inclusive no modo de teste;
 os demais alertas mantêm seu encaminhamento ao WhatsApp.
+
+### Top 10 de política no RSS Google Trends
+
+O alerta `politica_google_trends_rss` usa o catálogo e agendamento compartilhados,
+sem nova coleta SerpAPI. Publica até dez grupos disponíveis, com todos os termos
+explícitos, estimativas individuais e comparação com a observação anterior.
+Não soma volumes nem interpreta posição como crescimento. Consulte
+[tendencias_rss/README.md](tendencias_rss/README.md) para filtros, agrupamento,
+deduplicação, limites e validação. Prévia sem envio:
+`python -m tendencias_rss.run --dry-run`.
