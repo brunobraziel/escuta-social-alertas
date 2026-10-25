@@ -187,18 +187,12 @@ limite atingido preservam o alerta com dados originais e agrupamento básico de 
 O alerta `escala_6x1` é enviado somente ao Discord, inclusive no modo de teste;
 os demais alertas mantêm seu encaminhamento ao WhatsApp.
 
-### RSS de política a cada 10 minutos
+### Top 10 de política no RSS Google Trends
 
-O workflow `trends-rss.yml` consulta o RSS público Google Trends Brasil a cada
-10 minutos. Seleciona até cinco assuntos recentes com contexto político no título
-ou nas manchetes associadas, por regras explícitas em `tendencias_rss/run.py`.
-A classificação é heurística e não representa sentimento, apoio ou intenção de voto.
-Empates de data preservam a ordem do feed. As estimativas são reproduzidas como
-informadas pelo Google, sem somar volumes nem calcular crescimento.
-
-O resumo segue a ponte Discord → WhatsApp existente, no mesmo destino configurado.
-Uma lista inalterada é suprimida; alterações de ordem, termos ou estimativas geram
-novo resumo. O estado usa `alert-state`, com a mesma exclusão mútua dos demais
-alertas, e publicações pendentes seguem o outbox existente. O GitHub pode atrasar
-ou omitir disparos agendados. Para prévia sem envio:
+O alerta `politica_google_trends_rss` usa o catálogo e agendamento compartilhados,
+sem nova coleta SerpAPI. Publica até dez grupos disponíveis, com todos os termos
+explícitos, estimativas individuais e comparação com a observação anterior.
+Não soma volumes nem interpreta posição como crescimento. Consulte
+[tendencias_rss/README.md](tendencias_rss/README.md) para filtros, agrupamento,
+deduplicação, limites e validação. Prévia sem envio:
 `python -m tendencias_rss.run --dry-run`.

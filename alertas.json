@@ -37,6 +37,12 @@
         "intervalo_horas": 24,
         "fim_exclusivo": "2026-10-25T00:00:00-03:00"
       }
+    },
+    {
+      "id": "politica_google_trends_rss",
+      "modulo": "tendencias_rss.run",
+      "ativo": true,
+      "descricao": "Até dez assuntos políticos do RSS público, termos similares explícitos e comparação entre coletas; sem SerpAPI"
     }
   ]
 }
