@@ -226,4 +226,66 @@ def related_images(full):
 def render_images(kind, full):
     if kind=='states':return state_images(full)
     if kind=='related':return related_images(full)
+    if kind=='politics':return politics_images(full)
     raise ValueError('Unknown presentation')
+
+
+def parse_politics(full):
+    matches = list(re.finditer(r'(?m)^(\d+)\. \*(.+?)\* · ([^\n]+)\nEstimativa do grupo: ([^\n]+)\nExemplos de termos agrupados:\n', full))
+    cards = []
+    for i, m in enumerate(matches):
+        block = full[m.end():matches[i+1].start() if i+1 < len(matches) else len(full)]
+        terms = re.findall(r'(?m)^• “(.+)”$', block)
+        remaining = re.search(r'(?m)^\+ (\d+) outras variantes', block)
+        if not 1 <= len(terms) <= 5:
+            raise ValueError('Politics requires one to five example terms')
+        cards.append(dict(rank=int(m[1]), title=m[2], move=m[3], estimate=m[4], terms=terms,
+                          remaining=int(remaining[1]) if remaining else 0))
+    if not cards or [c['rank'] for c in cards] != list(range(1, len(cards)+1)) or len(cards) > 10:
+        raise ValueError('Politics ranking must contain up to ten consecutive topics')
+    return full[:matches[0].start()].strip(), cards
+
+
+def politics_images(full):
+    header, cards = parse_politics(full)
+    w, margin, gutter = 2400, 60, 36
+    cw = (w - 2*margin - gutter)//2
+    inner = cw - 64
+    probe = ImageDraw.Draw(Image.new('RGB',(1,1)))
+    def height(c):
+        count = lambda value,size,bold=False: len(wrap(probe,value,font(size,bold),inner))*(size+9)
+        return (40 + count(f"{c['rank']}. {c['title']}",40,True) + 18 + count(c['move'],28)
+                + count('Estimativa: '+c['estimate'],28,True) + 36
+                + sum(count('• '+term,30)+8 for term in c['terms'])
+                + (42 if c['remaining'] else 0) + 35)
+    rows = [cards[i:i+2] for i in range(0,len(cards),2)]
+    heights = [max(height(c) for c in row) for row in rows]
+    h = 300 + sum(v+28 for v in heights) + 245
+    if h > 12000:
+        raise ValueError('Politics image exceeds readable layout limit')
+    im=Image.new('RGB',(w,h),BG);d=ImageDraw.Draw(im)
+    d.rectangle((0,0,w,230),fill='#990B16')
+    d.text((margin,35),f"POLÍTICA NAS BUSCAS • TOP {len(cards)}",font=font(65,True),fill='white')
+    stamp=re.search(r'(?m)^Coleta: (.+)$',header)
+    comparison=re.search(r'(?m)^Comparação com: (.+)$',header)
+    text(d,(margin,130),('TESTE • ' if full.startswith('*TESTE*') else '')+(stamp[1] if stamp else 'Brasil'),30,w-2*margin,color='white')
+    text(d,(margin,180),'Comparação com: '+comparison[1] if comparison else 'Primeira coleta: sem base anterior',28,w-2*margin,color='white')
+    y=275
+    for row,rh in zip(rows,heights):
+        for col,c in enumerate(row):
+            x=margin+col*(cw+gutter)
+            d.rounded_rectangle((x,y,x+cw,y+rh),radius=24,fill='white',outline='#F0D9CA',width=3)
+            yy=text(d,(x+32,y+28),f"{c['rank']}. {c['title']}",40,inner,bold=True)+12
+            color='#177660' if c['move'].startswith('↑') else '#B44955' if c['move'].startswith('↓') else MUTED
+            yy=text(d,(x+32,yy),c['move'].replace('🆕','Novo:'),28,inner,color=color)
+            yy=text(d,(x+32,yy),'Estimativa: '+c['estimate'],28,inner,bold=True)+18
+            yy=text(d,(x+32,yy),'TERMOS DE EXEMPLO',24,inner,bold=True,color='#9C1020')+10
+            for term in c['terms']:
+                yy=text(d,(x+32,yy),'• '+term,30,inner)+8
+            if c['remaining']:
+                text(d,(x+32,yy),f"+ {c['remaining']} outras variantes no Google",25,inner,color=MUTED)
+        y+=rh+28
+    text(d,(margin,y+10),'Fonte: Google Trends Em alta • Política • últimas24h • estimativas dos grupos, sem somas.',29,w-2*margin,color=MUTED)
+    text(d,(margin,y+65),'Setas indicam posição no ranking. Consultas não confirmam alegações, apoio ou voto.',29,w-2*margin,color=MUTED)
+    text(d,(margin,y+120),'Reaja com acessibilidade para receber esta versão em texto no seu privado.',29,w-2*margin,bold=True)
+    return [jpeg(im)],header

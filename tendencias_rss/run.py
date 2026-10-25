@@ -14,7 +14,7 @@ from core.alerta import clean, normalize, send_discord
 
 URL = 'https://trends.google.com.br/trending/rss?geo=BR'
 NS = {'ht': 'https://trends.google.com/trending/rss'}
-KEY = 'politica_trending_v2'
+KEY = 'politica_trending_v3'
 TRENDS_URL = 'https://trends.google.com/trending?geo=BR&category=14&hours=24&hl=pt-BR'
 POLITICS = re.compile(r'\b(?:politic[ao]s?|eleic(?:ao|oes)|eleitoral|presidente|presidencial|candidat[ao]s?|governador[a]?|prefeit[ao]|senad[ao]|senador[a]?|deputad[ao]s?|congresso|camara dos deputados|stf|tse|lula|lulinha|bolsonaro|vorcaro|haddad|tarcisio|ciro gomes|joice hasselmann|joao amoedo|debate na globo)\b')
 UNRELATED = re.compile(r'\b(?:loteria|sorteio|timemania|milionaria|dia de sorte|mega sena)\b')
@@ -190,13 +190,8 @@ def render_trending(topics, previous, now):
               'Estimativa pertence ao grupo, não a cada variante; valores não são somados. Setas comparam posição entre coletas, '
               'não volume. Faixas iguais não comprovam estabilidade; entrada/saída não comprova alta/queda. '
               'Consultas podem conter alegações: não confirmam sua veracidade, apoio ou voto.\n' + TRENDS_URL)
-    pages, page = [], header
-    def append(block):
-        nonlocal page
-        if len(page) + len(block) + 2 > 3200:
-            pages.append(page)
-            page = header
-        page += '\n\n' + block
+    blocks = []
+    discord = [header]
     for rank, topic in enumerate(current, 1):
         prior = next(((i, t) for i, t in enumerate(old, 1) if normalize(t['title']) == normalize(topic['title'])), None)
         move = 'sem base anterior' if not previous else '🆕 entrou no Top10'
@@ -204,23 +199,29 @@ def render_trending(topics, previous, now):
             delta = prior[0] - rank
             move = f'↑ subiu {delta} posição(ões)' if delta > 0 else f'↓ caiu {-delta} posição(ões)' if delta < 0 else '→ mesma posição'
         base = f" · antes: {prior[1]['traffic']}" if prior else ''
-        label = f"{rank}. *{topic['title']}* · {move}\nEstimativa do grupo: {topic['traffic']}{base}\nTermos agrupados pelo Google:"
-        chunk = label
+        label = f"{rank}. *{topic['title']}* · {move}\nEstimativa do grupo: {topic['traffic']}{base}\nExemplos de termos agrupados:"
+        examples, seen_examples = [], set()
         for term in topic['terms']:
-            line = f'\n• “{term}”'
-            if len(chunk) + len(line) > 2700:
-                append(chunk)
-                chunk = f"{rank}. *{topic['title']}* — termos (continuação)"
-            chunk += line
-        append(chunk)
-    if len(page) + len(footer) + 2 > 3900:
-        pages.append(page)
-        page = header
-    pages.append(page + '\n\n' + footer)
+            if normalize(term) not in seen_examples:
+                examples.append(term)
+                seen_examples.add(normalize(term))
+            if len(examples) == 5:
+                break
+        block = label + ''.join(f'\n• “{term}”' for term in examples)
+        remaining = len(topic['terms']) - len(examples)
+        if remaining:
+            block += f'\n+ {remaining} outras variantes no Google.'
+        blocks.append(block)
+        discord.append(f"{rank}. {topic['title']} — {topic['traffic']} · {move}")
+    footer = ('📌 Google Trends Em alta · Política · últimas24h. Até5termos de exemplo por tópico. '
+              'Estimativa do grupo; valores não somados. Setas comparam posição, não volume. '
+              'Consultas não confirmam alegações, apoio ou voto.\n' + TRENDS_URL)
+    full = header + '\n\n' + '\n\n'.join(blocks) + '\n\n' + footer
     return [dict(title='Política nas buscas', alert_title='Política nas buscas — Top10 Brasil', url=TRENDS_URL,
-                 published=now.isoformat(), message=f'{p}\nPágina {i}/{len(pages)}',
-                 whatsapp_message=f'{p}\nPágina {i}/{len(pages)}', footer='Google Trends · Política · últimas24h')
-            for i, p in enumerate(pages, 1)]
+                 published=now.isoformat(), message='\n\n'.join(discord)[:3900],
+                 whatsapp_message=full, whatsapp_presentation='politics',
+                 footer='Google Trends · Política · imagem acessível')]
+
 
 
 def save(path, state):
@@ -240,7 +241,7 @@ def run(argv=None):
     path = Path(args.state)
     state = json.loads(path.read_text()) if path.exists() else {'sent': []}
     history = state.get(KEY, {})
-    previous = history.get('observed')
+    previous = history.get('observed') or state.get('politica_trending_v2', {}).get('observed')
     if previous and now - datetime.fromisoformat(previous['at']) > timedelta(hours=48):
         previous = None
     if not topics:

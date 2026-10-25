@@ -63,7 +63,7 @@ def accept(db, event):
         not allowed_event(event) or
         not isinstance(event.get("text"), str) or not 0 < len(event["text"]) <= 30000):
         raise ValueError("Invalid event")
-    if 'destination' in event or event.get('presentation') not in (None, 'states', 'related'):
+    if 'destination' in event or event.get('presentation') not in (None, 'states', 'related', 'politics'):
         raise ValueError('Invalid destination or presentation')
     if event.get('presentation') and event.get('source') != 'brunobraziel/escuta-social-alertas':
         raise ValueError('Media restricted to alert catalog')

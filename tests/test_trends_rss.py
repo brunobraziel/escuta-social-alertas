@@ -56,7 +56,7 @@ class TrendsRssTest(unittest.TestCase):
         self.assertTrue(all(len(p['message'])<4000 for p in pages))
 
 class CompletePoliticsSourceTest(unittest.TestCase):
-    def test_official_category_groups_keep_every_variant(self):
+    def test_official_category_groups_show_five_examples_in_one_image(self):
         from tendencias_rss.run import parse_trending
         rows=[]
         for i in range(12):
@@ -66,14 +66,17 @@ class CompletePoliticsSourceTest(unittest.TestCase):
         topics=parse_trending(raw,NOW)
         self.assertEqual(len(topics),12)
         pages=render(topics,now=NOW)
-        text='\n'.join(p['message'] for p in pages)
+        text='\n'.join(p['whatsapp_message'] for p in pages)
+        self.assertEqual(len(pages),1)
+        self.assertEqual(pages[0]['whatsapp_presentation'],'politics')
         self.assertIn('Top 10',text)
         for t in topics[:10]:
-            for term in t['terms']:self.assertIn(f'“{term}”',text)
+            for term in t['terms'][:5]:self.assertIn(f'“{term}”',text)
+            self.assertNotIn(f'“{t["terms"][5]}”',text)
         self.assertNotIn('consulta 10 variante',text)
         self.assertTrue(all(len(p['message'])<4000 for p in pages))
         self.assertIn('Estimativa do grupo',text)
-        self.assertIn('continuação',text)
+        self.assertIn('outras variantes',text)
 
     def test_missing_complete_source_fails_without_rss_fallback(self):
         from tendencias_rss.run import parse_trending

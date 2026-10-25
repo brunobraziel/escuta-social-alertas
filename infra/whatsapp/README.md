@@ -126,7 +126,7 @@ pesquisa ou ingestão recente é registrada como validação incompleta.
 ## Imagens e versão acessível
 
 Os alertas `monitoramento_estados_horario` e `gtrends_monitoramento_temas`
-publicam `presentation=states|related` junto com o texto canônico. O worker
+publicam `presentation=states|related|politics` junto com o texto canônico. O worker
 monta o JPEG dinamicamente, sem chamadas de IA ou SerpAPI, e envia a imagem
 com resumo/comparação/leitura de IA na legenda. Não muda o cron, a fonte,
 o ranking, o agrupamento nem a deduplicação do alerta. Lotes grandes de
@@ -163,3 +163,5 @@ Após confirmar cada imagem, o bot adiciona a própria reação ♿ por `PUT /ap
 A legenda explica usar essa reação para solicitar o texto no privado. Reações do
 próprio bot são ignoradas. A fila `image_reactions` registra a confirmação e permite
 até três tentativas idempotentes da reação, sem reenviar a imagem já confirmada.
+
+O alerta `politica_google_trends_rss` usa `presentation=politics`: uma imagem com até dez tópicos e até cinco termos de exemplo por tópico, comparação e estimativa por grupo. A reação♿ usa exatamente o mesmo snapshot e fluxo privado descritos acima.

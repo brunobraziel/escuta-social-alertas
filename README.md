@@ -191,8 +191,8 @@ os demais alertas mantêm seu encaminhamento ao WhatsApp.
 
 O alerta `politica_google_trends_rss` lê a página pública Em alta, categoria Política,
 e usa o catálogo e agendamento compartilhados,
-sem nova coleta SerpAPI. Publica os dez grupos políticos de maior estimativa disponíveis, com todos os termos
-explícitos, estimativas individuais e comparação com a observação anterior.
+sem nova coleta SerpAPI. Publica os dez grupos políticos de maior estimativa disponíveis, em uma imagem com até cinco termos de exemplo por tópico, estimativas dos grupos
+e comparação com a observação anterior. Reação ♿ entrega o mesmo resumo em texto no privado.
 Não soma volumes nem interpreta posição como crescimento. Consulte
 [tendencias_rss/README.md](tendencias_rss/README.md) para filtros, agrupamento,
 deduplicação, limites e validação. Prévia sem envio:
