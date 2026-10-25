@@ -14,7 +14,8 @@ from core.alerta import clean, normalize, send_discord
 
 URL = 'https://trends.google.com.br/trending/rss?geo=BR'
 NS = {'ht': 'https://trends.google.com/trending/rss'}
-KEY = 'politica_rss_v1'
+KEY = 'politica_trending_v2'
+TRENDS_URL = 'https://trends.google.com/trending?geo=BR&category=14&hours=24&hl=pt-BR'
 POLITICS = re.compile(r'\b(?:politic[ao]s?|eleic(?:ao|oes)|eleitoral|presidente|presidencial|candidat[ao]s?|governador[a]?|prefeit[ao]|senad[ao]|senador[a]?|deputad[ao]s?|congresso|camara dos deputados|stf|tse|lula|lulinha|bolsonaro|vorcaro|haddad|tarcisio|ciro gomes|joice hasselmann|joao amoedo|debate na globo)\b')
 UNRELATED = re.compile(r'\b(?:loteria|sorteio|timemania|milionaria|dia de sorte|mega sena)\b')
 STOP = set('a o as os de do da dos das e com no na em para por um uma hoje horario ultima ultimo'.split())
@@ -71,16 +72,48 @@ def parse(raw, now=None):
     return sorted(topics, key=lambda t: (-(t['value'] or 0), -datetime.fromisoformat(t['published']).timestamp(), normalize(t['title'])))
 
 
+def parse_trending(raw, now=None):
+    """Dados públicos renderizados pela página Em alta; categoria14=Política."""
+    now = now or datetime.now(timezone.utc)
+    text = raw.decode('utf-8') if isinstance(raw, bytes) else raw
+    match = re.search(r"AF_initDataCallback\(\{key: 'ds:0'.*?data:", text)
+    if not match:
+        raise ValueError('Google Trends: estrutura pública ausente')
+    data, _ = json.JSONDecoder().raw_decode(text[match.end():])
+    if not isinstance(data, list) or len(data) < 2 or not isinstance(data[1], list):
+        raise ValueError('Google Trends: dados inválidos')
+    topics = []
+    for row in data[1]:
+        if not isinstance(row, list) or len(row) < 11:
+            raise ValueError('Google Trends: formato de tópico mudou')
+        if row[2] != 'BR' or 14 not in (row[10] or []):
+            continue
+        if not isinstance(row[6], (int, float)) or not isinstance(row[9], list):
+            raise ValueError('Google Trends: estimativa ou termos inválidos')
+        published = datetime.fromtimestamp(row[3][0], timezone.utc)
+        if not now - timedelta(hours=24) <= published <= now + timedelta(minutes=10):
+            continue
+        title = clean(row[0]).replace('*', '').replace('`', '').replace('@', '＠')
+        terms = list(dict.fromkeys(clean(t).replace('*', '').replace('`', '').replace('@', '＠') for t in [row[0], *row[9]] if isinstance(t, str) and clean(t)))
+        topics.append(dict(title=title, value=row[6], traffic=f'{row[6]:,}+'.replace(',', '.'),
+                           published=published.isoformat(), terms=terms, active=row[4] is None))
+    if not topics:
+        raise ValueError('Google Trends: nenhum tópico político; não substituir por RSS reduzido')
+    return sorted(topics, key=lambda t: (-t['value'], -datetime.fromisoformat(t['published']).timestamp(), normalize(t['title'])))
+
+
 def fetch():
-    req = urllib.request.Request(URL, headers={'User-Agent': 'EscutaSocialAlertas/1.0'})
-    with urllib.request.urlopen(req, timeout=25) as response:
-        raw = response.read(5_000_001)
-    if len(raw) > 5_000_000:
-        raise ValueError('RSS excede limite')
-    return parse(raw)
+    req = urllib.request.Request(TRENDS_URL, headers={'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'pt-BR,pt;q=0.9'})
+    with urllib.request.urlopen(req, timeout=30) as response:
+        raw = response.read(8_000_001)
+    if len(raw) > 8_000_000:
+        raise ValueError('Google Trends excede limite')
+    return parse_trending(raw)
 
 
 def group(topics):
+    if topics and 'terms' in topics[0]:
+        return [[t] for t in topics[:10]]
     groups = []
     for topic in topics:
         target = next((g for g in groups if similar(g[0]['title'], topic['title'])), None)
@@ -92,12 +125,14 @@ def group(topics):
 
 
 def fingerprint(topics):
-    content = [[(t['title'], t['traffic']) for t in g] for g in group(topics)]
+    content = [[(t['title'], t['traffic'], t.get('terms', [])) for t in g] for g in group(topics)]
     return hashlib.sha256(json.dumps(content, ensure_ascii=False).encode()).hexdigest()
 
 
 def render(topics, previous=None, now=None):
     now = now or datetime.now(timezone.utc)
+    if topics and 'terms' in topics[0]:
+        return render_trending(topics, previous, now)
     groups = group(topics)
     old = group(previous['topics']) if previous else []
     stamp = now.astimezone(ZoneInfo('America/Fortaleza')).strftime('%d/%m às %H:%M')
@@ -143,6 +178,49 @@ def render(topics, previous=None, now=None):
              'published': now.isoformat(), 'message': p + (f'\nPágina {i}/{len(pages)}' if len(pages) > 1 else ''),
              'whatsapp_message': p + (f'\nPágina {i}/{len(pages)}' if len(pages) > 1 else ''),
              'footer': 'RSS público Google Trends · estimativas por termo'} for i, p in enumerate(pages, 1)]
+
+
+def render_trending(topics, previous, now):
+    current = topics[:10]
+    old = previous['topics'][:10] if previous else []
+    local = lambda value: datetime.fromisoformat(value).astimezone(ZoneInfo('America/Fortaleza')).strftime('%d/%m às %H:%M')
+    header = f"🏛️ *Política nas buscas — Top {len(current)} Brasil*\nColeta: {local(now.isoformat())} · janela: últimas24h"
+    header += f"\nComparação com: {local(previous['at'])}" if previous else '\nPrimeira coleta desta fonte: sem base anterior.'
+    footer = ('📌 Fonte: Google Trends Em alta · categoria Política. Agrupamentos fornecidos pelo Google; todos os termos listados. '
+              'Estimativa pertence ao grupo, não a cada variante; valores não são somados. Setas comparam posição entre coletas, '
+              'não volume. Faixas iguais não comprovam estabilidade; entrada/saída não comprova alta/queda. '
+              'Consultas podem conter alegações: não confirmam sua veracidade, apoio ou voto.\n' + TRENDS_URL)
+    pages, page = [], header
+    def append(block):
+        nonlocal page
+        if len(page) + len(block) + 2 > 3200:
+            pages.append(page)
+            page = header
+        page += '\n\n' + block
+    for rank, topic in enumerate(current, 1):
+        prior = next(((i, t) for i, t in enumerate(old, 1) if normalize(t['title']) == normalize(topic['title'])), None)
+        move = 'sem base anterior' if not previous else '🆕 entrou no Top10'
+        if prior:
+            delta = prior[0] - rank
+            move = f'↑ subiu {delta} posição(ões)' if delta > 0 else f'↓ caiu {-delta} posição(ões)' if delta < 0 else '→ mesma posição'
+        base = f" · antes: {prior[1]['traffic']}" if prior else ''
+        label = f"{rank}. *{topic['title']}* · {move}\nEstimativa do grupo: {topic['traffic']}{base}\nTermos agrupados pelo Google:"
+        chunk = label
+        for term in topic['terms']:
+            line = f'\n• “{term}”'
+            if len(chunk) + len(line) > 2700:
+                append(chunk)
+                chunk = f"{rank}. *{topic['title']}* — termos (continuação)"
+            chunk += line
+        append(chunk)
+    if len(page) + len(footer) + 2 > 3900:
+        pages.append(page)
+        page = header
+    pages.append(page + '\n\n' + footer)
+    return [dict(title='Política nas buscas', alert_title='Política nas buscas — Top10 Brasil', url=TRENDS_URL,
+                 published=now.isoformat(), message=f'{p}\nPágina {i}/{len(pages)}',
+                 whatsapp_message=f'{p}\nPágina {i}/{len(pages)}', footer='Google Trends · Política · últimas24h')
+            for i, p in enumerate(pages, 1)]
 
 
 def save(path, state):

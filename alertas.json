@@ -42,7 +42,7 @@
       "id": "politica_google_trends_rss",
       "modulo": "tendencias_rss.run",
       "ativo": true,
-      "descricao": "Até dez assuntos políticos do RSS público, termos similares explícitos e comparação entre coletas; sem SerpAPI"
+      "descricao": "Top10 da categoria Política no Google Trends Em alta, todos os termos dos grupos oficiais e comparação entre coletas; sem SerpAPI"
     }
   ]
 }
