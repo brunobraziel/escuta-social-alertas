@@ -54,3 +54,27 @@ class TrendsRssTest(unittest.TestCase):
         pages=render(topics,now=NOW)
         self.assertEqual(len(group(topics)),10)
         self.assertTrue(all(len(p['message'])<4000 for p in pages))
+
+class CompletePoliticsSourceTest(unittest.TestCase):
+    def test_official_category_groups_keep_every_variant(self):
+        from tendencias_rss.run import parse_trending
+        rows=[]
+        for i in range(12):
+            rows.append([f'assunto político {i}',None,'BR',[int(NOW.timestamp())],None,None,100000-i,None,200,[f'consulta {i} variante {j}' for j in range(120)],[14]])
+        rows.append(['futebol',None,'BR',[int(NOW.timestamp())],None,None,999999,None,200,['jogo'],[17]])
+        raw="AF_initDataCallback({key: 'ds:0', hash: '2', data:"+json.dumps([None,rows])+", sideChannel: {}});"
+        topics=parse_trending(raw,NOW)
+        self.assertEqual(len(topics),12)
+        pages=render(topics,now=NOW)
+        text='\n'.join(p['message'] for p in pages)
+        self.assertIn('Top 10',text)
+        for t in topics[:10]:
+            for term in t['terms']:self.assertIn(f'“{term}”',text)
+        self.assertNotIn('consulta 10 variante',text)
+        self.assertTrue(all(len(p['message'])<4000 for p in pages))
+        self.assertIn('Estimativa do grupo',text)
+        self.assertIn('continuação',text)
+
+    def test_missing_complete_source_fails_without_rss_fallback(self):
+        from tendencias_rss.run import parse_trending
+        with self.assertRaises(ValueError):parse_trending('<html>unavailable</html>',NOW)
