@@ -106,3 +106,37 @@ class AnalysisTests(unittest.TestCase):
         result['interpretacao'] += 'x'
         with self.assertRaises(ValueError):
             ai.validate(result, entries)
+
+class PoliticsVertexTest(unittest.TestCase):
+    def topics(self):
+        return [dict(title='Local de votação', traffic='5000+', terms=['local de votação','onde votar']),
+                dict(title='Debate presidencial', traffic='10000+', terms=['debate presidencial','quem ganhou debate'])]
+    def result(self):
+        rows=self.topics()
+        return dict(observacao='As consultas incluem votação e debate presidencial.',
+                    interpretacao='As palavras sugerem dúvidas práticas e interesse no debate, sem indicar intenção de voto.',
+                    evidencias=[ai.politics_entries(rows)[0]['id']],clusters=[])
+    def test_politics_payload_cache_and_shared_budget(self):
+        import json
+        rows=self.topics();state={'trends_ai_reserved_micro_usd':40000};persist=Mock()
+        def generated(payload):
+            self.assertIn('volume_bucket',payload['contents'][0]['parts'][0]['text'])
+            self.assertIn('categoria Política',payload['systemInstruction']['parts'][0]['text'])
+            self.assertEqual(state['trends_ai_reserved_micro_usd'],60000)
+            self.assertTrue(persist.called)
+            return self.result(),{'totalTokenCount':99}
+        with patch.dict('os.environ',{'TRENDS_AI_ENABLED':'true'}),patch.object(ai,'_generate',side_effect=generated) as call:
+            for _ in range(2):
+                self.assertIsNotNone(ai.analyze(rows,kind='politica',batch_id='snapshot',state=state,persist=persist))
+            self.assertEqual(call.call_count,1)
+        self.assertEqual(state['trends_ai_reserved_micro_usd'],60000)
+        entries=ai.politics_entries(rows,list(reversed(rows)))
+        self.assertEqual(entries[0]['previous_rank'],2)
+    def test_failure_is_cached_and_model_cannot_regroup_google(self):
+        rows=self.topics()
+        bad=self.result();bad['clusters']=[[e['id'] for e in ai.politics_entries(rows)]]
+        with patch.dict('os.environ',{'TRENDS_AI_ENABLED':'true'}),patch.object(ai,'_generate',return_value=(bad,{})) as call:
+            state={}
+            for _ in range(2):
+                self.assertIsNone(ai.analyze(rows,kind='politica',batch_id='bad',state=state,persist=Mock()))
+            self.assertEqual(call.call_count,1)

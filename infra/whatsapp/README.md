@@ -165,3 +165,5 @@ próprio bot são ignoradas. A fila `image_reactions` registra a confirmação e
 até três tentativas idempotentes da reação, sem reenviar a imagem já confirmada.
 
 O alerta `politica_google_trends_rss` usa `presentation=politics`: uma imagem com até dez tópicos e até cinco termos de exemplo por tópico, comparação e estimativa por grupo. A reação♿ usa exatamente o mesmo snapshot e fluxo privado descritos acima.
+
+Para `politics`, o cabeçalho canônico pode incluir Observado/Interpretação gerados pelo VertexAI da integração compartilhada. O worker mantém esses textos na legenda e em accessible_reports; a resposta privada usa o mesmo snapshot, sem regenerar IA.

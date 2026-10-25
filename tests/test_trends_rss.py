@@ -81,3 +81,28 @@ class CompletePoliticsSourceTest(unittest.TestCase):
     def test_missing_complete_source_fails_without_rss_fallback(self):
         from tendencias_rss.run import parse_trending
         with self.assertRaises(ValueError):parse_trending('<html>unavailable</html>',NOW)
+
+class PoliticsSummaryTest(unittest.TestCase):
+    def test_vertex_analysis_is_in_caption_and_canonical_private_snapshot(self):
+        import sys
+        sys.path.insert(0,str(Path(__file__).parents[1]/'infra/whatsapp'))
+        from cards import parse_politics
+        t=topic('Local de votação');t['terms']=['local de votação','onde votar']
+        analysis=dict(observacao='Há consultas sobre o local de votação.',interpretacao='As palavras sugerem busca por orientação prática.')
+        report=render([t],now=NOW,analysis=analysis)[0]
+        header,cards=parse_politics(report['whatsapp_message'])
+        for value in analysis.values():
+            self.assertIn(value,header)
+            self.assertIn(value,report['whatsapp_message'])
+        self.assertEqual(report['whatsapp_presentation'],'politics')
+        self.assertEqual(len(cards),1)
+    def test_dedup_before_vertex_and_dry_run_does_not_call_model(self):
+        t=topic('Local de votação');t['terms']=['local de votação','onde votar']
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)/'state.json'
+            with patch('tendencias_rss.run.fetch',return_value=[t]),patch('tendencias_bq.analise_ia.analyze',return_value=None) as ai_call,patch('tendencias_rss.run.send_discord'),patch.dict('os.environ',{'DISCORD_WEBHOOK_URL':'configured','WHATSAPP_TOPIC':'configured'}):
+                run(['--dry-run','--state',str(path)])
+                ai_call.assert_not_called()
+                run(['--state',str(path)])
+                run(['--state',str(path)])
+                self.assertEqual(ai_call.call_count,1)

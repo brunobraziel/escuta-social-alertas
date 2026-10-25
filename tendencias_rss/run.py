@@ -129,10 +129,10 @@ def fingerprint(topics):
     return hashlib.sha256(json.dumps(content, ensure_ascii=False).encode()).hexdigest()
 
 
-def render(topics, previous=None, now=None):
+def render(topics, previous=None, now=None, analysis=None):
     now = now or datetime.now(timezone.utc)
     if topics and 'terms' in topics[0]:
-        return render_trending(topics, previous, now)
+        return render_trending(topics, previous, now, analysis=analysis)
     groups = group(topics)
     old = group(previous['topics']) if previous else []
     stamp = now.astimezone(ZoneInfo('America/Fortaleza')).strftime('%d/%m às %H:%M')
@@ -180,7 +180,7 @@ def render(topics, previous=None, now=None):
              'footer': 'RSS público Google Trends · estimativas por termo'} for i, p in enumerate(pages, 1)]
 
 
-def render_trending(topics, previous, now):
+def render_trending(topics, previous, now, analysis=None):
     current = topics[:10]
     old = previous['topics'][:10] if previous else []
     local = lambda value: datetime.fromisoformat(value).astimezone(ZoneInfo('America/Fortaleza')).strftime('%d/%m às %H:%M')
@@ -190,6 +190,10 @@ def render_trending(topics, previous, now):
               'Estimativa pertence ao grupo, não a cada variante; valores não são somados. Setas comparam posição entre coletas, '
               'não volume. Faixas iguais não comprovam estabilidade; entrada/saída não comprova alta/queda. '
               'Consultas podem conter alegações: não confirmam sua veracidade, apoio ou voto.\n' + TRENDS_URL)
+    from tendencias_bq.analise_ia import summary_block
+    summary = summary_block(analysis)
+    if summary:
+        header += '\n\n' + summary
     blocks = []
     discord = [header]
     for rank, topic in enumerate(current, 1):
@@ -265,6 +269,14 @@ def run(argv=None):
     webhook = os.environ.get('DISCORD_WEBHOOK_URL', '').strip()
     if not webhook or not os.environ.get('WHATSAPP_TOPIC', '').strip():
         raise RuntimeError('Destinos Discord/WhatsApp não configurados')
+    # Dry-run/test não chamam IA. Live usa Vertex existente, cache e teto compartilhados.
+    if not args.test and topics and 'terms' in topics[0]:
+        from tendencias_bq.analise_ia import analyze
+        analysis = analyze(topics, kind='politica', batch_id=key,
+                           previous_rows=previous['topics'] if previous else (),
+                           previous_batch_id=fingerprint(previous['topics']) if previous else None,
+                           state=state, persist=lambda: save(path, state))
+        reports = render(topics, previous, now, analysis=analysis)
     confirmed = history.get('pages', []) if history.get('pending') == key else []
     for index, report in enumerate(reports):
         if not args.test and index in confirmed:

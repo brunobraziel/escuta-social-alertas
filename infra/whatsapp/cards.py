@@ -288,4 +288,5 @@ def politics_images(full):
     text(d,(margin,y+10),'Fonte: Google Trends Em alta • Política • últimas24h • estimativas dos grupos, sem somas.',29,w-2*margin,color=MUTED)
     text(d,(margin,y+65),'Setas indicam posição no ranking. Consultas não confirmam alegações, apoio ou voto.',29,w-2*margin,color=MUTED)
     text(d,(margin,y+120),'Reaja com acessibilidade para receber esta versão em texto no seu privado.',29,w-2*margin,bold=True)
+    text(d,(margin,y+170),'Resumo e interpretação por IA na legenda, quando disponíveis.',26,w-2*margin,color=MUTED)
     return [jpeg(im)],header
