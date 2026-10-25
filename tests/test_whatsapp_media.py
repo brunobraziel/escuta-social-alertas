@@ -132,3 +132,31 @@ class MediaTests(unittest.TestCase):
         finally:server.shutdown();server.server_close()
     def test_publisher_cannot_supply_private_destination(self):
         with self.assertRaises(ValueError):worker.accept(self.db,dict(self.event('test'),destination='5511999999999@c.us'))
+
+class PoliticsMediaTests(MediaTests):
+    # Reuse the production transport/reaction assertions with a politics report.
+    def sent_image(self):
+        from tendencias_rss.run import render_trending
+        topics=[dict(title=f'Tópico político {i}',traffic='5000+',value=5000,
+                     terms=[f'consulta {i} variante {j}' for j in range(12)],
+                     published=datetime.now(timezone.utc).isoformat()) for i in range(1,11)]
+        full=render_trending(topics,None,datetime.now(timezone.utc))[0]['whatsapp_message']
+        worker.accept(self.db,self.event(full,'politics'))
+        http=Mock();http.get.return_value.json.return_value={'status':'WORKING'}
+        http.post.return_value.json.return_value={'key':{'id':'IMAGE123','remoteJid':'123@g.us','fromMe':True}}
+        self.assertTrue(worker.send_one(self.db,http,'http://waha','123@g.us','key'))
+        return full,http
+    def test_image_transport_archives_exact_text_and_no_group_rankings(self):
+        full,http=self.sent_image()
+        body=http.post.call_args.kwargs['json']
+        self.assertIn('/api/sendImage',http.post.call_args.args[0])
+        self.assertNotIn('consulta 1 variante',body['caption'])
+        self.assertIn('♿',body['caption'])
+        self.assertEqual(self.db.execute('SELECT text FROM accessible_reports').fetchone()[0],full)
+        header,topics=cards.parse_politics(full)
+        self.assertEqual(len(topics),10)
+        self.assertTrue(all(len(t['terms'])==5 for t in topics))
+        self.assertNotIn('consulta 1 variante 5',full)
+        images,_=cards.render_images('politics',full)
+        self.assertEqual(len(images),1)
+        self.assertGreater(Image.open(io.BytesIO(images[0])).height,1000)

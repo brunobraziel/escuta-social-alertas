@@ -86,7 +86,7 @@ def mirror(payload, receipt, *, kind=None, text=None, presentation=None):
                  "discord_message_id": str(message_id), "text": text if text is not None else render(payload),
                  "created_at": datetime.now(timezone.utc).isoformat()}
         if presentation is not None:
-            if presentation not in ("states", "related") or source != "brunobraziel/escuta-social-alertas":
+            if presentation not in ("states", "related", "politics") or source != "brunobraziel/escuta-social-alertas":
                 raise ValueError("Invalid presentation")
             event["presentation"] = presentation
         if kind:
